@@ -6,10 +6,14 @@ import hashlib
 import inspect
 import logging
 import time
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 
-from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage, remove_all_tasks_by_type
+from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
+from nv_ingest_api.internal.primitives.ingest_control_message import remove_all_tasks_by_type
 from nv_ingest_api.internal.schemas.meta.udf import UDFStageSchema
 from nv_ingest_api.util.imports.callable_signatures import ingest_callable_signature
 
@@ -31,11 +35,11 @@ class CachedUDF:
 class UDFCache:
     """LRU cache for compiled and validated UDF functions"""
 
-    def __init__(self, max_size: int = 128, ttl_seconds: Optional[int] = 3600):
+    def __init__(self, max_size: int = 128, ttl_seconds: int | None = 3600):
         self.max_size = max_size
         self.ttl_seconds = ttl_seconds
-        self.cache: Dict[str, CachedUDF] = {}
-        self.access_order: List[str] = []  # For LRU tracking
+        self.cache: dict[str, CachedUDF] = {}
+        self.access_order: list[str] = []  # For LRU tracking
 
     def _generate_cache_key(self, udf_function_str: str, udf_function_name: str) -> str:
         """Generate cache key from UDF string and function name"""
@@ -63,7 +67,7 @@ class UDFCache:
             if key in self.access_order:
                 self.access_order.remove(key)
 
-    def get(self, udf_function_str: str, udf_function_name: str) -> Optional[CachedUDF]:
+    def get(self, udf_function_str: str, udf_function_name: str) -> CachedUDF | None:
         """Get cached UDF function if available"""
         self._cleanup_expired()
 
@@ -109,7 +113,7 @@ class UDFCache:
 
         return cache_key
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics"""
         total_uses = sum(udf.use_count for udf in self.cache.values())
         most_used = max(self.cache.values(), key=lambda x: x.use_count, default=None)
@@ -129,7 +133,7 @@ _udf_cache = UDFCache(max_size=128, ttl_seconds=3600)
 def compile_and_validate_udf(udf_function_str: str, udf_function_name: str, task_num: int) -> callable:
     """Compile and validate UDF function (extracted for caching)"""
     # Execute the UDF function string in a controlled namespace
-    namespace: Dict[str, Any] = {}
+    namespace: dict[str, Any] = {}
     try:
         exec(udf_function_str, namespace)
     except Exception as e:
@@ -150,7 +154,7 @@ def compile_and_validate_udf(udf_function_str: str, udf_function_name: str, task
     return udf_function
 
 
-def get_udf_cache_stats() -> Dict[str, Any]:
+def get_udf_cache_stats() -> dict[str, Any]:
     """Get UDF cache performance statistics"""
     return _udf_cache.get_stats()
 

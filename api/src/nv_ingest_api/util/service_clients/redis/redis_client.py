@@ -4,18 +4,19 @@
 
 import json
 import logging
-import time
 import random
-from typing import Any, Callable, Union
+import time
+from collections.abc import Callable
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 import redis
-
-
-from nv_ingest_api.util.service_clients.client_base import MessageBrokerClientBase, FetchMode
+from nv_ingest_api.util.service_clients.client_base import FetchMode
+from nv_ingest_api.util.service_clients.client_base import MessageBrokerClientBase
 
 try:
     from diskcache import Cache
@@ -53,8 +54,8 @@ class RedisClient(MessageBrokerClientBase):
         use_ssl: bool = False,
         redis_allocator: Callable[..., redis.Redis] = redis.Redis,
         fetch_mode: "FetchMode" = None,  # Replace with appropriate default if FetchMode.DESTRUCTIVE is available.
-        cache_config: Optional[Dict[str, Any]] = None,
-        message_ttl_seconds: Optional[int] = 600,
+        cache_config: dict[str, Any] | None = None,
+        message_ttl_seconds: int | None = 600,
     ) -> None:
         """
         Initializes the Redis client with connection pooling, retry/backoff configuration,
@@ -102,7 +103,7 @@ class RedisClient(MessageBrokerClientBase):
         self._use_ssl: bool = use_ssl  # TODO: Implement SSL specifics.
         # If no fetch_mode is provided, assume a default value.
         self._fetch_mode: "FetchMode" = fetch_mode if fetch_mode is not None else FetchMode.DESTRUCTIVE
-        self._message_ttl_seconds: Optional[int] = message_ttl_seconds
+        self._message_ttl_seconds: int | None = message_ttl_seconds
         self._redis_allocator: Callable[..., redis.Redis] = redis_allocator
 
         if self._fetch_mode == FetchMode.NON_DESTRUCTIVE and message_ttl_seconds is None:
@@ -112,7 +113,7 @@ class RedisClient(MessageBrokerClientBase):
             )
 
         # Configure Connection Pool
-        pool_kwargs: Dict[str, Any] = {
+        pool_kwargs: dict[str, Any] = {
             "host": self._host,
             "port": self._port,
             "db": self._db,
@@ -127,10 +128,10 @@ class RedisClient(MessageBrokerClientBase):
         self._pool: redis.ConnectionPool = redis.ConnectionPool(**pool_kwargs)
 
         # Allocate initial client
-        self._client: Optional[redis.Redis] = self._redis_allocator(connection_pool=self._pool)
+        self._client: redis.Redis | None = self._redis_allocator(connection_pool=self._pool)
 
         # Configure Cache if mode requires it
-        self._cache: Optional[Any] = None
+        self._cache: Any | None = None
         if self._fetch_mode == FetchMode.CACHE_BEFORE_DELETE and DISKCACHE_AVAILABLE:
             cache_dir: str = (cache_config or {}).get("directory", DEFAULT_CACHE_DIR)
             self._cache_ttl: int = (cache_config or {}).get("ttl", DEFAULT_CACHE_TTL_SECONDS)
@@ -263,7 +264,7 @@ class RedisClient(MessageBrokerClientBase):
 
     def _check_response(
         self, channel_name: str, timeout: float
-    ) -> Tuple[Optional[Dict[str, Any]], Optional[int], Optional[int]]:
+    ) -> tuple[dict[str, Any] | None, int | None, int | None]:
         """
         Checks for a response from a Redis queue and processes it into a message and its fragmentation metadata.
 
@@ -306,7 +307,7 @@ class RedisClient(MessageBrokerClientBase):
 
     def _fetch_first_or_all_fragments_destructive(
         self, channel_name: str, timeout: float
-    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    ) -> dict[str, Any] | list[dict[str, Any]]:
         """
         Fetches message fragments destructively using BLPOP, returning either a single message
         or a list of fragments if the message is split.
@@ -331,9 +332,9 @@ class RedisClient(MessageBrokerClientBase):
         ValueError
             If JSON decoding fails or if fragment indices are inconsistent.
         """
-        fragments: List[Dict[str, Any]] = []
+        fragments: list[dict[str, Any]] = []
         expected_count: int = 1
-        first_message: Optional[Dict[str, Any]] = None
+        first_message: dict[str, Any] | None = None
         accumulated_fetch_time: float = 0.0
 
         logger.debug(f"Destructive fetch: Popping first item from '{channel_name}' with timeout {timeout:.2f}s")
@@ -407,7 +408,7 @@ class RedisClient(MessageBrokerClientBase):
             logger.warning(f"BLPOP for '{channel_name}' returned unexpected response format: {response}")
             raise ValueError("Unexpected response format from BLPOP")
 
-    def _fetch_fragments_non_destructive(self, channel_name: str, timeout: float) -> List[Dict[str, Any]]:
+    def _fetch_fragments_non_destructive(self, channel_name: str, timeout: float) -> list[dict[str, Any]]:
         """
         Fetches all message fragments non-destructively by polling the Redis list. Uses LINDEX,
         LLEN, and LRANGE to collect fragments, respecting a total timeout.
@@ -437,8 +438,8 @@ class RedisClient(MessageBrokerClientBase):
         """
         start_time: float = time.monotonic()
         polling_delay: float = 0.1
-        expected_count: Optional[int] = None
-        fragments_map: Dict[int, Dict[str, Any]] = {}
+        expected_count: int | None = None
+        fragments_map: dict[int, dict[str, Any]] = {}
 
         logger.debug(f"Starting non-destructive fetch for '{channel_name}' with total timeout {timeout:.2f}s.")
 
@@ -459,7 +460,7 @@ class RedisClient(MessageBrokerClientBase):
             try:
                 if expected_count is None:
                     logger.debug(f"Polling for fragment 0 on '{channel_name}'. Elapsed: {elapsed_time:.2f}s")
-                    frag0_bytes: Optional[bytes] = client.lindex(channel_name, 0)
+                    frag0_bytes: bytes | None = client.lindex(channel_name, 0)
                     if frag0_bytes is not None:
                         try:
                             message = json.loads(frag0_bytes)
@@ -497,7 +498,7 @@ class RedisClient(MessageBrokerClientBase):
                     if current_len >= expected_count:
                         fetch_end_index: int = expected_count - 1
                         logger.debug(f"Fetching full expected range: LRANGE 0 {fetch_end_index}")
-                        raw_potential_fragments: List[bytes] = client.lrange(channel_name, 0, fetch_end_index)
+                        raw_potential_fragments: list[bytes] = client.lrange(channel_name, 0, fetch_end_index)
                         processed_count_this_pass: int = 0
                         for item_bytes in raw_potential_fragments:
                             try:
@@ -546,11 +547,11 @@ class RedisClient(MessageBrokerClientBase):
             )
             raise RuntimeError(f"Internal logic error: Incomplete fragment collection for {channel_name}")
 
-        fragment_list: List[Dict[str, Any]] = list(fragments_map.values())
+        fragment_list: list[dict[str, Any]] = list(fragments_map.values())
         logger.debug(f"Successfully collected {len(fragment_list)} fragments for '{channel_name}' non-destructively.")
         return fragment_list
 
-    def _fetch_fragments_cached(self, channel_name: str, timeout: float) -> List[Dict[str, Any]]:
+    def _fetch_fragments_cached(self, channel_name: str, timeout: float) -> list[dict[str, Any]]:
         """
         Attempts to retrieve cached message fragments; if unsuccessful, fetches destructively from Redis
         and writes the result to cache.
@@ -600,7 +601,7 @@ class RedisClient(MessageBrokerClientBase):
 
     def fetch_message(
         self, channel_name: str, timeout: float = 10, override_fetch_mode: Optional["FetchMode"] = None
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Fetches a complete message from Redis. It handles fragmentation according to the specified
         or configured fetch mode and retries on connection errors.
@@ -652,7 +653,7 @@ class RedisClient(MessageBrokerClientBase):
 
         while True:
             try:
-                fetch_result: Union[Dict[str, Any], List[Dict[str, Any]]]
+                fetch_result: dict[str, Any] | list[dict[str, Any]]
                 if effective_fetch_mode == FetchMode.DESTRUCTIVE:
                     fetch_result = self._fetch_first_or_all_fragments_destructive(channel_name, timeout)
                 elif effective_fetch_mode == FetchMode.NON_DESTRUCTIVE:
@@ -664,7 +665,7 @@ class RedisClient(MessageBrokerClientBase):
 
                 if isinstance(fetch_result, dict):
                     logger.debug(f"{log_prefix}: Received single message directly.")
-                    final_message: Dict[str, Any] = fetch_result
+                    final_message: dict[str, Any] = fetch_result
                 elif isinstance(fetch_result, list):
                     logger.debug(f"{log_prefix}: Received {len(fetch_result)} fragments, combining.")
                     final_message = self._combine_fragments(fetch_result)
@@ -712,7 +713,7 @@ class RedisClient(MessageBrokerClientBase):
                 raise ValueError(f"Unexpected error during fetch: {e}") from e
 
     @staticmethod
-    def _combine_fragments(fragments: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _combine_fragments(fragments: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Combines a list of message fragments into a single message by merging shared metadata
         and concatenating the fragment data lists.
@@ -736,8 +737,8 @@ class RedisClient(MessageBrokerClientBase):
             raise ValueError("Cannot combine empty list of fragments")
 
         fragments.sort(key=lambda x: x.get("fragment", 0))
-        combined_message: Dict[str, Any] = {"data": []}
-        first_frag: Dict[str, Any] = fragments[0]
+        combined_message: dict[str, Any] = {"data": []}
+        first_frag: dict[str, Any] = fragments[0]
 
         for key in ["status", "description", "trace", "annotations"]:
             if key in first_frag:
@@ -757,7 +758,7 @@ class RedisClient(MessageBrokerClientBase):
         self,
         channel_name: str,
         message: str,
-        ttl_seconds: Optional[int] = None,
+        ttl_seconds: int | None = None,
     ) -> None:
         """
         Submits a message to Redis using RPUSH and optionally sets a TTL on the channel key.
@@ -791,7 +792,7 @@ class RedisClient(MessageBrokerClientBase):
                 client: redis.Redis = self.get_client()
                 pipe = client.pipeline()
                 pipe.rpush(channel_name, message)
-                effective_ttl: Optional[int] = ttl_seconds if ttl_seconds is not None else self._message_ttl_seconds
+                effective_ttl: int | None = ttl_seconds if ttl_seconds is not None else self._message_ttl_seconds
                 if effective_ttl is not None and effective_ttl > 0:
                     pipe.expire(channel_name, effective_ttl)
                 pipe.execute()

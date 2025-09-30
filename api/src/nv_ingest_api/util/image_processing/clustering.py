@@ -2,11 +2,10 @@ import logging
 from typing import List
 from typing import Optional
 
-
 logger = logging.getLogger(__name__)
 
 
-def boxes_are_close_or_overlap(b1: List[int], b2: List[int], threshold: float = 10.0) -> bool:
+def boxes_are_close_or_overlap(b1: list[int], b2: list[int], threshold: float = 10.0) -> bool:
     """
     Determine if two bounding boxes either overlap or are within a certain distance threshold.
 
@@ -51,8 +50,8 @@ def boxes_are_close_or_overlap(b1: List[int], b2: List[int], threshold: float = 
 
 
 def group_bounding_boxes(
-    boxes: List[List[int]], threshold: float = 10.0, max_num_boxes: int = 1_000, max_depth: Optional[int] = None
-) -> List[List[int]]:
+    boxes: list[list[int]], threshold: float = 10.0, max_num_boxes: int = 1_000, max_depth: int | None = None
+) -> list[list[int]]:
     """
     Group bounding boxes that either overlap or lie within a given proximity threshold.
 
@@ -139,8 +138,8 @@ def group_bounding_boxes(
 
 
 def combine_groups_into_bboxes(
-    boxes: List[List[int]], groups: List[List[int]], min_num_components: int = 1
-) -> List[List[int]]:
+    boxes: list[list[int]], groups: list[list[int]], min_num_components: int = 1
+) -> list[list[int]]:
     """
     Merge bounding boxes based on grouped indices.
 
@@ -199,7 +198,7 @@ def combine_groups_into_bboxes(
     return combined
 
 
-def remove_superset_bboxes(bboxes: List[List[int]]) -> List[List[int]]:
+def remove_superset_bboxes(bboxes: list[list[int]]) -> list[list[int]]:
     """
     Remove any bounding box that strictly contains another bounding box.
 

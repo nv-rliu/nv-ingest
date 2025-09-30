@@ -4,22 +4,21 @@
 
 # flake8: noqa: E721
 
-import pytest
 from io import StringIO
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
-from nv_ingest.framework.orchestration.process.strategies import (
-    ProcessExecutionStrategy,
-    InProcessStrategy,
-    SubprocessStrategy,
-    create_execution_strategy,
-)
-from nv_ingest.framework.orchestration.execution.options import ExecutionOptions, ExecutionResult
+import pytest
+
+from nv_ingest.framework.orchestration.execution.options import ExecutionOptions
+from nv_ingest.framework.orchestration.execution.options import ExecutionResult
+from nv_ingest.framework.orchestration.process.strategies import InProcessStrategy
+from nv_ingest.framework.orchestration.process.strategies import ProcessExecutionStrategy
+from nv_ingest.framework.orchestration.process.strategies import SubprocessStrategy
+from nv_ingest.framework.orchestration.process.strategies import create_execution_strategy
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipelineInterface
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipelineSubprocessInterface
 from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
-from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import (
-    RayPipelineInterface,
-    RayPipelineSubprocessInterface,
-)
 
 
 class TestProcessExecutionStrategy:

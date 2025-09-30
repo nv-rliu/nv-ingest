@@ -2,17 +2,20 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Dict, Optional
-import ray
+from typing import Any
+from typing import Dict
+from typing import Optional
 
-from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_sink_stage_base import RayActorSinkStage
+import ray
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
 from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
+
+from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_sink_stage_base import RayActorSinkStage
 
 
 @ray.remote
 class DefaultDrainSink(RayActorSinkStage):
-    def __init__(self, config: Any, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: Any, stage_name: str | None = None) -> None:
         super().__init__(config, log_to_stdout=False, stage_name=stage_name)
 
         self._last_sunk_count = 0
@@ -25,7 +28,7 @@ class DefaultDrainSink(RayActorSinkStage):
         return message
 
     @ray.method(num_returns=1)
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         delta = self._sunk_count - self._last_sunk_count
         self._last_sunk_count = self._sunk_count
 

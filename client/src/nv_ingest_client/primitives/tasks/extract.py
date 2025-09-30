@@ -77,10 +77,10 @@ class ExtractTask(Task):
         extract_text: bool = False,
         extract_images: bool = False,
         extract_tables: bool = False,
-        extract_charts: Optional[bool] = None,
-        extract_audio_params: Optional[Dict[str, Any]] = None,
+        extract_charts: bool | None = None,
+        extract_audio_params: dict[str, Any] | None = None,
         extract_images_method: _Type_Extract_Images_Method = "group",
-        extract_images_params: Optional[Dict[str, Any]] = None,
+        extract_images_params: dict[str, Any] | None = None,
         extract_tables_method: _Type_Extract_Tables_Method_PDF = "yolox",
         extract_infographics: bool = False,
         extract_page_as_image: bool = False,
@@ -174,7 +174,7 @@ class ExtractTask(Task):
         info += f"  table_output_format: {self._table_output_format}\n"
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis
         """

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-
 from nv_ingest_api.util.converters.bytetools import base64frombytes
 from nv_ingest_api.util.converters.bytetools import bytesfrombase64
 from nv_ingest_api.util.converters.bytetools import bytesfromhex

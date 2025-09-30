@@ -3,26 +3,31 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import logging
 import functools
 import inspect
+import logging
 import re
-from typing import Any, Optional, Callable, Tuple
+from collections.abc import Callable
 from functools import wraps
+from typing import Any
+from typing import Optional
+from typing import Tuple
 
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
-from nv_ingest_api.internal.primitives.tracing.logging import TaskResultStatus, annotate_task_result
-from nv_ingest_api.util.control_message.validators import cm_ensure_payload_not_null, cm_set_failure
+from nv_ingest_api.internal.primitives.tracing.logging import TaskResultStatus
+from nv_ingest_api.internal.primitives.tracing.logging import annotate_task_result
+from nv_ingest_api.util.control_message.validators import cm_ensure_payload_not_null
+from nv_ingest_api.util.control_message.validators import cm_set_failure
 
 logger = logging.getLogger(__name__)
 
 
 def nv_ingest_node_failure_try_except(  # New name to distinguish
-    annotation_id: Optional[str] = None,
+    annotation_id: str | None = None,
     payload_can_be_empty: bool = False,
     raise_on_failure: bool = False,
     skip_processing_if_failed: bool = True,
-    forward_func: Optional[Callable[[Any], Any]] = None,
+    forward_func: Callable[[Any], Any] | None = None,
 ) -> Callable:
     """
     Decorator that wraps function execution in a try/except block to handle
@@ -44,7 +49,7 @@ def nv_ingest_node_failure_try_except(  # New name to distinguish
         If provided, a function to forward the message when processing is skipped.
     """
 
-    def extract_message_and_prefix(args: Tuple) -> Tuple[Any, Tuple]:
+    def extract_message_and_prefix(args: tuple) -> tuple[Any, tuple]:
         """Extracts control_message and potential 'self' prefix."""
         # (Keep the implementation from the original decorator)
         if args and hasattr(args[0], "get_metadata"):
@@ -168,7 +173,7 @@ def nv_ingest_node_failure_context_manager(
     payload_can_be_empty: bool = False,
     raise_on_failure: bool = False,
     skip_processing_if_failed: bool = True,
-    forward_func: Optional[Callable[[Any], Any]] = None,
+    forward_func: Callable[[Any], Any] | None = None,
 ) -> Callable:
     """
     Decorator that applies a failure context manager around a function processing an IngestControlMessage.
@@ -193,7 +198,7 @@ def nv_ingest_node_failure_context_manager(
         The decorated function.
     """
 
-    def extract_message_and_prefix(args: Tuple) -> Tuple[Any, Tuple]:
+    def extract_message_and_prefix(args: tuple) -> tuple[Any, tuple]:
         """
         Determines if the function is a method (first argument is self) or a standalone function.
         Returns a tuple (control_message, prefix) where prefix is a tuple of preceding arguments to be preserved.

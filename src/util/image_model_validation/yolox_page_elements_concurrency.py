@@ -2,19 +2,21 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-import time
 import csv
-import click
-import signal
+import json
 import os
+import signal
 import sys
+import time
+from collections import defaultdict
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
+
+import click
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from collections import defaultdict
-from typing import Callable
 
 # Make shared benchmarking helpers importable when running this script directly
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -22,14 +24,12 @@ UTIL_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 if UTIL_DIR not in sys.path:
     sys.path.insert(0, UTIL_DIR)
 
-from benchmarking.common_components import (  # noqa: E402
-    essential_headers,
-    encode_image_file_to_data_url,
-    load_image_numpy,
-    build_http_payload_from_data_url,
-    http_post_with_timing,
-    yolox_grpc_infer_with_timing,
-)
+from benchmarking.common_components import build_http_payload_from_data_url  # noqa: E402
+from benchmarking.common_components import encode_image_file_to_data_url
+from benchmarking.common_components import essential_headers
+from benchmarking.common_components import http_post_with_timing
+from benchmarking.common_components import load_image_numpy
+from benchmarking.common_components import yolox_grpc_infer_with_timing
 
 # Global variable to track if the test is running
 running = True

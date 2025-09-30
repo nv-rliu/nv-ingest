@@ -12,7 +12,7 @@ class DummyModel(ModelInterface):
     def format_input(self, data: dict, protocol: str, max_batch_size: int):
         return {"formatted": data, "protocol": protocol, "max_batch_size": max_batch_size}
 
-    def parse_output(self, response, protocol: str, data: Optional[dict] = None, **kwargs):
+    def parse_output(self, response, protocol: str, data: dict | None = None, **kwargs):
         return {"parsed": response, "protocol": protocol, "data": data}
 
     def prepare_data_for_inference(self, data: dict):

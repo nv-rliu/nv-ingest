@@ -2,11 +2,11 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-
 import requests
-
 from nv_ingest_api.internal.schemas.message_brokers.response_schema import ResponseSchema
 from nv_ingest_api.util.service_clients.rest.rest_client import RestClient
 

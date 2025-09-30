@@ -7,8 +7,10 @@ import logging
 import math
 import multiprocessing as mp
 import os
+from collections.abc import Callable
 from threading import Lock
-from typing import Any, Callable, Optional
+from typing import Any
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +80,7 @@ class ProcessWorkerPoolSingleton:
                 max_worker_limit: int = int(os.environ.get("MAX_INGEST_PROCESS_WORKERS", -1))
                 instance = super().__new__(cls)
                 # Determine available CPU count using affinity if possible
-                available: Optional[int] = (
+                available: int | None = (
                     len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else os.cpu_count()
                 )
                 # Use 40% of available CPUs, ensuring at least one worker

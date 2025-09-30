@@ -10,17 +10,14 @@ from unittest import mock
 
 import numpy as np
 import pytest
+from nv_ingest_api.util.image_processing.transforms import base64_to_disk
+from nv_ingest_api.util.image_processing.transforms import base64_to_numpy
+from nv_ingest_api.util.image_processing.transforms import check_numpy_image_size
+from nv_ingest_api.util.image_processing.transforms import ensure_base64_format
+from nv_ingest_api.util.image_processing.transforms import numpy_to_base64
+from nv_ingest_api.util.image_processing.transforms import save_image_to_disk
+from nv_ingest_api.util.image_processing.transforms import scale_image_to_encoding_size
 from PIL import Image
-
-from nv_ingest_api.util.image_processing.transforms import (
-    numpy_to_base64,
-    base64_to_numpy,
-    check_numpy_image_size,
-    scale_image_to_encoding_size,
-    ensure_base64_format,
-    base64_to_disk,
-    save_image_to_disk,
-)
 
 
 # Helper function to create a base64-encoded string from an image
@@ -268,7 +265,7 @@ def test_check_numpy_image_size_invalid_dimensions():
         check_numpy_image_size(img, 50, 50)
 
 
-def generate_base64_image(size: Tuple[int, int]) -> str:
+def generate_base64_image(size: tuple[int, int]) -> str:
     """Helper function to generate a base64-encoded PNG image of a specific size."""
     img = Image.new("RGB", size, color="blue")  # Create a simple blue image
     buffered = io.BytesIO()
@@ -276,7 +273,7 @@ def generate_base64_image(size: Tuple[int, int]) -> str:
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 
-def generate_base64_image_with_format(format: str = "PNG", size: Tuple[int, int] = (100, 100)) -> str:
+def generate_base64_image_with_format(format: str = "PNG", size: tuple[int, int] = (100, 100)) -> str:
     """Helper function to generate a base64-encoded image of a specified format and size."""
     img = Image.new("RGB", size, color="blue")  # Simple blue image
     buffered = io.BytesIO()

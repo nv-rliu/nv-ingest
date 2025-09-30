@@ -7,7 +7,6 @@ import os
 
 from nv_ingest_api.util.converters.formats import ingest_json_results_to_blob
 
-
 sample_result_text_json = """
 [
   {
@@ -93,7 +92,7 @@ def test_json_results_to_blob():
     file_name = "multimodal_test_raw_results.json"
     file_path = os.path.join(current_directory, file_name)
 
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         json_result_raw_data = json.load(file)
         blob_response = ingest_json_results_to_blob(json.dumps(json_result_raw_data))
 

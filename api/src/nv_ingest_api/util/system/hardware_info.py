@@ -1,7 +1,10 @@
 import logging
 import os
 import platform
-from typing import Optional, Dict, Any, Tuple
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 # Try importing psutil, but don't make it a hard requirement if only cgroups are needed
 try:
@@ -63,56 +66,56 @@ class SystemResourceProbe:
             logger.warning("psutil not found. Hyperthreading weight ignored (effectively 1.0).")
 
         # OS Info
-        self.os_logical_cores: Optional[int] = None
-        self.os_physical_cores: Optional[int] = None
-        self.os_sched_affinity_cores: Optional[int] = None
+        self.os_logical_cores: int | None = None
+        self.os_physical_cores: int | None = None
+        self.os_sched_affinity_cores: int | None = None
 
         # Cgroup Info
-        self.cgroup_type: Optional[str] = None
-        self.cgroup_quota_cores: Optional[float] = None
-        self.cgroup_period_us: Optional[int] = None
-        self.cgroup_shares: Optional[int] = None
-        self.cgroup_usage_percpu_us: Optional[list[int]] = None
-        self.cgroup_usage_total_us: Optional[int] = None
+        self.cgroup_type: str | None = None
+        self.cgroup_quota_cores: float | None = None
+        self.cgroup_period_us: int | None = None
+        self.cgroup_shares: int | None = None
+        self.cgroup_usage_percpu_us: list[int] | None = None
+        self.cgroup_usage_total_us: int | None = None
 
         # Memory Info
-        self.os_total_memory_bytes: Optional[int] = None
-        self.cgroup_memory_limit_bytes: Optional[int] = None
-        self.cgroup_memory_usage_bytes: Optional[int] = None
-        self.effective_memory_bytes: Optional[int] = None
+        self.os_total_memory_bytes: int | None = None
+        self.cgroup_memory_limit_bytes: int | None = None
+        self.cgroup_memory_usage_bytes: int | None = None
+        self.effective_memory_bytes: int | None = None
         self.memory_detection_method: str = "unknown"
 
         # --- Result ---
         # Raw limit before potential weighting
-        self.raw_limit_value: Optional[float] = None
+        self.raw_limit_value: float | None = None
         self.raw_limit_method: str = "unknown"
         # Final potentially weighted result
-        self.effective_cores: Optional[float] = None
+        self.effective_cores: float | None = None
         self.detection_method: str = "unknown"  # Method for the final effective_cores
 
         self._detect()
 
     @staticmethod
-    def _read_file_int(path: str) -> Optional[int]:
+    def _read_file_int(path: str) -> int | None:
         """Safely reads an integer from a file."""
         try:
             if os.path.exists(path):
-                with open(path, "r") as f:
+                with open(path) as f:
                     content = f.read().strip()
                     if content:
                         return int(content)
-        except (IOError, ValueError, PermissionError) as e:
+        except (OSError, ValueError, PermissionError) as e:
             logger.debug(f"Failed to read or parse int from {path}: {e}")
         return None
 
     @staticmethod
-    def _read_file_str(path: str) -> Optional[str]:
+    def _read_file_str(path: str) -> str | None:
         """Safely reads a string from a file."""
         try:
             if os.path.exists(path):
-                with open(path, "r") as f:
+                with open(path) as f:
                     return f.read().strip()
-        except (IOError, PermissionError) as e:
+        except (OSError, PermissionError) as e:
             logger.debug(f"Failed to read string from {path}: {e}")
         return None
 
@@ -206,7 +209,7 @@ class SystemResourceProbe:
         return False
 
     @staticmethod
-    def _get_os_affinity() -> Optional[int]:
+    def _get_os_affinity() -> int | None:
         """Gets CPU count via os.sched_getaffinity."""
         if platform.system() != "Linux":
             logger.debug("os.sched_getaffinity is Linux-specific.")
@@ -229,7 +232,7 @@ class SystemResourceProbe:
             return None
 
     @staticmethod
-    def _get_os_cpu_counts() -> Tuple[Optional[int], Optional[int]]:
+    def _get_os_cpu_counts() -> tuple[int | None, int | None]:
         """Gets logical and physical CPU counts using psutil or os.cpu_count."""
         logical = None
         physical = None
@@ -322,7 +325,7 @@ class SystemResourceProbe:
 
     # --- Memory Detection Methods ---
     @staticmethod
-    def _get_os_memory() -> Optional[int]:
+    def _get_os_memory() -> int | None:
         """Gets total system memory in bytes using psutil or /proc/meminfo."""
         # Try psutil first
         if psutil:
@@ -338,7 +341,7 @@ class SystemResourceProbe:
         # Fallback to /proc/meminfo
         try:
             if os.path.exists("/proc/meminfo"):
-                with open("/proc/meminfo", "r") as f:
+                with open("/proc/meminfo") as f:
                     for line in f:
                         if line.startswith("MemTotal:"):
                             # MemTotal is in KB
@@ -351,7 +354,7 @@ class SystemResourceProbe:
                                 )
                                 return total_bytes
                             break
-        except (IOError, ValueError, PermissionError) as e:
+        except (OSError, ValueError, PermissionError) as e:
             logger.warning(f"Failed to read /proc/meminfo: {e}")
 
         logger.error("Could not determine system memory from any source.")
@@ -544,23 +547,23 @@ class SystemResourceProbe:
             f"Effective CPU core limit determined: {self.effective_cores:.2f} " f"(Method: {self.detection_method})"
         )
 
-    def get_effective_cores(self) -> Optional[float]:
+    def get_effective_cores(self) -> float | None:
         """Returns the primary result: the effective core limit, potentially weighted."""
         return self.effective_cores
 
     @property
-    def total_memory_mb(self) -> Optional[float]:
+    def total_memory_mb(self) -> float | None:
         """Returns the effective memory limit in megabytes."""
         if self.effective_memory_bytes is not None:
             return self.effective_memory_bytes / (1024 * 1024)
         return None
 
     @property
-    def cpu_count(self) -> Optional[float]:
+    def cpu_count(self) -> float | None:
         """Returns the effective CPU count for compatibility."""
         return self.effective_cores
 
-    def get_details(self) -> Dict[str, Any]:
+    def get_details(self) -> dict[str, Any]:
         """Returns a dictionary with all detected information."""
         # Calculate full system weighted potential for info
         os_weighted_cores = None

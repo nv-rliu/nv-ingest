@@ -2,9 +2,10 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 from unittest.mock import MagicMock
+
 import nv_ingest_api.util.control_message.validators as module_under_test
+import pytest
 
 
 def test_cm_ensure_payload_not_null_happy_path():

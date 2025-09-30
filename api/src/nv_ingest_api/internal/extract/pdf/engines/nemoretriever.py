@@ -15,47 +15,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import concurrent.futures
 import io
 import logging
 import math
 import uuid
-import concurrent.futures
 from typing import Any
 from typing import Dict
-from typing import Tuple
-from typing import Optional
 from typing import List
+from typing import Optional
+from typing import Tuple
 
 import numpy as np
 import pypdfium2 as pdfium
-
-from nv_ingest_api.internal.extract.pdf.engines.pdfium import _extract_page_elements
-from nv_ingest_api.internal.primitives.nim.model_interface import nemoretriever_parse as nemoretriever_parse_utils
 from nv_ingest_api.internal.enums.common import AccessLevelEnum
-from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.enums.common import ContentDescriptionEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.enums.common import TableFormatEnum
 from nv_ingest_api.internal.enums.common import TextTypeEnum
-from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
-from nv_ingest_api.internal.primitives.nim.model_interface.yolox import (
-    YOLOX_PAGE_IMAGE_PREPROC_WIDTH,
-    YOLOX_PAGE_IMAGE_PREPROC_HEIGHT,
-    YOLOX_PAGE_IMAGE_FORMAT,
-)
-from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import NemoRetrieverParseConfigSchema
-from nv_ingest_api.util.metadata.aggregators import (
-    extract_pdf_metadata,
-    LatexTable,
-    Base64Image,
-    construct_image_metadata_from_pdf_image,
-    construct_text_metadata,
-)
-from nv_ingest_api.util.pdf.pdfium import pdfium_pages_to_numpy
+from nv_ingest_api.internal.extract.pdf.engines.pdfium import _extract_page_elements
 from nv_ingest_api.internal.primitives.nim.default_values import YOLOX_MAX_BATCH_SIZE
+from nv_ingest_api.internal.primitives.nim.model_interface import nemoretriever_parse as nemoretriever_parse_utils
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YOLOX_PAGE_IMAGE_FORMAT
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YOLOX_PAGE_IMAGE_PREPROC_HEIGHT
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YOLOX_PAGE_IMAGE_PREPROC_WIDTH
+from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import NemoRetrieverParseConfigSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
 from nv_ingest_api.util.exception_handlers.pdf import pdfium_exception_handler
-from nv_ingest_api.util.image_processing.transforms import numpy_to_base64, crop_image
+from nv_ingest_api.util.image_processing.transforms import crop_image
+from nv_ingest_api.util.image_processing.transforms import numpy_to_base64
+from nv_ingest_api.util.metadata.aggregators import Base64Image
+from nv_ingest_api.util.metadata.aggregators import LatexTable
+from nv_ingest_api.util.metadata.aggregators import construct_image_metadata_from_pdf_image
+from nv_ingest_api.util.metadata.aggregators import construct_text_metadata
+from nv_ingest_api.util.metadata.aggregators import extract_pdf_metadata
 from nv_ingest_api.util.nim import create_inference_client
-
+from nv_ingest_api.util.pdf.pdfium import pdfium_pages_to_numpy
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +69,7 @@ def nemoretriever_parse_extractor(
     extract_tables: bool,
     extract_charts: bool,
     extractor_config: dict,
-    execution_trace_log: Optional[List[Any]] = None,
+    execution_trace_log: list[Any] | None = None,
 ) -> str:
     """
     Helper function to use nemoretriever_parse to extract text from a bytestream PDF.
@@ -493,7 +488,7 @@ def _create_clients(nemoretriever_parse_config):
 def _send_inference_request(
     nemoretriever_parse_client,
     image_array: np.ndarray,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
 
     try:
         # NIM only supports processing one page at a time (batch size = 1).
@@ -512,8 +507,8 @@ def _send_inference_request(
 def _convert_pdfium_page_to_numpy_for_parser(
     page: pdfium.PdfPage,
     render_dpi: int = NEMORETRIEVER_PARSE_RENDER_DPI,
-    scale_tuple: Tuple[int, int] = (NEMORETRIEVER_PARSE_MAX_WIDTH, NEMORETRIEVER_PARSE_MAX_HEIGHT),
-    padding_tuple: Tuple[int, int] = (NEMORETRIEVER_PARSE_MAX_WIDTH, NEMORETRIEVER_PARSE_MAX_HEIGHT),
+    scale_tuple: tuple[int, int] = (NEMORETRIEVER_PARSE_MAX_WIDTH, NEMORETRIEVER_PARSE_MAX_HEIGHT),
+    padding_tuple: tuple[int, int] = (NEMORETRIEVER_PARSE_MAX_WIDTH, NEMORETRIEVER_PARSE_MAX_HEIGHT),
 ) -> np.ndarray:
     page_images, padding_offsets = pdfium_pages_to_numpy(
         [page], render_dpi=render_dpi, scale_tuple=scale_tuple, padding_tuple=padding_tuple
@@ -524,8 +519,8 @@ def _convert_pdfium_page_to_numpy_for_parser(
 
 def _convert_pdfium_page_to_numpy_for_yolox(
     page: pdfium.PdfPage,
-    scale_tuple: Tuple[int, int] = (YOLOX_PAGE_IMAGE_PREPROC_WIDTH, YOLOX_PAGE_IMAGE_PREPROC_HEIGHT),
-    padding_tuple: Tuple[int, int] = (YOLOX_PAGE_IMAGE_PREPROC_WIDTH, YOLOX_PAGE_IMAGE_PREPROC_HEIGHT),
+    scale_tuple: tuple[int, int] = (YOLOX_PAGE_IMAGE_PREPROC_WIDTH, YOLOX_PAGE_IMAGE_PREPROC_HEIGHT),
+    padding_tuple: tuple[int, int] = (YOLOX_PAGE_IMAGE_PREPROC_WIDTH, YOLOX_PAGE_IMAGE_PREPROC_HEIGHT),
 ) -> np.ndarray:
     page_images, padding_offsets = pdfium_pages_to_numpy([page], scale_tuple=scale_tuple, padding_tuple=padding_tuple)
 
@@ -533,7 +528,7 @@ def _convert_pdfium_page_to_numpy_for_yolox(
 
 
 def _insert_page_nearby_blocks(
-    page_nearby_blocks: Dict[str, Any],
+    page_nearby_blocks: dict[str, Any],
     cls: str,
     txt: str,
     bbox: str,
@@ -555,8 +550,8 @@ def _construct_table_metadata(
     table: LatexTable,
     page_idx: int,
     page_count: int,
-    source_metadata: Dict,
-    base_unified_metadata: Dict,
+    source_metadata: dict,
+    base_unified_metadata: dict,
 ):
     content = table.latex
     table_format = TableFormatEnum.LATEX

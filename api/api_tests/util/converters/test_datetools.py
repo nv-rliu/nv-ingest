@@ -6,7 +6,6 @@ from datetime import datetime  # Import the timezone class directly
 from datetime import timezone
 
 import pytest
-
 from nv_ingest_api.util.converters.datetools import datetimefrompdfmeta
 from nv_ingest_api.util.converters.datetools import remove_tz
 from nv_ingest_api.util.converters.datetools import validate_iso8601

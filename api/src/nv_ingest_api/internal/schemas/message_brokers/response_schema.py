@@ -7,13 +7,15 @@
 # Eventually we should move all client wrappers for the message broker into a shared library that both the ingest
 # service and the client can use.
 
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
+
 from pydantic import BaseModel
 
 
 class ResponseSchema(BaseModel):
     response_code: int
-    response_reason: Optional[str] = "OK"
-    response: Union[str, dict, None] = None
-    trace_id: Optional[str] = None  # Unique trace ID
-    transaction_id: Optional[str] = None  # Unique transaction ID
+    response_reason: str | None = "OK"
+    response: str | dict | None = None
+    trace_id: str | None = None  # Unique trace ID
+    transaction_id: str | None = None  # Unique transaction ID

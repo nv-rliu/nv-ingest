@@ -4,25 +4,25 @@
 
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Union
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 import numpy as np
 import pandas as pd
-
-from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskTableExtraction
 from nv_ingest_api.internal.enums.common import TableFormatEnum
-from nv_ingest_api.internal.primitives.nim.model_interface.ocr import PaddleOCRModelInterface
-from nv_ingest_api.internal.primitives.nim.model_interface.ocr import NemoRetrieverOCRModelInterface
-from nv_ingest_api.internal.primitives.nim.model_interface.ocr import get_ocr_model_name
 from nv_ingest_api.internal.primitives.nim import NimClient
-from nv_ingest_api.internal.schemas.extract.extract_table_schema import TableExtractorSchema
-from nv_ingest_api.util.image_processing.table_and_chart import join_yolox_table_structure_and_ocr_output
-from nv_ingest_api.util.image_processing.table_and_chart import convert_ocr_response_to_psuedo_markdown
+from nv_ingest_api.internal.primitives.nim.model_interface.ocr import NemoRetrieverOCRModelInterface
+from nv_ingest_api.internal.primitives.nim.model_interface.ocr import PaddleOCRModelInterface
+from nv_ingest_api.internal.primitives.nim.model_interface.ocr import get_ocr_model_name
 from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YoloxTableStructureModelInterface
+from nv_ingest_api.internal.schemas.extract.extract_table_schema import TableExtractorSchema
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskTableExtraction
+from nv_ingest_api.util.image_processing.table_and_chart import convert_ocr_response_to_psuedo_markdown
+from nv_ingest_api.util.image_processing.table_and_chart import join_yolox_table_structure_and_ocr_output
 from nv_ingest_api.util.image_processing.transforms import base64_to_numpy
 from nv_ingest_api.util.nim import create_inference_client
 
@@ -33,8 +33,8 @@ PADDLE_MIN_HEIGHT = 32
 
 
 def _filter_valid_images(
-    base64_images: List[str],
-) -> Tuple[List[str], List[np.ndarray], List[int]]:
+    base64_images: list[str],
+) -> tuple[list[str], list[np.ndarray], list[int]]:
     """
     Filter base64-encoded images by their dimensions.
 
@@ -43,9 +43,9 @@ def _filter_valid_images(
       - valid_arrays: The corresponding numpy arrays.
       - valid_indices: The original indices in the input list.
     """
-    valid_images: List[str] = []
-    valid_arrays: List[np.ndarray] = []
-    valid_indices: List[int] = []
+    valid_images: list[str] = []
+    valid_arrays: list[np.ndarray] = []
+    valid_indices: list[int] = []
 
     for i, img in enumerate(base64_images):
         array = base64_to_numpy(img)
@@ -66,10 +66,10 @@ def _run_inference(
     yolox_client: Any,
     ocr_client: Any,
     ocr_model_name: str,
-    valid_arrays: List[np.ndarray],
-    valid_images: List[str],
-    trace_info: Optional[Dict] = None,
-) -> Tuple[List[Any], List[Any]]:
+    valid_arrays: list[np.ndarray],
+    valid_images: list[str],
+    trace_info: dict | None = None,
+) -> tuple[list[Any], list[Any]]:
     """
     Run inference concurrently for YOLOX (if enabled) and Paddle.
 
@@ -136,9 +136,9 @@ def _run_inference(
 def _validate_inference_results(
     yolox_results: Any,
     ocr_results: Any,
-    valid_arrays: List[Any],
-    valid_images: List[str],
-) -> Tuple[List[Any], List[Any]]:
+    valid_arrays: list[Any],
+    valid_images: list[str],
+) -> tuple[list[Any], list[Any]]:
     """
     Validate that both inference results are lists and have the expected lengths.
 
@@ -165,14 +165,14 @@ def _validate_inference_results(
 
 
 def _update_table_metadata(
-    base64_images: List[str],
+    base64_images: list[str],
     yolox_client: Any,
     ocr_client: Any,
     ocr_model_name: str,
     worker_pool_size: int = 8,  # Not currently used
     enable_yolox: bool = False,
-    trace_info: Optional[Dict] = None,
-) -> List[Tuple[str, Any, Any, Any]]:
+    trace_info: dict | None = None,
+) -> list[tuple[str, Any, Any, Any]]:
     """
     Given a list of base64-encoded images, this function filters out images that do not meet
     the minimum size requirements and then calls the OCR model via ocr_client.infer
@@ -187,7 +187,7 @@ def _update_table_metadata(
     logger.debug(f"Running table extraction using protocol {ocr_client.protocol}")
 
     # Initialize the results list with default placeholders.
-    results: List[Tuple[str, Any, Any, Any]] = [("", None, None, None)] * len(base64_images)
+    results: list[tuple[str, Any, Any, Any]] = [("", None, None, None)] * len(base64_images)
 
     # Filter valid images based on size requirements.
     valid_images, valid_arrays, valid_indices = _filter_valid_images(base64_images)
@@ -223,7 +223,7 @@ def _update_table_metadata(
 
 
 def _create_yolox_client(
-    yolox_endpoints: Tuple[str, str],
+    yolox_endpoints: tuple[str, str],
     yolox_protocol: str,
     auth_token: str,
 ) -> NimClient:
@@ -240,7 +240,7 @@ def _create_yolox_client(
 
 
 def _create_ocr_client(
-    ocr_endpoints: Tuple[str, str],
+    ocr_endpoints: tuple[str, str],
     ocr_protocol: str,
     ocr_model_name: str,
     auth_token: str,
@@ -263,10 +263,10 @@ def _create_ocr_client(
 
 def extract_table_data_from_image_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Union[IngestTaskTableExtraction, Dict[str, Any]],
+    task_config: IngestTaskTableExtraction | dict[str, Any],
     extraction_config: TableExtractorSchema,
-    execution_trace_log: Optional[Dict] = None,
-) -> Tuple[pd.DataFrame, Dict]:
+    execution_trace_log: dict | None = None,
+) -> tuple[pd.DataFrame, dict]:
     """
     Extracts table data from a DataFrame in a bulk fashion rather than row-by-row,
     following the chart extraction pattern.

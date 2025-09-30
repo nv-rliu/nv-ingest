@@ -2,11 +2,17 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import threading
-import logging
 import contextlib
+import logging
+import threading
 import time
-from typing import List, Dict, Tuple, Any, Optional, Iterator, Set
+from collections.abc import Iterator
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
 
 import ray
 
@@ -50,15 +56,15 @@ class PipelineTopology:
 
     def __init__(self):
         # --- Definition ---
-        self._stages: List[StageInfo] = []
-        self._connections: Dict[str, List[Tuple[str, int]]] = {}
+        self._stages: list[StageInfo] = []
+        self._connections: dict[str, list[tuple[str, int]]] = {}
 
         # --- Runtime State ---
-        self._stage_actors: Dict[str, List[Any]] = {}
-        self._edge_queues: Dict[str, Tuple[Any, int]] = {}  # Map: q_name -> (QueueHandle, Capacity)
-        self._scaling_state: Dict[str, str] = {}  # Map: stage_name -> "Idle" | "Scaling Up" | "Scaling Down" | "Error"
-        self._stage_memory_overhead: Dict[str, float] = {}  # Populated during build/config
-        self._actors_pending_removal: Set[Tuple[str, Any]] = set()
+        self._stage_actors: dict[str, list[Any]] = {}
+        self._edge_queues: dict[str, tuple[Any, int]] = {}  # Map: q_name -> (QueueHandle, Capacity)
+        self._scaling_state: dict[str, str] = {}  # Map: stage_name -> "Idle" | "Scaling Up" | "Scaling Down" | "Error"
+        self._stage_memory_overhead: dict[str, float] = {}  # Populated during build/config
+        self._actors_pending_removal: set[tuple[str, Any]] = set()
 
         # --- Operational State ---
         self._is_flushing: bool = False
@@ -122,7 +128,7 @@ class PipelineTopology:
             self._connections.setdefault(from_stage, []).append((to_stage, queue_size))
             logger.debug(f"Added connection definition: {from_stage} -> {to_stage} (q_size={queue_size})")
 
-    def set_actors_for_stage(self, stage_name: str, actors: List[Any]) -> None:
+    def set_actors_for_stage(self, stage_name: str, actors: list[Any]) -> None:
         """Sets the list of actors for a given stage, resetting scaling state."""
         with self._lock:
             if stage_name not in {s.name for s in self._stages}:
@@ -143,7 +149,7 @@ class PipelineTopology:
             self._stage_actors[stage_name].append(actor)
             logger.debug(f"Added actor to stage '{stage_name}'. New count: {len(self._stage_actors[stage_name])}")
 
-    def remove_actors_from_stage(self, stage_name: str, actors_to_remove: List[Any]) -> List[Any]:
+    def remove_actors_from_stage(self, stage_name: str, actors_to_remove: list[Any]) -> list[Any]:
         """
         Removes specific actors from a stage's list immediately.
         Called by the cleanup thread or potentially for forced removal.
@@ -239,7 +245,7 @@ class PipelineTopology:
 
             time.sleep(interval)
 
-    def set_edge_queues(self, queues: Dict[str, Tuple[Any, int]]) -> None:
+    def set_edge_queues(self, queues: dict[str, tuple[Any, int]]) -> None:
         """Sets the dictionary of edge queues."""
         with self._lock:
             self._edge_queues = queues
@@ -265,7 +271,7 @@ class PipelineTopology:
             self._is_flushing = is_flushing
             logger.debug(f"Pipeline flushing state set to: {is_flushing}")
 
-    def set_stage_memory_overhead(self, overheads: Dict[str, float]) -> None:
+    def set_stage_memory_overhead(self, overheads: dict[str, float]) -> None:
         """Sets the estimated memory overhead for stages."""
         with self._lock:
             self._stage_memory_overhead = overheads
@@ -283,12 +289,12 @@ class PipelineTopology:
 
     # --- Accessor Methods (Read Operations - Use Lock, Return Copies) ---
 
-    def get_all_actors(self) -> List[Any]:
+    def get_all_actors(self) -> list[Any]:
         """Returns a list of all actors across all stages."""
         with self._lock:
             return [actor for actors in self._stage_actors.values() for actor in actors]
 
-    def get_stages_info(self) -> List[StageInfo]:
+    def get_stages_info(self) -> list[StageInfo]:
         """Returns a copy of stage info with pending_shutdown flags updated."""
         with self._lock:
             updated_stages = []
@@ -308,7 +314,7 @@ class PipelineTopology:
                 updated_stages.append(stage_copy)
             return updated_stages
 
-    def get_stage_info(self, stage_name: str) -> Optional[StageInfo]:
+    def get_stage_info(self, stage_name: str) -> StageInfo | None:
         """Returns the StageInfo for a specific stage, or None if not found."""
         with self._lock:
             for stage in self._stages:
@@ -316,13 +322,13 @@ class PipelineTopology:
                     return stage
             return None
 
-    def get_connections(self) -> Dict[str, List[Tuple[str, int]]]:
+    def get_connections(self) -> dict[str, list[tuple[str, int]]]:
         """Returns a shallow copy of the connection dictionary."""
         with self._lock:
             # Shallow copy is usually sufficient here as tuples are immutable
             return self._connections.copy()
 
-    def get_stage_actors(self) -> Dict[str, List[Any]]:
+    def get_stage_actors(self) -> dict[str, list[Any]]:
         """Returns a copy of the stage actors dictionary (with copies of actor lists)."""
         with self._lock:
             return {name: list(actors) for name, actors in self._stage_actors.items()}
@@ -332,12 +338,12 @@ class PipelineTopology:
         with self._lock:
             return len(self._stage_actors.get(stage_name, []))
 
-    def get_edge_queues(self) -> Dict[str, Tuple[Any, int]]:
+    def get_edge_queues(self) -> dict[str, tuple[Any, int]]:
         """Returns a shallow copy of the edge queues' dictionary."""
         with self._lock:
             return self._edge_queues.copy()
 
-    def get_scaling_state(self) -> Dict[str, str]:
+    def get_scaling_state(self) -> dict[str, str]:
         """Returns a copy of the scaling state dictionary."""
         with self._lock:
             return self._scaling_state.copy()
@@ -347,7 +353,7 @@ class PipelineTopology:
         with self._lock:
             return self._is_flushing
 
-    def get_stage_memory_overhead(self) -> Dict[str, float]:
+    def get_stage_memory_overhead(self) -> dict[str, float]:
         """Returns a copy of the stage memory overhead dictionary."""
         with self._lock:
             return self._stage_memory_overhead.copy()

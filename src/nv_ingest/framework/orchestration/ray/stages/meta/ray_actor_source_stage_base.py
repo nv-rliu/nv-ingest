@@ -2,10 +2,13 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from abc import ABC, abstractmethod
-from typing import Any, Optional
-import ray
 import logging
+from abc import ABC
+from abc import abstractmethod
+from typing import Any
+from typing import Optional
+
+import ray
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 
@@ -19,7 +22,7 @@ class RayActorSourceStage(RayActorStage, ABC):
     Instead, they must implement get_input() to fetch control messages from an external source.
     """
 
-    def __init__(self, config: Any, log_to_stdout=False, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: Any, log_to_stdout=False, stage_name: str | None = None) -> None:
         super().__init__(config, log_to_stdout=log_to_stdout, stage_name=stage_name)
         self.paused = False
 

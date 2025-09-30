@@ -3,8 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from fastapi import APIRouter, Response, status
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from fastapi import APIRouter
+from fastapi import Response
+from fastapi import status
+from prometheus_client import CONTENT_TYPE_LATEST
+from prometheus_client import Counter
+from prometheus_client import Histogram
+from prometheus_client import generate_latest
 
 router = APIRouter()
 

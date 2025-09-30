@@ -8,10 +8,10 @@ import click
 import numpy as np
 import psutil
 import ray
-from tqdm import tqdm
 
 # Import the RayWorkerPoolSingleton and the CPU-intensive task
 from nv_ingest_api.util.multi_processing import RayWorkerPoolSingleton
+from tqdm import tqdm
 
 
 # Example CPU-intensive task

@@ -18,47 +18,46 @@
 
 import concurrent.futures
 import logging
-from typing import List, Tuple, Optional, Any
+from typing import Any
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
 import pypdfium2 as libpdfium
-
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import TableFormatEnum
+from nv_ingest_api.internal.enums.common import TextTypeEnum
 from nv_ingest_api.internal.primitives.nim.default_values import YOLOX_MAX_BATCH_SIZE
-from nv_ingest_api.internal.primitives.nim.model_interface.yolox import (
-    YOLOX_PAGE_IMAGE_PREPROC_WIDTH,
-    YOLOX_PAGE_IMAGE_PREPROC_HEIGHT,
-    YoloxPageElementsModelInterface,
-    YOLOX_PAGE_IMAGE_FORMAT,
-)
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YOLOX_PAGE_IMAGE_FORMAT
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YOLOX_PAGE_IMAGE_PREPROC_HEIGHT
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YOLOX_PAGE_IMAGE_PREPROC_WIDTH
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YoloxPageElementsModelInterface
 from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFiumConfigSchema
-from nv_ingest_api.internal.enums.common import TableFormatEnum, TextTypeEnum, AccessLevelEnum
-from nv_ingest_api.util.metadata.aggregators import (
-    construct_image_metadata_from_base64,
-    construct_image_metadata_from_pdf_image,
-    extract_pdf_metadata,
-    construct_text_metadata,
-    construct_page_element_metadata,
-    CroppedImageWithContent,
-)
-from nv_ingest_api.util.nim import create_inference_client
-from nv_ingest_api.util.pdf.pdfium import (
-    extract_nested_simple_images_from_pdfium_page,
-    extract_image_like_objects_from_pdfium_page,
-)
-from nv_ingest_api.util.pdf.pdfium import pdfium_pages_to_numpy
 from nv_ingest_api.util.image_processing import scale_image_to_encoding_size
-from nv_ingest_api.util.image_processing.transforms import numpy_to_base64, crop_image
+from nv_ingest_api.util.image_processing.transforms import crop_image
+from nv_ingest_api.util.image_processing.transforms import numpy_to_base64
+from nv_ingest_api.util.metadata.aggregators import CroppedImageWithContent
+from nv_ingest_api.util.metadata.aggregators import construct_image_metadata_from_base64
+from nv_ingest_api.util.metadata.aggregators import construct_image_metadata_from_pdf_image
+from nv_ingest_api.util.metadata.aggregators import construct_page_element_metadata
+from nv_ingest_api.util.metadata.aggregators import construct_text_metadata
+from nv_ingest_api.util.metadata.aggregators import extract_pdf_metadata
+from nv_ingest_api.util.nim import create_inference_client
+from nv_ingest_api.util.pdf.pdfium import extract_image_like_objects_from_pdfium_page
+from nv_ingest_api.util.pdf.pdfium import extract_nested_simple_images_from_pdfium_page
+from nv_ingest_api.util.pdf.pdfium import pdfium_pages_to_numpy
 
 logger = logging.getLogger(__name__)
 
 
 def _extract_page_elements_using_image_ensemble(
-    pages: List[Tuple[int, np.ndarray, Tuple[int, int]]],
+    pages: list[tuple[int, np.ndarray, tuple[int, int]]],
     yolox_client,
-    execution_trace_log: Optional[List] = None,
-) -> List[Tuple[int, object]]:
+    execution_trace_log: list | None = None,
+) -> list[tuple[int, object]]:
     """
     Given a list of (page_index, image) tuples and a YOLOX client, this function performs
     inference to extract page element annotations from all pages.
@@ -267,9 +266,9 @@ def _extract_page_elements(
     extract_charts: bool,
     extract_infographics: bool,
     table_output_format: str,
-    yolox_endpoints: Tuple[Optional[str], Optional[str]],
+    yolox_endpoints: tuple[str | None, str | None],
     yolox_infer_protocol: str = "http",
-    auth_token: Optional[str] = None,
+    auth_token: str | None = None,
     execution_trace_log=None,
 ) -> list:
     """
@@ -370,7 +369,7 @@ def pdfium_extractor(
     extract_charts: bool,
     extract_page_as_image: bool,
     extractor_config: dict,
-    execution_trace_log: Optional[List[Any]] = None,
+    execution_trace_log: list[Any] | None = None,
 ) -> pd.DataFrame:
     # --- Extract and validate extractor_config ---
     if extractor_config is None or not isinstance(extractor_config, dict):

@@ -11,7 +11,6 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
-from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
 import pandas as pd
 from nv_ingest_api.internal.extract.pdf.engines import adobe_extractor
@@ -21,6 +20,7 @@ from nv_ingest_api.internal.extract.pdf.engines import pdfium_extractor
 from nv_ingest_api.internal.extract.pdf.engines import tika_extractor
 from nv_ingest_api.internal.extract.pdf.engines import unstructured_io_extractor
 from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
+from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
 # Import extraction functions for different engines.
 
@@ -78,9 +78,9 @@ def _work_extract_pdf(
 @unified_exception_handler
 def _orchestrate_row_extraction(
     row: pd.Series,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     extractor_config: Any,
-    execution_trace_log: Optional[List[Any]] = None,
+    execution_trace_log: list[Any] | None = None,
 ) -> Any:
     """
     Orchestrate extraction for a single DataFrame row by decoding the PDF stream,

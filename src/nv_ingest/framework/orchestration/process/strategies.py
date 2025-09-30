@@ -11,25 +11,21 @@ Strategy pattern for clean separation of execution concerns.
 """
 
 import atexit
-import os
 import logging
 import multiprocessing
+import os
 import time
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
+from nv_ingest.framework.orchestration.execution.options import ExecutionOptions
+from nv_ingest.framework.orchestration.execution.options import ExecutionResult
+from nv_ingest.framework.orchestration.process.execution import launch_pipeline
+from nv_ingest.framework.orchestration.process.execution import run_pipeline_process
+from nv_ingest.framework.orchestration.process.termination import kill_pipeline_process_group
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipelineInterface
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipelineSubprocessInterface
 from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
-from nv_ingest.framework.orchestration.execution.options import ExecutionOptions, ExecutionResult
-from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import (
-    RayPipelineInterface,
-    RayPipelineSubprocessInterface,
-)
-from nv_ingest.framework.orchestration.process.execution import (
-    launch_pipeline,
-    run_pipeline_process,
-)
-from nv_ingest.framework.orchestration.process.termination import (
-    kill_pipeline_process_group,
-)
 
 logger = logging.getLogger(__name__)
 

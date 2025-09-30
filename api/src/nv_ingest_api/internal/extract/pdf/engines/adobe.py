@@ -24,19 +24,22 @@ import random
 import time
 import uuid
 import zipfile
-from typing import Optional, List, Any
+from typing import Any
+from typing import List
+from typing import Optional
 
 import pandas as pd
 import pypdfium2 as pdfium
-
-from nv_ingest_api.internal.enums.common import AccessLevelEnum, DocumentTypeEnum
-from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
 from nv_ingest_api.internal.enums.common import ContentDescriptionEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 from nv_ingest_api.internal.enums.common import TableFormatEnum
 from nv_ingest_api.internal.enums.common import TextTypeEnum
 from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
 from nv_ingest_api.util.converters import bytetools
-from nv_ingest_api.util.metadata.aggregators import extract_pdf_metadata, construct_text_metadata
+from nv_ingest_api.util.metadata.aggregators import construct_text_metadata
+from nv_ingest_api.util.metadata.aggregators import extract_pdf_metadata
 
 ADOBE_INSTALLED = True
 try:
@@ -70,7 +73,7 @@ def adobe_extractor(
     extract_infographics: bool,
     extract_tables: bool,
     extractor_config: dict,
-    execution_trace_log: Optional[List[Any]] = None,
+    execution_trace_log: list[Any] | None = None,
 ) -> pd.DataFrame:
     """
     Helper function to use unstructured-io REST API to extract text from a bytestream PDF.

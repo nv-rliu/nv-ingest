@@ -3,21 +3,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import pandas as pd
-from pydantic import BaseModel
-
-from nv_ingest_api.internal.primitives.nim.model_interface.vlm import VLMModelInterface
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.primitives.nim.model_interface.vlm import VLMModelInterface
 from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
 from nv_ingest_api.util.image_processing import scale_image_to_encoding_size
 from nv_ingest_api.util.nim import create_inference_client
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
 
-def _prepare_dataframes_mod(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
+def _prepare_dataframes_mod(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
     """
     Prepares and returns three DataFrame-related objects from the input DataFrame.
 
@@ -56,8 +60,8 @@ def _prepare_dataframes_mod(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFram
 
 
 def _generate_captions(
-    base64_images: List[str], prompt: str, api_key: str, endpoint_url: str, model_name: str
-) -> List[str]:
+    base64_images: list[str], prompt: str, api_key: str, endpoint_url: str, model_name: str
+) -> list[str]:
     """
     Generates captions for a list of base64-encoded PNG images using the VLM model API.
 
@@ -92,10 +96,10 @@ def _generate_captions(
     """
     try:
         # Scale each image to ensure it meets encoding size requirements.
-        scaled_images: List[str] = [scale_image_to_encoding_size(b64)[0] for b64 in base64_images]
+        scaled_images: list[str] = [scale_image_to_encoding_size(b64)[0] for b64 in base64_images]
 
         # Build the input payload for the VLM model.
-        data: Dict[str, Any] = {
+        data: dict[str, Any] = {
             "base64_images": scaled_images,
             "prompt": prompt,
         }
@@ -110,7 +114,7 @@ def _generate_captions(
 
         logger.debug(f"Calling VLM endpoint: {endpoint_url} with model: {model_name}")
         # Perform inference to generate captions.
-        captions: List[str] = nim_client.infer(data, model_name=model_name)
+        captions: list[str] = nim_client.infer(data, model_name=model_name)
         return captions
 
     except Exception as e:
@@ -122,9 +126,9 @@ def _generate_captions(
 @unified_exception_handler
 def transform_image_create_vlm_caption_internal(
     df_transform_ledger: pd.DataFrame,
-    task_config: Union[BaseModel, Dict[str, Any]],
+    task_config: BaseModel | dict[str, Any],
     transform_config: Any,
-    execution_trace_log: Optional[Dict[str, Any]] = None,
+    execution_trace_log: dict[str, Any] | None = None,
 ) -> pd.DataFrame:
     """
     Extracts and adds captions for image content in a DataFrame using the VLM model API.
@@ -185,15 +189,15 @@ def transform_image_create_vlm_caption_internal(
         return df_transform_ledger
 
     # Collect base64-encoded images from the rows where the content type is "image".
-    base64_images: List[str] = df_transform_ledger.loc[df_mask, "metadata"].apply(lambda meta: meta["content"]).tolist()
+    base64_images: list[str] = df_transform_ledger.loc[df_mask, "metadata"].apply(lambda meta: meta["content"]).tolist()
 
     # Generate captions for the collected images.
-    captions: List[str] = _generate_captions(base64_images, prompt, api_key, endpoint_url, model_name)
+    captions: list[str] = _generate_captions(base64_images, prompt, api_key, endpoint_url, model_name)
 
     # Update the DataFrame: assign each generated caption to the corresponding row.
     for idx, caption in zip(df_transform_ledger.loc[df_mask].index, captions):
-        meta: Dict[str, Any] = df_transform_ledger.at[idx, "metadata"]
-        image_meta: Dict[str, Any] = meta.get("image_metadata", {})
+        meta: dict[str, Any] = df_transform_ledger.at[idx, "metadata"]
+        image_meta: dict[str, Any] = meta.get("image_metadata", {})
         image_meta["caption"] = caption
         meta["image_metadata"] = image_meta
         df_transform_ledger.at[idx, "metadata"] = meta

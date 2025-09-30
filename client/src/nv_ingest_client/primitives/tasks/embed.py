@@ -26,16 +26,16 @@ class EmbedTask(Task):
 
     def __init__(
         self,
-        endpoint_url: Optional[str] = None,
-        model_name: Optional[str] = None,
-        api_key: Optional[str] = None,
-        text: Optional[bool] = None,
-        tables: Optional[bool] = None,
+        endpoint_url: str | None = None,
+        model_name: str | None = None,
+        api_key: str | None = None,
+        text: bool | None = None,
+        tables: bool | None = None,
         filter_errors: bool = False,
-        text_elements_modality: Optional[str] = None,
-        image_elements_modality: Optional[str] = None,
-        structured_elements_modality: Optional[str] = None,
-        audio_elements_modality: Optional[str] = None,
+        text_elements_modality: str | None = None,
+        image_elements_modality: str | None = None,
+        structured_elements_modality: str | None = None,
+        audio_elements_modality: str | None = None,
     ) -> None:
         """
         Initialize the EmbedTask configuration.
@@ -116,7 +116,7 @@ class EmbedTask(Task):
             info += f"  audio_elements_modality: {self._audio_elements_modality}\n"
         return info
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Convert the EmbedTask configuration to a dictionary for submission.
 
@@ -126,7 +126,7 @@ class EmbedTask(Task):
             A dictionary containing the task type and properties, suitable for submission
             (e.g., to a Redis database).
         """
-        task_properties: Dict[str, Any] = {"filter_errors": self._filter_errors}
+        task_properties: dict[str, Any] = {"filter_errors": self._filter_errors}
 
         if self._endpoint_url:
             task_properties["endpoint_url"] = self._endpoint_url

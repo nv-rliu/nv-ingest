@@ -2,21 +2,22 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-from nv_ingest_client.util.milvus import (
-    create_nvingest_collection,
-    grab_meta_collection_info,
-    reconstruct_pages,
-    add_metadata,
-    pandas_file_reader,
-    create_nvingest_index_params,
-)
-from nv_ingest_client.util.vdb.milvus import Milvus, _dict_to_params, _pull_text
-from nv_ingest_client.util.util import ClientConfigSchema
-import pandas as pd
-import unittest
-from nv_ingest_client.util.vdb.adt_vdb import VDB
 import logging
+import unittest
+
+import pandas as pd
+import pytest
+from nv_ingest_client.util.milvus import add_metadata
+from nv_ingest_client.util.milvus import create_nvingest_collection
+from nv_ingest_client.util.milvus import create_nvingest_index_params
+from nv_ingest_client.util.milvus import grab_meta_collection_info
+from nv_ingest_client.util.milvus import pandas_file_reader
+from nv_ingest_client.util.milvus import reconstruct_pages
+from nv_ingest_client.util.util import ClientConfigSchema
+from nv_ingest_client.util.vdb.adt_vdb import VDB
+from nv_ingest_client.util.vdb.milvus import Milvus
+from nv_ingest_client.util.vdb.milvus import _dict_to_params
+from nv_ingest_client.util.vdb.milvus import _pull_text
 
 
 @pytest.fixture

@@ -4,18 +4,17 @@
 
 
 import logging
+from collections.abc import Callable
 from typing import Any
-from typing import Callable
 from typing import Dict
 
 from langdetect.lang_detect_exception import LangDetectException
-
 from nv_ingest_api.internal.enums.common import LanguageEnum
 
 logger = logging.getLogger(__name__)
 
 
-def langdetect_exception_handler(func: Callable, **kwargs: Dict[str, Any]) -> Callable:
+def langdetect_exception_handler(func: Callable, **kwargs: dict[str, Any]) -> Callable:
     """
     A decorator that handles `LangDetectException` for language detection functions.
 

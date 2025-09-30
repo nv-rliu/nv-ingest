@@ -16,15 +16,13 @@ import base64
 import io
 
 import pytest
-from PIL import Image
 
 # Test client-side utilities that provide convenient wrappers
 # around core API functionality for image disk operations
-from nv_ingest_client.util.image_disk_utils import (
-    save_images_to_disk,
-    save_images_from_response,
-    save_images_from_ingestor_results,
-)
+from nv_ingest_client.util.image_disk_utils import save_images_from_ingestor_results
+from nv_ingest_client.util.image_disk_utils import save_images_from_response
+from nv_ingest_client.util.image_disk_utils import save_images_to_disk
+from PIL import Image
 
 
 class TestSaveImagesToDisk:

@@ -3,10 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from enum import Enum
-from typing import Dict, Any, List, Optional, Set, Union
-from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Union
 
 from nv_ingest_api.internal.enums.common import PipelinePhase
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import Field
+from pydantic import field_validator
+from pydantic import model_validator
 
 
 class StageType(str, Enum):
@@ -53,16 +62,14 @@ class ReplicaStrategyConfig(BaseModel):
     """
 
     strategy: ReplicaCalculationStrategy = Field(..., description="The calculation strategy to use.")
-    value: Optional[Union[int, float]] = Field(None, description="Primary value for the strategy.")
-    limit: Optional[int] = Field(None, description="Optional upper limit for calculated replicas.", ge=1)
-    cpu_percent: Optional[float] = Field(
-        None, description="CPU percentage for CPU_PERCENTAGE strategy.", ge=0.0, le=1.0
-    )
-    memory_per_replica_mb: Optional[int] = Field(None, description="Expected memory usage per replica in MB.", gt=0)
-    memory_threshold_percent: Optional[float] = Field(
+    value: int | float | None = Field(None, description="Primary value for the strategy.")
+    limit: int | None = Field(None, description="Optional upper limit for calculated replicas.", ge=1)
+    cpu_percent: float | None = Field(None, description="CPU percentage for CPU_PERCENTAGE strategy.", ge=0.0, le=1.0)
+    memory_per_replica_mb: int | None = Field(None, description="Expected memory usage per replica in MB.", gt=0)
+    memory_threshold_percent: float | None = Field(
         None, description="Memory threshold percentage for MEMORY_THRESHOLDING strategy.", ge=0.0, le=1.0
     )
-    max_memory_budget_mb: Optional[int] = Field(
+    max_memory_budget_mb: int | None = Field(
         None, description="Maximum memory budget for MEMORY_STATIC_GLOBAL_PERCENT strategy in MB.", gt=0
     )
 
@@ -114,21 +121,21 @@ class ReplicaConfig(BaseModel):
     """
 
     # Legacy fields for backward compatibility
-    cpu_count_min: Optional[int] = Field(None, description="Absolute minimum number of replicas.", ge=0)
-    cpu_count_max: Optional[int] = Field(None, description="Absolute maximum number of replicas.", ge=1)
-    cpu_percent_min: Optional[float] = Field(
+    cpu_count_min: int | None = Field(None, description="Absolute minimum number of replicas.", ge=0)
+    cpu_count_max: int | None = Field(None, description="Absolute maximum number of replicas.", ge=1)
+    cpu_percent_min: float | None = Field(
         None, description="Minimum number of replicas as a percentage of total cores.", ge=0.0, le=1.0
     )
-    cpu_percent_max: Optional[float] = Field(
+    cpu_percent_max: float | None = Field(
         None, description="Maximum number of replicas as a percentage of total cores.", ge=0.0, le=1.0
     )
 
     # New flexible replica configuration
-    min_replicas: Optional[int] = Field(None, description="Minimum number of replicas.", ge=0)
-    max_replicas: Optional[Union[int, ReplicaStrategyConfig]] = Field(
+    min_replicas: int | None = Field(None, description="Minimum number of replicas.", ge=0)
+    max_replicas: int | ReplicaStrategyConfig | None = Field(
         None, description="Maximum replicas for dynamic scaling mode."
     )
-    static_replicas: Optional[Union[int, ReplicaStrategyConfig]] = Field(
+    static_replicas: int | ReplicaStrategyConfig | None = Field(
         None, description="Replica configuration for static scaling mode."
     )
 
@@ -235,15 +242,15 @@ class StageConfig(BaseModel):
     name: str = Field(..., description="Unique name for the stage.")
     type: StageType = Field(StageType.STAGE, description="Type of the stage.")
     phase: PipelinePhase = Field(..., description="The logical phase of the stage.")
-    actor: Optional[str] = Field(None, description="Full import path to the stage's actor class or function.")
-    callable: Optional[str] = Field(None, description="Full import path to a callable function for the stage.")
-    task_filters: Optional[List[Any]] = Field(
+    actor: str | None = Field(None, description="Full import path to the stage's actor class or function.")
+    callable: str | None = Field(None, description="Full import path to a callable function for the stage.")
+    task_filters: list[Any] | None = Field(
         None, description="List of task types this callable stage should filter for. Only applies to callable stages."
     )
     enabled: bool = Field(True, description="Whether the stage is enabled.")
-    config: Dict[str, Any] = Field({}, description="Configuration dictionary for the stage.")
+    config: dict[str, Any] = Field({}, description="Configuration dictionary for the stage.")
     replicas: ReplicaConfig = Field(default_factory=ReplicaConfig, description="Replica configuration.")
-    runs_after: List[str] = Field(default_factory=list, description="List of stages this stage must run after.")
+    runs_after: list[str] = Field(default_factory=list, description="List of stages this stage must run after.")
 
     @model_validator(mode="after")
     def check_actor_or_callable(self) -> "StageConfig":
@@ -378,9 +385,9 @@ class PipelineConfigSchema(BaseModel):
 
     name: str = Field(..., description="The name of the pipeline.")
     description: str = Field(..., description="A description of the pipeline.")
-    stages: List[StageConfig] = Field(..., description="List of all stages in the pipeline.")
-    edges: List[EdgeConfig] = Field(..., description="List of all edges connecting the stages.")
-    pipeline: Optional[PipelineRuntimeConfig] = Field(
+    stages: list[StageConfig] = Field(..., description="List of all stages in the pipeline.")
+    edges: list[EdgeConfig] = Field(..., description="List of all edges connecting the stages.")
+    pipeline: PipelineRuntimeConfig | None = Field(
         default_factory=PipelineRuntimeConfig, description="Runtime configuration for the pipeline."
     )
 
@@ -391,7 +398,7 @@ class PipelineConfigSchema(BaseModel):
             raise ValueError("must not be empty")
         return v
 
-    def get_phases(self) -> Set[PipelinePhase]:
+    def get_phases(self) -> set[PipelinePhase]:
         """Returns a set of all unique phases in the pipeline."""
         return {stage.phase for stage in self.stages}
 

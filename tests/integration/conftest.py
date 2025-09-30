@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import time
 import socket
+import time
 from pathlib import Path
 
 import pytest

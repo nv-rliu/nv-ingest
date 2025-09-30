@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from io import BytesIO
-from typing import Optional, Dict, List, Union
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
 import pandas as pd
-
-from nv_ingest_api.interface.utility import (
-    build_dataframe_from_files,
-)
+from nv_ingest_api.interface.utility import build_dataframe_from_files
 from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 from nv_ingest_api.internal.schemas.transform.transform_image_caption_schema import ImageCaptionExtractionSchema
 from nv_ingest_api.internal.schemas.transform.transform_text_embedding_schema import TextEmbeddingSchema
@@ -25,12 +25,12 @@ def transform_text_create_embeddings(
     *,
     inputs: pd.DataFrame,
     api_key: str,
-    batch_size: Optional[int] = 8192,
-    embedding_model: Optional[str] = None,
-    embedding_nim_endpoint: Optional[str] = None,
-    encoding_format: Optional[str] = None,
-    input_type: Optional[str] = None,
-    truncate: Optional[str] = None,
+    batch_size: int | None = 8192,
+    embedding_model: str | None = None,
+    embedding_nim_endpoint: str | None = None,
+    encoding_format: str | None = None,
+    input_type: str | None = None,
+    truncate: str | None = None,
 ) -> pd.DataFrame:
     """
     Creates text embeddings using the provided configuration.
@@ -66,11 +66,11 @@ def transform_text_create_embeddings(
 @unified_exception_handler
 def transform_image_create_vlm_caption(
     *,
-    inputs: Union[pd.DataFrame, tuple, List[tuple]],
-    api_key: Optional[str] = None,
-    prompt: Optional[str] = None,
-    endpoint_url: Optional[str] = None,
-    model_name: Optional[str] = None,
+    inputs: pd.DataFrame | tuple | list[tuple],
+    api_key: str | None = None,
+    prompt: str | None = None,
+    endpoint_url: str | None = None,
+    model_name: str | None = None,
 ) -> pd.DataFrame:
     """
     Extract captions for image content using the VLM model API.
@@ -182,10 +182,10 @@ def transform_image_create_vlm_caption(
                 "df_ledger must be a DataFrame, a tuple (file_source, document_type), or a list of such tuples."
             )
 
-        file_sources: List[Union[str, BytesIO]] = []
-        source_names: List[str] = []
-        source_ids: List[str] = []
-        doc_types: List[str] = []
+        file_sources: list[str | BytesIO] = []
+        source_names: list[str] = []
+        source_ids: list[str] = []
+        doc_types: list[str] = []
 
         for item in file_items:
             if not (isinstance(item, tuple) and len(item) == 2):
@@ -203,13 +203,13 @@ def transform_image_create_vlm_caption(
 
         inputs = build_dataframe_from_files(file_sources, source_names, source_ids, doc_types)
 
-    task_config: Dict[str, Optional[str]] = {
+    task_config: dict[str, str | None] = {
         "api_key": api_key,
         "prompt": prompt,
         "endpoint_url": endpoint_url,
         "model_name": model_name,
     }
-    filtered_task_config: Dict[str, str] = {k: v for k, v in task_config.items() if v is not None}
+    filtered_task_config: dict[str, str] = {k: v for k, v in task_config.items() if v is not None}
 
     transform_config = ImageCaptionExtractionSchema(**filtered_task_config)
 
@@ -226,12 +226,12 @@ def transform_image_create_vlm_caption(
 @unified_exception_handler
 def transform_text_split_and_tokenize(
     *,
-    inputs: Union[pd.DataFrame, str, List[str]],
+    inputs: pd.DataFrame | str | list[str],
     tokenizer: str,
     chunk_size: int,
     chunk_overlap: int,
-    split_source_types: Optional[List[str]] = None,
-    hugging_face_access_token: Optional[str] = None,
+    split_source_types: list[str] | None = None,
+    hugging_face_access_token: str | None = None,
 ) -> pd.DataFrame:
     """
     Transform and tokenize text documents by splitting them into smaller chunks.
@@ -356,7 +356,7 @@ def transform_text_split_and_tokenize(
     if not split_source_types:
         split_source_types = ["text"]
 
-    task_config: Dict[str, any] = {
+    task_config: dict[str, any] = {
         "chunk_overlap": chunk_overlap,
         "chunk_size": chunk_size,
         "params": {

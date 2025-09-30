@@ -5,13 +5,11 @@
 import pytest
 from pydantic import ValidationError
 
-from nv_ingest.pipeline.pipeline_schema import (
-    EdgeConfig,
-    PipelineConfigSchema,
-    PipelinePhase,
-    ReplicaConfig,
-    StageConfig,
-)
+from nv_ingest.pipeline.pipeline_schema import EdgeConfig
+from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
+from nv_ingest.pipeline.pipeline_schema import PipelinePhase
+from nv_ingest.pipeline.pipeline_schema import ReplicaConfig
+from nv_ingest.pipeline.pipeline_schema import StageConfig
 
 # Tests for ReplicaConfig
 

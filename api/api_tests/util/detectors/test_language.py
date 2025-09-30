@@ -4,7 +4,6 @@
 
 import pytest
 from langdetect import DetectorFactory
-
 from nv_ingest_api.util.detectors.language import LanguageEnum
 from nv_ingest_api.util.detectors.language import detect_language
 

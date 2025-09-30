@@ -2,15 +2,16 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import ray
 import logging
 import time
 
+import ray
+
 # Import the new source stage and its configuration
 from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import (
-    MessageBrokerTaskSourceStage,
     MessageBrokerTaskSourceConfig,
 )
+from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import MessageBrokerTaskSourceStage
 
 
 def main():

@@ -6,11 +6,10 @@ import pytest
 from nv_ingest_api.util.message_brokers.simple_message_broker import SimpleClient
 from nv_ingest_client.client import Ingestor
 from nv_ingest_client.client import NvIngestClient
-from .utilities_for_test import (
-    levenshtein_ratio,
-    jaccard_similarity,
-    token_f1,
-)
+
+from .utilities_for_test import jaccard_similarity
+from .utilities_for_test import levenshtein_ratio
+from .utilities_for_test import token_f1
 
 
 @pytest.mark.integration

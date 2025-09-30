@@ -6,12 +6,14 @@
 # pylint: disable=too-few-public-methods
 # pylint: disable=too-many-arguments
 
-import importlib.util
-import logging
-import importlib
-import inspect
 import ast
-from typing import Dict, Optional, Union
+import importlib
+import importlib.util
+import inspect
+import logging
+from typing import Dict
+from typing import Optional
+from typing import Union
 
 from nv_ingest_api.internal.enums.common import PipelinePhase
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskUDFSchema
@@ -85,7 +87,7 @@ def _extract_function_with_context(file_path: str, function_name: str) -> str:
         Complete module source code with the target function
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             module_source = f.read()
 
         # Parse the module to verify the function exists
@@ -189,10 +191,10 @@ class UDFTask(Task):
 
     def __init__(
         self,
-        udf_function: Optional[str] = None,
-        udf_function_name: Optional[str] = None,
-        phase: Union[PipelinePhase, int, str, None] = PipelinePhase.RESPONSE,
-        target_stage: Optional[str] = None,
+        udf_function: str | None = None,
+        udf_function_name: str | None = None,
+        phase: PipelinePhase | int | str | None = PipelinePhase.RESPONSE,
+        target_stage: str | None = None,
         run_before: bool = False,
         run_after: bool = False,
     ) -> None:
@@ -223,7 +225,7 @@ class UDFTask(Task):
         )
         self._resolved_udf_function = None
 
-    def _convert_phase(self, phase: Union[PipelinePhase, int, str]) -> int:
+    def _convert_phase(self, phase: PipelinePhase | int | str) -> int:
         """Convert phase to integer for API schema validation."""
         if isinstance(phase, PipelinePhase):
             return phase.value
@@ -269,14 +271,14 @@ class UDFTask(Task):
         raise ValueError(f"Phase must be a PipelinePhase enum, integer, or string, got {type(phase)}")
 
     @property
-    def udf_function(self) -> Optional[str]:
+    def udf_function(self) -> str | None:
         """
         Returns the UDF function string or specification.
         """
         return self._udf_function
 
     @property
-    def udf_function_name(self) -> Optional[str]:
+    def udf_function_name(self) -> str | None:
         """
         Returns the UDF function name.
         """
@@ -313,7 +315,7 @@ class UDFTask(Task):
 
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis
         """

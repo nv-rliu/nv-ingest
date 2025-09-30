@@ -3,9 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
+from typing import Optional
 
 import ray
+from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
+from nv_ingest_api.internal.primitives.tracing.logging import TaskResultStatus
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
@@ -20,10 +24,6 @@ from opentelemetry.trace import TraceFlags
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 from nv_ingest.framework.schemas.framework_otel_tracer_schema import OpenTelemetryTracerSchema
-from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
-
-from nv_ingest_api.internal.primitives.tracing.logging import TaskResultStatus
-from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
 from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
 
 
@@ -36,7 +36,7 @@ class OpenTelemetryTracerStage(RayActorStage):
     It creates spans for tasks and exports them to a configured OpenTelemetry endpoint.
     """
 
-    def __init__(self, config: OpenTelemetryTracerSchema, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: OpenTelemetryTracerSchema, stage_name: str | None = None) -> None:
         super().__init__(config, stage_name=stage_name)
 
         # self._logger.info(f"[Telemetry] Initializing OpenTelemetry tracer stage with config: {config}")
@@ -99,7 +99,7 @@ class OpenTelemetryTracerStage(RayActorStage):
 
     @nv_ingest_node_failure_try_except()
     @udf_intercept_hook()
-    def on_data(self, control_message: IngestControlMessage) -> Optional[Any]:
+    def on_data(self, control_message: IngestControlMessage) -> Any | None:
         try:
             do_trace_tagging = bool(control_message.get_metadata("config::add_trace_tagging"))
 

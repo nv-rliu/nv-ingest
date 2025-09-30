@@ -10,14 +10,15 @@ runtime overrides to pipeline configurations, replacing imperative inline logic.
 """
 
 import logging
-import yaml
 from typing import Optional
 
-from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
+import yaml
+from nv_ingest_api.util.string_processing.yaml import substitute_env_vars_in_yaml_content
+
+from nv_ingest.framework.orchestration.execution.options import PipelineRuntimeOverrides
 from nv_ingest.pipeline.default_libmode_pipeline_impl import DEFAULT_LIBMODE_PIPELINE_YAML
 from nv_ingest.pipeline.default_pipeline_impl import DEFAULT_PIPELINE_YAML
-from nv_ingest.framework.orchestration.execution.options import PipelineRuntimeOverrides
-from nv_ingest_api.util.string_processing.yaml import substitute_env_vars_in_yaml_content
+from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ def load_pipeline_config(config_path: str) -> PipelineConfigSchema:
     logger.info(f"Loading pipeline configuration from: {config_path}")
 
     # Read the raw YAML file content
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         raw_content = f.read()
 
     # Substitute all environment variable placeholders using the utility function
@@ -164,7 +165,7 @@ def apply_runtime_overrides(config: PipelineConfigSchema, overrides: PipelineRun
     return modified_config
 
 
-def validate_pipeline_config(config: Optional[PipelineConfigSchema]) -> PipelineConfigSchema:
+def validate_pipeline_config(config: PipelineConfigSchema | None) -> PipelineConfigSchema:
     """
     Validate and ensure a pipeline configuration is available.
 
@@ -193,7 +194,7 @@ def validate_pipeline_config(config: Optional[PipelineConfigSchema]) -> Pipeline
     return config
 
 
-def resolve_pipeline_config(provided_config: Optional[PipelineConfigSchema], libmode: bool) -> PipelineConfigSchema:
+def resolve_pipeline_config(provided_config: PipelineConfigSchema | None, libmode: bool) -> PipelineConfigSchema:
     """
     Resolve the final pipeline configuration from inputs.
 

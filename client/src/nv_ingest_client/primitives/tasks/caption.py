@@ -9,8 +9,8 @@
 import logging
 from typing import Dict
 
-
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskCaptionSchema
+
 from .task_base import Task
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class CaptionTask(Task):
 
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis
         """

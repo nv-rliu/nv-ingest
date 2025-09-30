@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import List, Any
+from typing import Any
+from typing import List
 from typing import Optional
 from typing import Tuple
 
@@ -12,16 +13,16 @@ import pypdfium2 as pdfium
 import pypdfium2.raw as pdfium_c
 from numpy import dtype
 from numpy import ndarray
-
-from nv_ingest_api.internal.primitives.tracing.tagging import traceable_func
-from nv_ingest_api.util.image_processing.clustering import (
-    group_bounding_boxes,
-    combine_groups_into_bboxes,
-    remove_superset_bboxes,
-)
-from nv_ingest_api.util.image_processing.transforms import pad_image, numpy_to_base64, crop_image, scale_numpy_image
-from nv_ingest_api.util.metadata.aggregators import Base64Image
 from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YOLOX_PAGE_IMAGE_FORMAT
+from nv_ingest_api.internal.primitives.tracing.tagging import traceable_func
+from nv_ingest_api.util.image_processing.clustering import combine_groups_into_bboxes
+from nv_ingest_api.util.image_processing.clustering import group_bounding_boxes
+from nv_ingest_api.util.image_processing.clustering import remove_superset_bboxes
+from nv_ingest_api.util.image_processing.transforms import crop_image
+from nv_ingest_api.util.image_processing.transforms import numpy_to_base64
+from nv_ingest_api.util.image_processing.transforms import pad_image
+from nv_ingest_api.util.image_processing.transforms import scale_numpy_image
+from nv_ingest_api.util.metadata.aggregators import Base64Image
 
 logger = logging.getLogger(__name__)
 
@@ -121,10 +122,10 @@ def pdfium_try_get_bitmap_as_numpy(image_obj) -> np.ndarray:
 
 @traceable_func(trace_name="pdf_extraction::pdfium_pages_to_numpy")
 def pdfium_pages_to_numpy(
-    pages: List[pdfium.PdfPage],
+    pages: list[pdfium.PdfPage],
     render_dpi: int = 300,
-    scale_tuple: Optional[Tuple[int, int]] = None,
-    padding_tuple: Optional[Tuple[int, int]] = None,
+    scale_tuple: tuple[int, int] | None = None,
+    padding_tuple: tuple[int, int] | None = None,
     rotation: int = 0,
 ) -> tuple[list[ndarray | ndarray[Any, dtype[Any]]], list[tuple[int, int]]]:
     """

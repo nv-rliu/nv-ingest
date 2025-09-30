@@ -3,11 +3,28 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-import os
-import ray
 import logging
+import os
 import time
-from typing import Dict, Any
+from typing import Any
+from typing import Dict
+
+import ray
+from nv_ingest_api.internal.schemas.extract.extract_audio_schema import AudioExtractorSchema
+from nv_ingest_api.internal.schemas.extract.extract_chart_schema import ChartExtractorSchema
+from nv_ingest_api.internal.schemas.extract.extract_docx_schema import DocxExtractorSchema
+from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageExtractorSchema
+from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFExtractorSchema
+from nv_ingest_api.internal.schemas.extract.extract_table_schema import TableExtractorSchema
+from nv_ingest_api.internal.schemas.mutate.mutate_image_dedup_schema import ImageDedupSchema
+from nv_ingest_api.internal.schemas.store.store_embedding_schema import EmbeddingStorageSchema
+from nv_ingest_api.internal.schemas.store.store_image_schema import ImageStorageModuleSchema
+from nv_ingest_api.internal.schemas.transform.transform_image_caption_schema import ImageCaptionExtractionSchema
+from nv_ingest_api.internal.schemas.transform.transform_image_filter_schema import ImageFilterSchema
+from nv_ingest_api.internal.schemas.transform.transform_text_embedding_schema import TextEmbeddingSchema
+from nv_ingest_api.internal.schemas.transform.transform_text_splitter_schema import TextSplitterSchema
+
+from nv_ingest.framework.orchestration.process.dependent_services import start_simple_message_broker
 
 # Import our new pipeline class.
 from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipeline
@@ -22,34 +39,18 @@ from nv_ingest.framework.orchestration.ray.stages.extractors.table_extractor imp
 from nv_ingest.framework.orchestration.ray.stages.injectors.metadata_injector import MetadataInjectionStage
 from nv_ingest.framework.orchestration.ray.stages.mutate.image_dedup import ImageDedupStage
 from nv_ingest.framework.orchestration.ray.stages.mutate.image_filter import ImageFilterStage
-from nv_ingest.framework.orchestration.ray.stages.sinks.message_broker_task_sink import (
-    MessageBrokerTaskSinkStage,
-    MessageBrokerTaskSinkConfig,
-)
+from nv_ingest.framework.orchestration.ray.stages.sinks.message_broker_task_sink import MessageBrokerTaskSinkConfig
+from nv_ingest.framework.orchestration.ray.stages.sinks.message_broker_task_sink import MessageBrokerTaskSinkStage
 from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import (
-    MessageBrokerTaskSourceStage,
     MessageBrokerTaskSourceConfig,
 )
-from nv_ingest.framework.orchestration.process.dependent_services import start_simple_message_broker
+from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import MessageBrokerTaskSourceStage
 from nv_ingest.framework.orchestration.ray.stages.storage.image_storage import ImageStorageStage
 from nv_ingest.framework.orchestration.ray.stages.storage.store_embeddings import EmbeddingStorageStage
 from nv_ingest.framework.orchestration.ray.stages.transforms.image_caption import ImageCaptionTransformStage
 from nv_ingest.framework.orchestration.ray.stages.transforms.text_embed import TextEmbeddingTransformStage
 from nv_ingest.framework.orchestration.ray.stages.transforms.text_splitter import TextSplitterStage
 from nv_ingest.framework.schemas.framework_metadata_injector_schema import MetadataInjectorSchema
-from nv_ingest_api.internal.schemas.extract.extract_audio_schema import AudioExtractorSchema
-from nv_ingest_api.internal.schemas.extract.extract_chart_schema import ChartExtractorSchema
-from nv_ingest_api.internal.schemas.extract.extract_docx_schema import DocxExtractorSchema
-from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageExtractorSchema
-from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFExtractorSchema
-from nv_ingest_api.internal.schemas.extract.extract_table_schema import TableExtractorSchema
-from nv_ingest_api.internal.schemas.mutate.mutate_image_dedup_schema import ImageDedupSchema
-from nv_ingest_api.internal.schemas.store.store_embedding_schema import EmbeddingStorageSchema
-from nv_ingest_api.internal.schemas.store.store_image_schema import ImageStorageModuleSchema
-from nv_ingest_api.internal.schemas.transform.transform_image_caption_schema import ImageCaptionExtractionSchema
-from nv_ingest_api.internal.schemas.transform.transform_image_filter_schema import ImageFilterSchema
-from nv_ingest_api.internal.schemas.transform.transform_text_embedding_schema import TextEmbeddingSchema
-from nv_ingest_api.internal.schemas.transform.transform_text_splitter_schema import TextSplitterSchema
 
 
 def get_nim_service(env_var_prefix):
@@ -83,7 +84,7 @@ def get_nim_service(env_var_prefix):
 
 
 # Broker configuration – using a simple client on a fixed port.
-simple_config: Dict[str, Any] = {
+simple_config: dict[str, Any] = {
     "client_type": "simple",
     "host": "localhost",
     "port": 7671,

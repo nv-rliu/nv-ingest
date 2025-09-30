@@ -3,16 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import unittest
-from unittest.mock import Mock, patch
-import pandas as pd
+from unittest.mock import Mock
+from unittest.mock import patch
 
 # Import the module under test
 import nv_ingest_api.internal.extract.audio.audio_extraction as module_under_test
-from nv_ingest_api.internal.extract.audio.audio_extraction import (
-    _extract_from_audio,
-    extract_text_from_audio_internal,
-    ContentTypeEnum,
-)
+import pandas as pd
+from nv_ingest_api.internal.extract.audio.audio_extraction import ContentTypeEnum
+from nv_ingest_api.internal.extract.audio.audio_extraction import _extract_from_audio
+from nv_ingest_api.internal.extract.audio.audio_extraction import extract_text_from_audio_internal
 
 # Define module path constant for patching
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"

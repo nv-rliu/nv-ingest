@@ -9,23 +9,13 @@ import os
 import random
 from enum import Enum
 from pprint import pprint
-from typing import Union, List, Any, Dict
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Union
 
 import click
-
 from nv_ingest_api.internal.enums.common import PipelinePhase
-from nv_ingest_api.util.introspection.function_inspect import infer_udf_function_name
-from nv_ingest_client.util.processing import check_schema
-from nv_ingest_client.primitives.tasks import CaptionTask
-from nv_ingest_client.primitives.tasks import DedupTask
-from nv_ingest_client.primitives.tasks import EmbedTask
-from nv_ingest_client.primitives.tasks import ExtractTask
-from nv_ingest_client.primitives.tasks import FilterTask
-from nv_ingest_client.primitives.tasks import InfographicExtractionTask
-from nv_ingest_client.primitives.tasks import SplitTask
-from nv_ingest_client.primitives.tasks import StoreEmbedTask
-from nv_ingest_client.primitives.tasks import StoreTask
-from nv_ingest_client.primitives.tasks import UDFTask
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskCaptionSchema
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskDedupSchema
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskEmbedSchema
@@ -36,6 +26,18 @@ from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskSpli
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskStoreEmbedSchema
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskStoreSchema
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskUDFSchema
+from nv_ingest_api.util.introspection.function_inspect import infer_udf_function_name
+from nv_ingest_client.primitives.tasks import CaptionTask
+from nv_ingest_client.primitives.tasks import DedupTask
+from nv_ingest_client.primitives.tasks import EmbedTask
+from nv_ingest_client.primitives.tasks import ExtractTask
+from nv_ingest_client.primitives.tasks import FilterTask
+from nv_ingest_client.primitives.tasks import InfographicExtractionTask
+from nv_ingest_client.primitives.tasks import SplitTask
+from nv_ingest_client.primitives.tasks import StoreEmbedTask
+from nv_ingest_client.primitives.tasks import StoreTask
+from nv_ingest_client.primitives.tasks import UDFTask
+from nv_ingest_client.util.processing import check_schema
 from nv_ingest_client.util.util import generate_matching_files
 
 logger = logging.getLogger(__name__)
@@ -94,7 +96,7 @@ def debug_print_click_options(ctx: click.Context) -> None:
     ctx : click.Context
         The Click context object from which to retrieve the command options.
     """
-    click_options: Dict[str, Any] = {}
+    click_options: dict[str, Any] = {}
     for param in ctx.command.params:
         if isinstance(param, click.Option):
             value = ctx.params[param.name]
@@ -103,9 +105,7 @@ def debug_print_click_options(ctx: click.Context) -> None:
     pprint(click_options)
 
 
-def click_validate_file_exists(
-    ctx: click.Context, param: click.Parameter, value: Union[str, List[str], None]
-) -> List[str]:
+def click_validate_file_exists(ctx: click.Context, param: click.Parameter, value: str | list[str] | None) -> list[str]:
     """
     Validates that the given file(s) exist.
 
@@ -158,7 +158,7 @@ TaskType = Union[
 ]
 
 
-def parse_task_options(task_id: str, options_str: str) -> Dict[str, Any]:
+def parse_task_options(task_id: str, options_str: str) -> dict[str, Any]:
     """
     Parse the task options string as JSON.
 
@@ -215,7 +215,7 @@ def parse_task_options(task_id: str, options_str: str) -> Dict[str, Any]:
         raise ValueError(error_message)
 
 
-def click_validate_task(ctx: click.Context, param: click.Parameter, value: List[str]) -> Dict[str, TaskType]:
+def click_validate_task(ctx: click.Context, param: click.Parameter, value: list[str]) -> dict[str, TaskType]:
     """
     Validates and processes task definitions provided as strings.
 
@@ -243,8 +243,8 @@ def click_validate_task(ctx: click.Context, param: click.Parameter, value: List[
     click.BadParameter
         If any task fails validation (including malformed JSON) or if duplicate tasks are detected.
     """
-    validated_tasks: Dict[str, TaskType] = {}
-    validation_errors: List[str] = []
+    validated_tasks: dict[str, TaskType] = {}
+    validation_errors: list[str] = []
 
     for task_str in value:
         task_split = task_str.split(":", 1)
@@ -254,7 +254,7 @@ def click_validate_task(ctx: click.Context, param: click.Parameter, value: List[
             task_id, json_options = task_split
 
         try:
-            options: Dict[str, Any] = parse_task_options(task_id, json_options)
+            options: dict[str, Any] = parse_task_options(task_id, json_options)
 
             if task_id == "split":
                 task_options = check_schema(IngestTaskSplitSchema, options, task_id, json_options)
@@ -459,7 +459,7 @@ def click_validate_batch_size(ctx: click.Context, param: click.Parameter, value:
     return value
 
 
-def pre_process_dataset(dataset_json: str, shuffle_dataset: bool) -> List[str]:
+def pre_process_dataset(dataset_json: str, shuffle_dataset: bool) -> list[str]:
     """
     Loads a dataset from a JSON file and optionally shuffles the list of files.
 
@@ -482,7 +482,7 @@ def pre_process_dataset(dataset_json: str, shuffle_dataset: bool) -> List[str]:
         If the dataset file is not found or if its contents are not valid JSON.
     """
     try:
-        with open(dataset_json, "r") as f:
+        with open(dataset_json) as f:
             file_source = json.load(f)
     except FileNotFoundError:
         raise click.BadParameter(f"Dataset JSON file not found: {dataset_json}")
@@ -496,7 +496,7 @@ def pre_process_dataset(dataset_json: str, shuffle_dataset: bool) -> List[str]:
     return file_source
 
 
-def click_match_and_validate_files(ctx: click.Context, param: click.Parameter, value: List[str]) -> List[str]:
+def click_match_and_validate_files(ctx: click.Context, param: click.Parameter, value: list[str]) -> list[str]:
     """
     Matches and validates files based on the provided file source patterns.
 

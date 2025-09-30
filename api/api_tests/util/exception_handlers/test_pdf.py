@@ -6,9 +6,10 @@ import re
 from unittest.mock import patch
 
 import pytest
-
-from nv_ingest_api.internal.enums.common import StatusEnum, TaskTypeEnum
-from nv_ingest_api.util.exception_handlers.pdf import pdfium_exception_handler, create_exception_tag
+from nv_ingest_api.internal.enums.common import StatusEnum
+from nv_ingest_api.internal.enums.common import TaskTypeEnum
+from nv_ingest_api.util.exception_handlers.pdf import create_exception_tag
+from nv_ingest_api.util.exception_handlers.pdf import pdfium_exception_handler
 
 MODULE_UNDER_TEST = "nv_ingest_api.util.exception_handlers.pdf"
 

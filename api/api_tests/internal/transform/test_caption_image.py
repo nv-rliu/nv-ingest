@@ -2,13 +2,14 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
+import nv_ingest_api.internal.transform.caption_image as module_under_test
 import pandas as pd
 import pytest
-from unittest.mock import patch, MagicMock
-
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.transform.caption_image import transform_image_create_vlm_caption_internal
-import nv_ingest_api.internal.transform.caption_image as module_under_test
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

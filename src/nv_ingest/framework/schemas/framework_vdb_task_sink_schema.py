@@ -5,16 +5,18 @@
 
 import logging
 import typing
+from typing import Annotated
 
 import pymilvus
-from pydantic import field_validator, ConfigDict, BaseModel
+from pydantic import BaseModel
+from pydantic import ConfigDict
 from pydantic import Field
-from typing_extensions import Annotated
+from pydantic import field_validator
 
 logger = logging.getLogger(__name__)
 
 
-def build_default_milvus_config(embedding_size: int = 1024) -> typing.Dict[str, typing.Any]:
+def build_default_milvus_config(embedding_size: int = 1024) -> dict[str, typing.Any]:
     """
     Builds the configuration for Milvus.
 

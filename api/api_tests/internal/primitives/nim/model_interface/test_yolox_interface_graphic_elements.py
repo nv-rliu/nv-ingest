@@ -3,15 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
 import numpy as np
 
 # Import the module under test
 import nv_ingest_api.internal.primitives.nim.model_interface.yolox as model_interface_module
-from nv_ingest_api.internal.primitives.nim.model_interface.yolox import (
-    YoloxModelInterfaceBase,
-    YoloxGraphicElementsModelInterface,
-)
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YoloxGraphicElementsModelInterface
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YoloxModelInterfaceBase
 
 MODULE_UNDER_TEST = f"{model_interface_module.__name__}"
 

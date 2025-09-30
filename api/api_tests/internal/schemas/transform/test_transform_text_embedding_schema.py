@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.schemas.transform.transform_text_embedding_schema import TextEmbeddingSchema
 from nv_ingest_api.util.logging.configuration import LogLevel
+from pydantic import ValidationError
 
 
 def test_text_embedding_schema_defaults():

@@ -2,8 +2,10 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from pydantic import BaseModel, ConfigDict
 from enum import Enum
+
+from pydantic import BaseModel
+from pydantic import ConfigDict
 
 
 class ConversionStatus(str, Enum):

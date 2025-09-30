@@ -15,8 +15,8 @@ Environment Variables:
 - LLM_MAX_CONTENT_LENGTH: Maximum content length to send to API (default: 12000)
 """
 
-import os
 import logging
+import os
 from typing import Optional
 
 
@@ -125,7 +125,7 @@ def content_summarizer(control_message: "IngestControlMessage") -> "IngestContro
     return control_message
 
 
-def _extract_content(row, logger) -> Optional[str]:
+def _extract_content(row, logger) -> str | None:
     """Extract text content from row, trying multiple locations."""
     content = ""
 
@@ -152,7 +152,7 @@ def _extract_content(row, logger) -> Optional[str]:
     return content
 
 
-def _generate_summary(client, content: str, model_name: str, logger) -> Optional[str]:
+def _generate_summary(client, content: str, model_name: str, logger) -> str | None:
     """Generate summary with robust error handling."""
     prompt = f"""Please provide a comprehensive 3-4 sentence summary of the following document:
 

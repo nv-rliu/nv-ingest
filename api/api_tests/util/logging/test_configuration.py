@@ -5,7 +5,6 @@
 import logging
 
 import pytest
-
 from nv_ingest_api.util.logging.configuration import LogLevel
 from nv_ingest_api.util.logging.configuration import configure_logging
 

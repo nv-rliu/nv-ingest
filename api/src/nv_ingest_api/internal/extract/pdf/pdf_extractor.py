@@ -3,10 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024, NVIDIA CORPORATION.
 
-import pandas as pd
-from typing import Any, Dict, List, Optional, Tuple
 import logging
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
+import pandas as pd
 from nv_ingest_api.internal.extract.pdf.engines.pdf_helpers import _orchestrate_row_extraction
 
 logger = logging.getLogger(__name__)
@@ -14,10 +18,10 @@ logger = logging.getLogger(__name__)
 
 def extract_primitives_from_pdf_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     extractor_config: Any,
-    execution_trace_log: Optional[List[Any]] = None,
-) -> Tuple[pd.DataFrame, Dict]:
+    execution_trace_log: list[Any] | None = None,
+) -> tuple[pd.DataFrame, dict]:
     """
     Process a DataFrame of PDF documents by orchestrating extraction for each row.
 

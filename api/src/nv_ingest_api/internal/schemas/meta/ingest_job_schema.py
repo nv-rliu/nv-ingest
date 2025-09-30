@@ -3,12 +3,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Any, Dict, List, Optional, Union, Annotated
+from typing import Annotated
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
-from pydantic import Field, field_validator, model_validator
-
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import TaskTypeEnum
 from nv_ingest_api.internal.schemas.meta.base_model_noext import BaseModelNoExt
-from nv_ingest_api.internal.enums.common import ContentTypeEnum, TaskTypeEnum, DocumentTypeEnum
+from pydantic import Field
+from pydantic import field_validator
+from pydantic import model_validator
 
 # ------------------------------------------------------------------------------
 # Logging Configuration
@@ -25,14 +33,14 @@ logger = logging.getLogger(__name__)
 class TracingOptionsSchema(BaseModelNoExt):
     trace: bool = False
     ts_send: int
-    trace_id: Optional[str] = None
+    trace_id: str | None = None
 
 
 # Ingest Task Schemas
 
 
 class IngestTaskSplitSchema(BaseModelNoExt):
-    tokenizer: Optional[str] = None
+    tokenizer: str | None = None
     chunk_size: Annotated[int, Field(gt=0)] = 1024
     chunk_overlap: Annotated[int, Field(ge=0)] = 150
     params: dict = Field(default_factory=dict)
@@ -73,16 +81,16 @@ class IngestTaskStoreSchema(BaseModelNoExt):
 
 # Captioning: All fields are optional and override default parameters.
 class IngestTaskCaptionSchema(BaseModelNoExt):
-    api_key: Optional[str] = Field(default=None, repr=False)
-    endpoint_url: Optional[str] = None
-    prompt: Optional[str] = None
-    model_name: Optional[str] = None
+    api_key: str | None = Field(default=None, repr=False)
+    endpoint_url: str | None = None
+    prompt: str | None = None
+    model_name: str | None = None
 
 
 class IngestTaskFilterParamsSchema(BaseModelNoExt):
     min_size: int = 128
-    max_aspect_ratio: Union[float, int] = 5.0
-    min_aspect_ratio: Union[float, int] = 0.2
+    max_aspect_ratio: float | int = 5.0
+    min_aspect_ratio: float | int = 0.2
     filter: bool = False
 
 
@@ -103,32 +111,32 @@ class IngestTaskDedupSchema(BaseModelNoExt):
 
 
 class IngestTaskEmbedSchema(BaseModelNoExt):
-    endpoint_url: Optional[str] = None
-    model_name: Optional[str] = None
-    api_key: Optional[str] = Field(default=None, repr=False)
+    endpoint_url: str | None = None
+    model_name: str | None = None
+    api_key: str | None = Field(default=None, repr=False)
     filter_errors: bool = False
-    text_elements_modality: Optional[str] = None
-    image_elements_modality: Optional[str] = None
-    structured_elements_modality: Optional[str] = None
-    audio_elements_modality: Optional[str] = None
+    text_elements_modality: str | None = None
+    image_elements_modality: str | None = None
+    structured_elements_modality: str | None = None
+    audio_elements_modality: str | None = None
 
 
 class IngestTaskVdbUploadSchema(BaseModelNoExt):
     bulk_ingest: bool = False
-    bulk_ingest_path: Optional[str] = None
-    params: Optional[dict] = None
+    bulk_ingest_path: str | None = None
+    params: dict | None = None
     filter_errors: bool = True
 
 
 class IngestTaskAudioExtraction(BaseModelNoExt):
-    auth_token: Optional[str] = Field(default=None, repr=False)
-    grpc_endpoint: Optional[str] = None
-    http_endpoint: Optional[str] = None
-    infer_protocol: Optional[str] = None
-    function_id: Optional[str] = None
-    use_ssl: Optional[bool] = None
-    ssl_cert: Optional[str] = Field(default=None, repr=False)
-    segment_audio: Optional[bool] = None
+    auth_token: str | None = Field(default=None, repr=False)
+    grpc_endpoint: str | None = None
+    http_endpoint: str | None = None
+    infer_protocol: str | None = None
+    function_id: str | None = None
+    use_ssl: bool | None = None
+    ssl_cert: str | None = Field(default=None, repr=False)
+    segment_audio: bool | None = None
 
 
 class IngestTaskTableExtraction(BaseModelNoExt):
@@ -146,10 +154,10 @@ class IngestTaskInfographicExtraction(BaseModelNoExt):
 class IngestTaskUDFSchema(BaseModelNoExt):
     udf_function: str
     udf_function_name: str
-    phase: Optional[int] = Field(default=None, ge=1, le=5)
+    phase: int | None = Field(default=None, ge=1, le=5)
     run_before: bool = Field(default=False, description="Execute UDF before the target stage")
     run_after: bool = Field(default=False, description="Execute UDF after the target stage")
-    target_stage: Optional[str] = Field(
+    target_stage: str | None = Field(
         default=None, description="Name of the stage to target (e.g., 'image_dedup', 'text_extract')"
     )
 
@@ -179,22 +187,22 @@ class IngestTaskUDFSchema(BaseModelNoExt):
 
 class IngestTaskSchema(BaseModelNoExt):
     type: TaskTypeEnum
-    task_properties: Union[
-        IngestTaskSplitSchema,
-        IngestTaskExtractSchema,
-        IngestTaskStoreEmbedSchema,
-        IngestTaskStoreSchema,
-        IngestTaskEmbedSchema,
-        IngestTaskCaptionSchema,
-        IngestTaskDedupSchema,
-        IngestTaskFilterSchema,
-        IngestTaskVdbUploadSchema,
-        IngestTaskAudioExtraction,
-        IngestTaskTableExtraction,
-        IngestTaskChartExtraction,
-        IngestTaskInfographicExtraction,
-        IngestTaskUDFSchema,
-    ]
+    task_properties: (
+        IngestTaskSplitSchema
+        | IngestTaskExtractSchema
+        | IngestTaskStoreEmbedSchema
+        | IngestTaskStoreSchema
+        | IngestTaskEmbedSchema
+        | IngestTaskCaptionSchema
+        | IngestTaskDedupSchema
+        | IngestTaskFilterSchema
+        | IngestTaskVdbUploadSchema
+        | IngestTaskAudioExtraction
+        | IngestTaskTableExtraction
+        | IngestTaskChartExtraction
+        | IngestTaskInfographicExtraction
+        | IngestTaskUDFSchema
+    )
     raise_on_failure: bool = False
 
     @model_validator(mode="before")
@@ -255,17 +263,17 @@ class IngestTaskSchema(BaseModelNoExt):
 
 
 class JobPayloadSchema(BaseModelNoExt):
-    content: List[Union[str, bytes]]
-    source_name: List[str]
-    source_id: List[Union[str, int]]
-    document_type: List[str]
+    content: list[str | bytes]
+    source_name: list[str]
+    source_id: list[str | int]
+    document_type: list[str]
 
 
 class IngestJobSchema(BaseModelNoExt):
     job_payload: JobPayloadSchema
-    job_id: Union[str, int]
-    tasks: List[IngestTaskSchema]
-    tracing_options: Optional[TracingOptionsSchema] = None
+    job_id: str | int
+    tasks: list[IngestTaskSchema]
+    tracing_options: TracingOptionsSchema | None = None
 
 
 # ------------------------------------------------------------------------------
@@ -273,7 +281,7 @@ class IngestJobSchema(BaseModelNoExt):
 # ------------------------------------------------------------------------------
 
 
-def validate_ingest_job(job_data: Dict[str, Any]) -> IngestJobSchema:
+def validate_ingest_job(job_data: dict[str, Any]) -> IngestJobSchema:
     """
     Validates a dictionary representing an ingest_job using the IngestJobSchema.
 

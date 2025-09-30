@@ -5,9 +5,10 @@
 # noqa
 # flake8: noqa
 
-import pytest
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open
+from unittest.mock import patch
 
+import pytest
 from nv_ingest_api.internal.enums.common import PipelinePhase
 from nv_ingest_client.primitives.tasks.udf import UDFTask
 

@@ -10,15 +10,14 @@ from typing import Optional
 from typing import Tuple
 
 import pandas as pd
-
 from nv_ingest_api.internal.primitives.nim import NimClient
-from nv_ingest_api.internal.primitives.nim.model_interface.ocr import PaddleOCRModelInterface
 from nv_ingest_api.internal.primitives.nim.model_interface.ocr import NemoRetrieverOCRModelInterface
+from nv_ingest_api.internal.primitives.nim.model_interface.ocr import PaddleOCRModelInterface
 from nv_ingest_api.internal.primitives.nim.model_interface.ocr import get_ocr_model_name
 from nv_ingest_api.internal.schemas.extract.extract_infographic_schema import InfographicExtractorSchema
+from nv_ingest_api.util.image_processing.table_and_chart import reorder_boxes
 from nv_ingest_api.util.image_processing.transforms import base64_to_numpy
 from nv_ingest_api.util.nim import create_inference_client
-from nv_ingest_api.util.image_processing.table_and_chart import reorder_boxes
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +26,8 @@ PADDLE_MIN_HEIGHT = 32
 
 
 def _filter_infographic_images(
-    base64_images: List[str],
-) -> Tuple[List[str], List[int], List[Tuple[str, Optional[Any], Optional[Any]]]]:
+    base64_images: list[str],
+) -> tuple[list[str], list[int], list[tuple[str, Any | None, Any | None]]]:
     """
     Filters base64-encoded images based on minimum size requirements.
 
@@ -44,9 +43,9 @@ def _filter_infographic_images(
         - valid_indices: Original indices of valid images.
         - results: Initialized results list, with invalid images marked as (img, None, None).
     """
-    results: List[Tuple[str, Optional[Any], Optional[Any]]] = [("", None, None)] * len(base64_images)
-    valid_images: List[str] = []
-    valid_indices: List[int] = []
+    results: list[tuple[str, Any | None, Any | None]] = [("", None, None)] * len(base64_images)
+    valid_images: list[str] = []
+    valid_indices: list[int] = []
 
     for i, img in enumerate(base64_images):
         array = base64_to_numpy(img)
@@ -61,12 +60,12 @@ def _filter_infographic_images(
 
 
 def _update_infographic_metadata(
-    base64_images: List[str],
+    base64_images: list[str],
     ocr_client: NimClient,
     ocr_model_name: str,
     worker_pool_size: int = 8,  # Not currently used
-    trace_info: Optional[Dict] = None,
-) -> List[Tuple[str, Optional[Any], Optional[Any]]]:
+    trace_info: dict | None = None,
+) -> list[tuple[str, Any | None, Any | None]]:
     """
     Filters base64-encoded images and uses OCR to extract infographic data.
 
@@ -146,7 +145,7 @@ def _update_infographic_metadata(
 
 
 def _create_ocr_client(
-    ocr_endpoints: Tuple[str, str],
+    ocr_endpoints: tuple[str, str],
     ocr_protocol: str,
     ocr_model_name: str,
     auth_token: str,
@@ -205,10 +204,10 @@ def _meets_infographic_criteria(row: pd.Series) -> bool:
 
 def extract_infographic_data_from_image_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     extraction_config: InfographicExtractorSchema,
-    execution_trace_log: Optional[Dict] = None,
-) -> Tuple[pd.DataFrame, Dict]:
+    execution_trace_log: dict | None = None,
+) -> tuple[pd.DataFrame, dict]:
     """
     Extracts infographic data from a DataFrame in bulk, following the chart extraction pattern.
 

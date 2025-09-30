@@ -4,6 +4,7 @@
 
 # Copyright (c) 2025, NVIDIA CORPORATION.
 
-from nv_ingest_api.util.dataloader.dataloader import DataLoader, MediaInterface
+from nv_ingest_api.util.dataloader.dataloader import DataLoader
+from nv_ingest_api.util.dataloader.dataloader import MediaInterface
 
 __all__ = ["DataLoader", "MediaInterface"]

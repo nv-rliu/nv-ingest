@@ -3,15 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import (
-    PDFiumConfigSchema,
-    NemoRetrieverParseConfigSchema,
-    PDFExtractorSchema,
-)
+from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import NemoRetrieverParseConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFExtractorSchema
+from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFiumConfigSchema
 from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
-
+from pydantic import ValidationError
 
 ### Tests for PDFiumConfigSchema ###
 

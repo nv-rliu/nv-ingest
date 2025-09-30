@@ -6,18 +6,16 @@ import logging
 from typing import Optional
 
 import ray
-
-from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
-from nv_ingest.framework.util.flow_control import filter_by_task
-from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage, remove_task_by_type
+from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
+from nv_ingest_api.internal.primitives.ingest_control_message import remove_task_by_type
 from nv_ingest_api.internal.primitives.tracing.tagging import traceable
 from nv_ingest_api.internal.schemas.store.store_embedding_schema import EmbeddingStorageSchema
 from nv_ingest_api.internal.store.embed_text_upload import store_text_embeddings_internal
-from nv_ingest_api.util.exception_handlers.decorators import (
-    nv_ingest_node_failure_try_except,
-)
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
 from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
+from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
+from nv_ingest.framework.util.flow_control import filter_by_task
 from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
 
 logger = logging.getLogger(__name__)
@@ -34,7 +32,7 @@ class EmbeddingStorageStage(RayActorStage):
       3. Updates the message payload with the stored embeddings DataFrame.
     """
 
-    def __init__(self, config: EmbeddingStorageSchema, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: EmbeddingStorageSchema, stage_name: str | None = None) -> None:
         super().__init__(config, stage_name=stage_name)
         try:
             self.validated_config = config

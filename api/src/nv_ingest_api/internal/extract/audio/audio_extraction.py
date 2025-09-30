@@ -2,20 +2,20 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
-
-import pandas as pd
 import functools
+import logging
 import uuid
 from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Tuple
 
+import pandas as pd
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.primitives.nim.model_interface.parakeet import create_audio_inference_client
 from nv_ingest_api.internal.schemas.extract.extract_audio_schema import AudioExtractorSchema
-from nv_ingest_api.internal.schemas.meta.metadata_schema import MetadataSchema, AudioMetadataSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import AudioMetadataSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import MetadataSchema
 from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
 from nv_ingest_api.util.schema.schema_validator import validate_schema
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 @unified_exception_handler
-def _extract_from_audio(row: pd.Series, audio_client: Any, trace_info: Dict, segment_audio: bool = False) -> Dict:
+def _extract_from_audio(row: pd.Series, audio_client: Any, trace_info: dict, segment_audio: bool = False) -> dict:
     """
     Modifies the metadata of a row if the conditions for table extraction are met.
 
@@ -98,10 +98,10 @@ def _extract_from_audio(row: pd.Series, audio_client: Any, trace_info: Dict, seg
 
 def extract_text_from_audio_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     extraction_config: AudioExtractorSchema,
-    execution_trace_log: Optional[Dict] = None,
-) -> Tuple[pd.DataFrame, Dict]:
+    execution_trace_log: dict | None = None,
+) -> tuple[pd.DataFrame, dict]:
     """
     Extracts audio data from a DataFrame.
 

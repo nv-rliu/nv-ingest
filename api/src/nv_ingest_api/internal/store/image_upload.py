@@ -6,13 +6,14 @@ import base64
 import logging
 import os
 from io import BytesIO
-from typing import Any, List, Optional
+from typing import Any
 from typing import Dict
+from typing import List
+from typing import Optional
 from urllib.parse import quote
 
 import pandas as pd
 from minio import Minio
-
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ def _ensure_bucket_exists(client: Minio, bucket_name: str) -> None:
         logger.debug("Bucket %s already exists", bucket_name)
 
 
-def _upload_images_to_minio(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+def _upload_images_to_minio(df: pd.DataFrame, params: dict[str, Any]) -> pd.DataFrame:
     """
     Identifies content within a DataFrame and uploads it to MinIO, updating the metadata with the uploaded URL.
 
@@ -176,9 +177,9 @@ def _upload_images_to_minio(df: pd.DataFrame, params: Dict[str, Any]) -> pd.Data
 
 def store_images_to_minio_internal(
     df_storage_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
-    storage_config: Dict[str, Any],
-    execution_trace_log: Optional[List[Any]] = None,
+    task_config: dict[str, Any],
+    storage_config: dict[str, Any],
+    execution_trace_log: list[Any] | None = None,
 ) -> pd.DataFrame:
     """
     Processes a storage ledger DataFrame to upload images (and structured content) to MinIO.

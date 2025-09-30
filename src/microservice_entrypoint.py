@@ -59,8 +59,10 @@ def cli(
         else:
             logger.info("No pipeline-config-path provided; using embedded default pipeline configuration")
         # Import modules that may configure logging only after logging is set up
-        from nv_ingest.pipeline.config.loaders import load_pipeline_config, load_default_pipeline_config
         from nv_ingest_api.util.string_processing.configuration import dump_pipeline_to_graphviz
+
+        from nv_ingest.pipeline.config.loaders import load_default_pipeline_config
+        from nv_ingest.pipeline.config.loaders import load_pipeline_config
 
         if pipeline_config_path:
             pipeline_config = load_pipeline_config(pipeline_config_path)

@@ -3,13 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+from datetime import datetime
 from io import BytesIO
+from typing import List
+from typing import Union
 
 import pandas as pd
-from datetime import datetime
-from typing import List, Union
-
-from nv_ingest_api.internal.enums.common import ContentTypeEnum, DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 
 # ------------------------------------------------------------------------------
 # Mapping from DocumentTypeEnum to ContentTypeEnum
@@ -123,10 +124,10 @@ def create_content_metadata(document_type: str) -> dict:
 # Main helper function to build a DataFrame from lists of files.
 # ------------------------------------------------------------------------------
 def build_dataframe_from_files(
-    file_paths: List[Union[str, BytesIO]],
-    source_names: List[str],
-    source_ids: List[str],
-    document_types: List[str],
+    file_paths: list[str | BytesIO],
+    source_names: list[str],
+    source_ids: list[str],
+    document_types: list[str],
 ) -> pd.DataFrame:
     """
     Given lists of file paths (or BytesIO objects), source names, source IDs, and document types,

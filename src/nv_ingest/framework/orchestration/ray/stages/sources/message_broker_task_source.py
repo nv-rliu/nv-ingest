@@ -2,34 +2,38 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
-import uuid
-from typing import Optional, Literal, Dict, Any, Union
-
-import ray
-import json
 import copy
+import json
+import logging
+import random
 import threading
 import time
-import random
+import uuid
 from datetime import datetime
+from typing import Any
+from typing import Dict
+from typing import Literal
+from typing import Optional
+from typing import Union
 
 import pandas as pd
-from opentelemetry.trace.span import format_trace_id
-from pydantic import BaseModel, Field
-
-from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_source_stage_base import RayActorSourceStage
+import ray
+from nv_ingest_api.internal.primitives.control_message_task import ControlMessageTask
 
 # Import from nv_ingest_api
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
-from nv_ingest_api.internal.primitives.control_message_task import ControlMessageTask
 from nv_ingest_api.internal.primitives.tracing.logging import annotate_cm
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import validate_ingest_job
+from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
 # Import clients
 from nv_ingest_api.util.message_brokers.simple_message_broker.simple_client import SimpleClient
 from nv_ingest_api.util.service_clients.redis.redis_client import RedisClient
-from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
+from opentelemetry.trace.span import format_trace_id
+from pydantic import BaseModel
+from pydantic import Field
+
+from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_source_stage_base import RayActorSourceStage
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +68,7 @@ class SimpleClientConfig(BaseBrokerClientConfig):
     """Configuration specific to the Simple client."""
 
     client_type: Literal["simple"] = Field(..., description="Specifies the client type as Simple.")
-    broker_params: Optional[Dict[str, Any]] = Field(
+    broker_params: dict[str, Any] | None = Field(
         default={}, description="Optional parameters for Simple client (currently unused)."
     )
 
@@ -88,7 +92,7 @@ class MessageBrokerTaskSourceConfig(BaseModel):
     """
 
     # Use the discriminated union for broker_client
-    broker_client: Union[RedisClientConfig, SimpleClientConfig] = Field(..., discriminator="client_type")
+    broker_client: RedisClientConfig | SimpleClientConfig = Field(..., discriminator="client_type")
     task_queue: str = Field(..., description="The name of the queue to fetch tasks from.")
     poll_interval: float = Field(default=0.1, gt=0, description="Polling interval in seconds.")
 
@@ -102,7 +106,7 @@ class MessageBrokerTaskSourceStage(RayActorSourceStage):
     """
 
     # Use the updated config type hint
-    def __init__(self, config: MessageBrokerTaskSourceConfig, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: MessageBrokerTaskSourceConfig, stage_name: str | None = None) -> None:
         super().__init__(config, log_to_stdout=False, stage_name=stage_name)
         self.config: MessageBrokerTaskSourceConfig  # Add a type hint for self.config
 

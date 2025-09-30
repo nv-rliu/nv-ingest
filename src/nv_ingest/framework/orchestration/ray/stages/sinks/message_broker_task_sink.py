@@ -2,18 +2,25 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
 import json
 import logging
-from typing import Any, Dict, List, Tuple, Literal, Optional, Union
-from pydantic import BaseModel, Field
-import ray
+import sys
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Literal
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
-from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
+import ray
 from nv_ingest_api.internal.primitives.tracing.logging import annotate_cm
 from nv_ingest_api.util.message_brokers.simple_message_broker import SimpleClient
 from nv_ingest_api.util.service_clients.redis.redis_client import RedisClient
+from pydantic import BaseModel
+from pydantic import Field
 
+from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
 
 logger = logging.getLogger(__name__)
@@ -49,7 +56,7 @@ class SimpleClientConfig(BaseBrokerClientConfig):
     """Configuration specific to the Simple client."""
 
     client_type: Literal["simple"] = Field(..., description="Specifies the client type as Simple.")
-    broker_params: Optional[Dict[str, Any]] = Field(
+    broker_params: dict[str, Any] | None = Field(
         default={}, description="Optional parameters for Simple client (currently unused)."
     )
 
@@ -71,13 +78,13 @@ class MessageBrokerTaskSinkConfig(BaseModel):
     """
 
     # Use the discriminated union for broker_client
-    broker_client: Union[RedisClientConfig, SimpleClientConfig] = Field(..., discriminator="client_type")
+    broker_client: RedisClientConfig | SimpleClientConfig = Field(..., discriminator="client_type")
     poll_interval: float = Field(default=0.1, gt=0)
 
 
 @ray.remote
 class MessageBrokerTaskSinkStage(RayActorStage):
-    def __init__(self, config: MessageBrokerTaskSinkConfig, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: MessageBrokerTaskSinkConfig, stage_name: str | None = None) -> None:
         super().__init__(config, log_to_stdout=False, stage_name=stage_name)
 
         self.config: MessageBrokerTaskSinkConfig
@@ -116,7 +123,7 @@ class MessageBrokerTaskSinkStage(RayActorStage):
             )
 
     @staticmethod
-    def _extract_data_frame(message: Any) -> Tuple[Any, Any]:
+    def _extract_data_frame(message: Any) -> tuple[Any, Any]:
         """
         Extracts a DataFrame from a message payload and returns it along with selected columns.
         """
@@ -130,7 +137,7 @@ class MessageBrokerTaskSinkStage(RayActorStage):
             return None, None
 
     @staticmethod
-    def _split_large_dict(json_data: List[Dict[str, Any]], size_limit: int) -> List[List[Dict[str, Any]]]:
+    def _split_large_dict(json_data: list[dict[str, Any]], size_limit: int) -> list[list[dict[str, Any]]]:
         fragments = []
         current_fragment = []
         current_size = sys.getsizeof(json.dumps(current_fragment))
@@ -146,7 +153,7 @@ class MessageBrokerTaskSinkStage(RayActorStage):
             fragments.append(current_fragment)
         return fragments
 
-    def _create_json_payload(self, message: Any, df_json: Any) -> List[Dict[str, Any]]:
+    def _create_json_payload(self, message: Any, df_json: Any) -> list[dict[str, Any]]:
         """
         Creates JSON payloads based on the message data. Splits the data if it exceeds a size limit.
         """
@@ -183,7 +190,7 @@ class MessageBrokerTaskSinkStage(RayActorStage):
         logger.debug(f"Sink created {len(ret_val_json_list)} JSON payloads.")
         return ret_val_json_list
 
-    def _push_to_broker(self, json_payloads: List[str], response_channel: str, retry_count: int = 2) -> None:
+    def _push_to_broker(self, json_payloads: list[str], response_channel: str, retry_count: int = 2) -> None:
         """
         Pushes JSON payloads to the broker channel, retrying on failure.
         """
@@ -204,7 +211,7 @@ class MessageBrokerTaskSinkStage(RayActorStage):
                     raise
 
     def _handle_failure(
-        self, response_channel: str, json_result_fragments: List[Dict[str, Any]], e: Exception, mdf_size: int
+        self, response_channel: str, json_result_fragments: list[dict[str, Any]], e: Exception, mdf_size: int
     ) -> None:
         """
         Handles failure by logging and pushing a failure message to the broker.

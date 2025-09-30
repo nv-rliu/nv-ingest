@@ -1,6 +1,6 @@
+import re
 import subprocess
 import sys
-import re
 
 import pytest
 
@@ -18,9 +18,9 @@ def test_launch_libmode_and_run_ingestor():
     - Prints captured output on failure for easier debugging.
     """
     import os
+    import select
     import signal
     import time
-    import select
     from pathlib import Path
 
     repo_root = Path(__file__).resolve().parents[2]

@@ -10,16 +10,21 @@ Tests the content_summarizer UDF function and its helper functions.
 """
 
 import os
+from unittest.mock import Mock
+from unittest.mock import patch
 
 # Standard library and third-party imports
 import pandas as pd
 import pytest
-from unittest.mock import Mock, patch
-from openai.types.chat import ChatCompletion, ChatCompletionMessage
+from openai.types.chat import ChatCompletion
+from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion import Choice
 
 # Import the UDF functions from API udfs location
-from udfs.llm_summarizer_udf import content_summarizer, _extract_content, _generate_summary, _add_summary
+from udfs.llm_summarizer_udf import _add_summary
+from udfs.llm_summarizer_udf import _extract_content
+from udfs.llm_summarizer_udf import _generate_summary
+from udfs.llm_summarizer_udf import content_summarizer
 
 
 class MockIngestControlMessage:

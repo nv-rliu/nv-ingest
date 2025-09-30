@@ -4,12 +4,15 @@
 
 import importlib
 import inspect
-from typing import Callable, Union, List, Optional
+from collections.abc import Callable
+from typing import List
+from typing import Optional
+from typing import Union
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 
 
-def resolve_obj_from_path(path: str, allowed_base_paths: Optional[List[str]] = None) -> object:
+def resolve_obj_from_path(path: str, allowed_base_paths: list[str] | None = None) -> object:
     """
     Import and return an object from a string path of the form 'module.sub:attr'.
 
@@ -41,8 +44,8 @@ def resolve_obj_from_path(path: str, allowed_base_paths: Optional[List[str]] = N
 
 def resolve_callable_from_path(
     callable_path: str,
-    signature_schema: Union[List[str], Callable[[inspect.Signature], None], str],
-    allowed_base_paths: Optional[List[str]] = None,
+    signature_schema: list[str] | Callable[[inspect.Signature], None] | str,
+    allowed_base_paths: list[str] | None = None,
 ) -> Callable:
     """
     Import and return a callable from a module path string like 'module.submodule:callable_name',
@@ -109,7 +112,7 @@ def resolve_callable_from_path(
 
 
 def resolve_actor_class_from_path(
-    path: str, expected_base_class: type, allowed_base_paths: Optional[List[str]] = None
+    path: str, expected_base_class: type, allowed_base_paths: list[str] | None = None
 ) -> type:
     """
     Resolves an actor class from a path and validates that it is a class

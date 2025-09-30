@@ -1,9 +1,8 @@
 import logging
 
-
-from nv_ingest_client.util.vdb.adt_vdb import VDB
 import opensearchpy as opensearch
 from nv_ingest_client.util.util import ClientConfigSchema
+from nv_ingest_client.util.vdb.adt_vdb import VDB
 
 logger = logging.getLogger(__name__)
 

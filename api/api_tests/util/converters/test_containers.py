@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from nv_ingest_api.util.converters.containers import (
-    merge_dict,
-)  # Replace 'your_module' with the actual name of your module
+    merge_dict,  # Replace 'your_module' with the actual name of your module
+)
 
 
 def test_merge_simple_dicts():

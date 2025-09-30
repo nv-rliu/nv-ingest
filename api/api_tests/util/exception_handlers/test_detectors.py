@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from langdetect.lang_detect_exception import LangDetectException
-
 from nv_ingest_api.util.exception_handlers.detectors import langdetect_exception_handler
 
 

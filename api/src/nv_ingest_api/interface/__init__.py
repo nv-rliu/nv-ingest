@@ -2,21 +2,24 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
 import functools
 import inspect
+import logging
 import pprint
-from typing import Dict, Any, Optional, List
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 
-from pydantic import BaseModel
-
-from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFiumConfigSchema, NemoRetrieverParseConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import NemoRetrieverParseConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFiumConfigSchema
 from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
 ## CONFIG_SCHEMAS is a global dictionary that maps extraction methods to Pydantic schemas.
-CONFIG_SCHEMAS: Dict[str, Any] = {
+CONFIG_SCHEMAS: dict[str, Any] = {
     "adobe": PDFiumConfigSchema,
     "llama": PDFiumConfigSchema,
     "nemoretriever_parse": NemoRetrieverParseConfigSchema,
@@ -26,7 +29,7 @@ CONFIG_SCHEMAS: Dict[str, Any] = {
 }
 
 
-def _build_config_from_schema(schema_class: type[BaseModel], args: Dict[str, Any]) -> Dict[str, Any]:
+def _build_config_from_schema(schema_class: type[BaseModel], args: dict[str, Any]) -> dict[str, Any]:
     """
     Build and validate a configuration dictionary from the provided arguments using a Pydantic schema.
 
@@ -58,7 +61,7 @@ def _build_config_from_schema(schema_class: type[BaseModel], args: Dict[str, Any
     return schema_class(**config_data).dict()
 
 
-def extraction_interface_relay_constructor(api_fn, task_keys: Optional[List[str]] = None):
+def extraction_interface_relay_constructor(api_fn, task_keys: list[str] | None = None):
     """
     Decorator for constructing and validating configuration using Pydantic schemas.
 

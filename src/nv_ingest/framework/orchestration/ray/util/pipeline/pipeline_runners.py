@@ -3,36 +3,33 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Union, Optional, TextIO
+from typing import Optional
+from typing import TextIO
+from typing import Union
 
-
-from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import (
-    RayPipelineSubprocessInterface,
-    RayPipelineInterface,
-)
-from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
-
-from nv_ingest.pipeline.config.loaders import resolve_pipeline_config, apply_runtime_overrides
+from nv_ingest.framework.orchestration.execution.helpers import create_execution_options
+from nv_ingest.framework.orchestration.execution.helpers import create_runtime_overrides
+from nv_ingest.framework.orchestration.execution.helpers import select_execution_strategy
 from nv_ingest.framework.orchestration.process.lifecycle import PipelineLifecycleManager
-from nv_ingest.framework.orchestration.execution.helpers import (
-    create_runtime_overrides,
-    create_execution_options,
-    select_execution_strategy,
-)
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipelineInterface
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipelineSubprocessInterface
+from nv_ingest.pipeline.config.loaders import apply_runtime_overrides
+from nv_ingest.pipeline.config.loaders import resolve_pipeline_config
+from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
 
 logger = logging.getLogger(__name__)
 
 
 def run_pipeline(
-    pipeline_config: Optional[PipelineConfigSchema] = None,
+    pipeline_config: PipelineConfigSchema | None = None,
     block: bool = True,
-    disable_dynamic_scaling: Optional[bool] = None,
-    dynamic_memory_threshold: Optional[float] = None,
+    disable_dynamic_scaling: bool | None = None,
+    dynamic_memory_threshold: float | None = None,
     run_in_subprocess: bool = False,
-    stdout: Optional[TextIO] = None,
-    stderr: Optional[TextIO] = None,
+    stdout: TextIO | None = None,
+    stderr: TextIO | None = None,
     libmode: bool = True,
-) -> Union[RayPipelineInterface, float, RayPipelineSubprocessInterface]:
+) -> RayPipelineInterface | float | RayPipelineSubprocessInterface:
     """
     Launch and manage a pipeline using configuration.
 

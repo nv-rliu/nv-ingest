@@ -5,7 +5,8 @@
 
 import logging
 from enum import Enum
-from typing import Type, Any
+from typing import Any
+from typing import Type
 
 logger = logging.getLogger(__name__)
 
@@ -353,7 +354,7 @@ class LanguageEnum(str, Enum):
     UNKNOWN: str = "unknown"
 
     @classmethod
-    def has_value(cls: Type["LanguageEnum"], value: Any) -> bool:
+    def has_value(cls: type["LanguageEnum"], value: Any) -> bool:
         """
         Check if the enum contains the given value.
 

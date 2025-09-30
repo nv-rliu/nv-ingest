@@ -4,24 +4,24 @@
 
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Union
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 import numpy as np
 import pandas as pd
-
+from nv_ingest_api.internal.primitives.nim import NimClient
+from nv_ingest_api.internal.primitives.nim.model_interface.ocr import NemoRetrieverOCRModelInterface
+from nv_ingest_api.internal.primitives.nim.model_interface.ocr import PaddleOCRModelInterface
+from nv_ingest_api.internal.primitives.nim.model_interface.ocr import get_ocr_model_name
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YoloxGraphicElementsModelInterface
 from nv_ingest_api.internal.schemas.extract.extract_chart_schema import ChartExtractorSchema
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskChartExtraction
 from nv_ingest_api.util.image_processing.table_and_chart import join_yolox_graphic_elements_and_ocr_output
 from nv_ingest_api.util.image_processing.table_and_chart import process_yolox_graphic_elements
-from nv_ingest_api.internal.primitives.nim.model_interface.ocr import PaddleOCRModelInterface
-from nv_ingest_api.internal.primitives.nim.model_interface.ocr import NemoRetrieverOCRModelInterface
-from nv_ingest_api.internal.primitives.nim.model_interface.ocr import get_ocr_model_name
-from nv_ingest_api.internal.primitives.nim import NimClient
-from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YoloxGraphicElementsModelInterface
 from nv_ingest_api.util.image_processing.transforms import base64_to_numpy
 from nv_ingest_api.util.nim import create_inference_client
 
@@ -32,8 +32,8 @@ logger = logging.getLogger(f"ray.{__name__}")
 
 
 def _filter_valid_chart_images(
-    base64_images: List[str],
-) -> Tuple[List[str], List[np.ndarray], List[int], List[Tuple[str, Optional[Dict]]]]:
+    base64_images: list[str],
+) -> tuple[list[str], list[np.ndarray], list[int], list[tuple[str, dict | None]]]:
     """
     Filter base64-encoded images based on minimum dimensions for chart extraction.
 
@@ -43,10 +43,10 @@ def _filter_valid_chart_images(
       - valid_indices: Original indices of valid images.
       - results: Initial results list where invalid images are set to (img, None).
     """
-    results: List[Tuple[str, Optional[Dict]]] = [("", None)] * len(base64_images)
-    valid_images: List[str] = []
-    valid_arrays: List[np.ndarray] = []
-    valid_indices: List[int] = []
+    results: list[tuple[str, dict | None]] = [("", None)] * len(base64_images)
+    valid_images: list[str] = []
+    valid_arrays: list[np.ndarray] = []
+    valid_indices: list[int] = []
 
     for i, img in enumerate(base64_images):
         array = base64_to_numpy(img)
@@ -65,10 +65,10 @@ def _run_chart_inference(
     yolox_client: Any,
     ocr_client: Any,
     ocr_model_name: str,
-    valid_arrays: List[np.ndarray],
-    valid_images: List[str],
-    trace_info: Dict,
-) -> Tuple[List[Any], List[Any]]:
+    valid_arrays: list[np.ndarray],
+    valid_images: list[str],
+    trace_info: dict,
+) -> tuple[list[Any], list[Any]]:
     """
     Run concurrent inference for chart extraction using YOLOX and Paddle.
 
@@ -130,9 +130,9 @@ def _run_chart_inference(
 def _validate_chart_inference_results(
     yolox_results: Any,
     ocr_results: Any,
-    valid_arrays: List[Any],
-    valid_images: List[str],
-) -> Tuple[List[Any], List[Any]]:
+    valid_arrays: list[Any],
+    valid_images: list[str],
+) -> tuple[list[Any], list[Any]]:
     """
     Ensure inference results are lists and have expected lengths.
 
@@ -150,12 +150,12 @@ def _validate_chart_inference_results(
 
 
 def _merge_chart_results(
-    base64_images: List[str],
-    valid_indices: List[int],
-    yolox_results: List[Any],
-    ocr_results: List[Any],
-    initial_results: List[Tuple[str, Optional[Dict]]],
-) -> List[Tuple[str, Optional[Dict]]]:
+    base64_images: list[str],
+    valid_indices: list[int],
+    yolox_results: list[Any],
+    ocr_results: list[Any],
+    initial_results: list[tuple[str, dict | None]],
+) -> list[tuple[str, dict | None]]:
     """
     Merge inference results into the initial results list using the original indices.
 
@@ -173,13 +173,13 @@ def _merge_chart_results(
 
 
 def _update_chart_metadata(
-    base64_images: List[str],
+    base64_images: list[str],
     yolox_client: Any,
     ocr_client: Any,
     ocr_model_name: str,
-    trace_info: Dict,
+    trace_info: dict,
     worker_pool_size: int = 8,  # Not currently used.
-) -> List[Tuple[str, Optional[Dict]]]:
+) -> list[tuple[str, dict | None]]:
     """
     Given a list of base64-encoded chart images, concurrently call both YOLOX and Paddle
     inference services to extract chart data.
@@ -214,7 +214,7 @@ def _update_chart_metadata(
 
 
 def _create_yolox_client(
-    yolox_endpoints: Tuple[str, str],
+    yolox_endpoints: tuple[str, str],
     yolox_protocol: str,
     auth_token: str,
 ) -> NimClient:
@@ -231,7 +231,7 @@ def _create_yolox_client(
 
 
 def _create_ocr_client(
-    ocr_endpoints: Tuple[str, str],
+    ocr_endpoints: tuple[str, str],
     ocr_protocol: str,
     ocr_model_name: str,
     auth_token: str,
@@ -254,10 +254,10 @@ def _create_ocr_client(
 
 def extract_chart_data_from_image_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Union[IngestTaskChartExtraction, Dict[str, Any]],
+    task_config: IngestTaskChartExtraction | dict[str, Any],
     extraction_config: ChartExtractorSchema,
-    execution_trace_log: Optional[Dict] = None,
-) -> Tuple[pd.DataFrame, Dict]:
+    execution_trace_log: dict | None = None,
+) -> tuple[pd.DataFrame, dict]:
     """
     Extracts chart data from a DataFrame in a bulk fashion rather than row-by-row.
 

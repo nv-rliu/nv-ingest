@@ -3,22 +3,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
-import os
 import logging
+import os
 from io import BytesIO
 
 import pandas as pd
 import pytest
-
-from .. import get_project_root, find_root_by_pattern
-from nv_ingest_api.interface.transform import (
-    transform_text_create_embeddings,
-    transform_text_split_and_tokenize,
-    transform_image_create_vlm_caption,
-)
-from nv_ingest_api.internal.enums.common import DocumentTypeEnum, ContentTypeEnum
+from nv_ingest_api.interface.transform import transform_image_create_vlm_caption
+from nv_ingest_api.interface.transform import transform_text_create_embeddings
+from nv_ingest_api.interface.transform import transform_text_split_and_tokenize
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 from nv_ingest_api.internal.schemas.transform.transform_image_caption_schema import ImageCaptionExtractionSchema
 from nv_ingest_api.internal.schemas.transform.transform_text_embedding_schema import TextEmbeddingSchema
+
+from .. import find_root_by_pattern
+from .. import get_project_root
 
 logger = logging.getLogger(__name__)
 

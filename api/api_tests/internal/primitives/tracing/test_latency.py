@@ -4,10 +4,8 @@
 
 from unittest.mock import patch
 
-import pytest
-
 import nv_ingest_api.internal.primitives.tracing.latency as module_under_test
-
+import pytest
 from nv_ingest_api.internal.primitives.tracing.latency import latency_logger
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"

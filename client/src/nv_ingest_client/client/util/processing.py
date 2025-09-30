@@ -29,11 +29,11 @@ def get_valid_filename(name: Any) -> str:
 
 
 def save_document_results_to_jsonl(
-    doc_response_data: List[Dict[str, Any]],
+    doc_response_data: list[dict[str, Any]],
     jsonl_output_filepath: str,
     original_source_name_for_log: str,
     ensure_parent_dir_exists: bool = True,
-) -> Tuple[int, Dict[str, str]]:
+) -> tuple[int, dict[str, str]]:
     """
     Saves a list of extraction items (for a single source document) to a JSON Lines file.
     All content, including media, is embedded within the JSON items.

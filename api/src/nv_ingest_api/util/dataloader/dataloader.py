@@ -2,21 +2,24 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright (c) 2025, NVIDIA CORPORATION.
-from pathlib import Path
-from abc import ABC, abstractmethod
-import queue
-import threading
-import subprocess
+import glob
+import importlib.util
 import json
 import logging
 import math
-import importlib.util
-from enum import Enum
-from concurrent.futures import ThreadPoolExecutor
-from tqdm import tqdm
 import os
-import glob
+import queue
+import subprocess
+import threading
+from abc import ABC
+from abc import abstractmethod
+from concurrent.futures import ThreadPoolExecutor
+from enum import Enum
+
+# Copyright (c) 2025, NVIDIA CORPORATION.
+from pathlib import Path
+
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 

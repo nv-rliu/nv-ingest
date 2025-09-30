@@ -9,6 +9,7 @@ This module contains the core pipeline execution functions that are shared
 between different execution strategies, extracted to avoid circular imports.
 """
 
+import json
 import logging
 import multiprocessing
 import os
@@ -17,20 +18,23 @@ import sys
 import time
 from ctypes import CDLL
 from datetime import datetime
-from typing import Union, Tuple, Optional, TextIO, Any
-import json
+from typing import Any
+from typing import Optional
+from typing import TextIO
+from typing import Tuple
+from typing import Union
 
 import ray
+from nv_ingest_api.util.string_processing.configuration import pretty_print_pipeline_config
 from ray import LoggingConfig
 
 from nv_ingest.framework.orchestration.process.dependent_services import start_simple_message_broker
 from nv_ingest.framework.orchestration.process.termination import (
     kill_pipeline_process_group as _kill_pipeline_process_group,
 )
+from nv_ingest.pipeline.config.replica_resolver import resolve_static_replicas
 from nv_ingest.pipeline.ingest_pipeline import IngestPipelineBuilder
 from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
-from nv_ingest.pipeline.config.replica_resolver import resolve_static_replicas
-from nv_ingest_api.util.string_processing.configuration import pretty_print_pipeline_config
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +66,7 @@ def str_to_bool(value: str) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-def redirect_os_fds(stdout: Optional[TextIO] = None, stderr: Optional[TextIO] = None):
+def redirect_os_fds(stdout: TextIO | None = None, stderr: TextIO | None = None):
     """
     Redirect OS-level stdout (fd=1) and stderr (fd=2) to the given file-like objects,
     or to /dev/null if not provided.
@@ -249,9 +253,9 @@ def build_logging_config_from_env() -> LoggingConfig:
 def launch_pipeline(
     pipeline_config: PipelineConfigSchema,
     block: bool = True,
-    disable_dynamic_scaling: Optional[bool] = None,
-    dynamic_memory_threshold: Optional[float] = None,
-) -> Tuple[Union[Any, None], Optional[float]]:
+    disable_dynamic_scaling: bool | None = None,
+    dynamic_memory_threshold: float | None = None,
+) -> tuple[Any | None, float | None]:
     """
     Launch a pipeline using the provided configuration.
 
@@ -397,8 +401,8 @@ def launch_pipeline(
 
 def run_pipeline_process(
     pipeline_config: PipelineConfigSchema,
-    stdout: Optional[TextIO] = None,
-    stderr: Optional[TextIO] = None,
+    stdout: TextIO | None = None,
+    stderr: TextIO | None = None,
 ) -> None:
     """
     Entry point for running a pipeline in a subprocess.

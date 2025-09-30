@@ -40,7 +40,6 @@ from pymilvus.model.sparse.bm25.tokenizers import build_default_analyzer
 from pymilvus.orm.types import CONSISTENCY_BOUNDED
 from scipy.sparse import csr_array
 
-
 logger = logging.getLogger(__name__)
 
 CONSISTENCY = CONSISTENCY_BOUNDED
@@ -102,7 +101,7 @@ def create_meta_collection(
 
 def write_meta_collection(
     collection_name: str,
-    fields: List[str],
+    fields: list[str],
     creation_timestamp: str = None,
     dense_index: str = None,
     dense_dim: int = None,
@@ -134,7 +133,7 @@ def write_meta_collection(
 
 def log_new_meta_collection(
     collection_name: str,
-    fields: List[str],
+    fields: list[str],
     creation_timestamp: str = None,
     dense_index: str = None,
     dense_dim: int = None,
@@ -471,7 +470,7 @@ def create_nvingest_collection(
     return schema
 
 
-def _get_index_types(index_params: IndexParams, sparse: bool = False) -> Tuple[str, str]:
+def _get_index_types(index_params: IndexParams, sparse: bool = False) -> tuple[str, str]:
     """
     Returns the dense and optional sparse index types from Milvus index_params,
     handling both old (dict) and new (list) formats.
@@ -1096,7 +1095,7 @@ def dense_retrieval(
     dense_model,
     top_k: int,
     dense_field: str = "vector",
-    output_fields: List[str] = ["text"],
+    output_fields: list[str] = ["text"],
     _filter: str = "",
     gpu_search: bool = False,
     local_index: bool = False,
@@ -1159,7 +1158,7 @@ def hybrid_retrieval(
     top_k: int,
     dense_field: str = "vector",
     sparse_field: str = "sparse",
-    output_fields: List[str] = ["text"],
+    output_fields: list[str] = ["text"],
     gpu_search: bool = False,
     local_index: bool = False,
     _filter: str = "",
@@ -1258,7 +1257,7 @@ def nvingest_retrieval(
     embedding_endpoint=None,
     sparse_model_filepath: str = "bm25_model.json",
     model_name: str = None,
-    output_fields: List[str] = ["text", "source", "content_metadata"],
+    output_fields: list[str] = ["text", "source", "content_metadata"],
     gpu_search: bool = False,
     nv_ranker: bool = False,
     nv_ranker_endpoint: str = None,
@@ -1651,7 +1650,7 @@ def embed_index_collection(
     access_key: str = "minioadmin",
     secret_key: str = "minioadmin",
     bucket_name: str = None,
-    meta_dataframe: Union[str, pd.DataFrame] = None,
+    meta_dataframe: str | pd.DataFrame = None,
     meta_source_field: str = None,
     meta_fields: list[str] = None,
     input_type: str = "passage",
@@ -1742,7 +1741,7 @@ def embed_index_collection(
     if data is not None and isinstance(data[0], (str, os.PathLike)):
         for results_file in data:
             results = None
-            with open(results_file, "r") as infile:
+            with open(results_file) as infile:
                 results = json.loads(infile.read())
                 embeddings = infer_microservice(
                     results,
@@ -1806,7 +1805,7 @@ def reindex_collection(
     access_key: str = "minioadmin",
     secret_key: str = "minioadmin",
     bucket_name: str = None,
-    meta_dataframe: Union[str, pd.DataFrame] = None,
+    meta_dataframe: str | pd.DataFrame = None,
     meta_source_field: str = None,
     meta_fields: list[str] = None,
     embed_batch_size: int = 256,
@@ -1937,7 +1936,7 @@ class Milvus(VDB):
 
     def __init__(
         self,
-        collection_name: Union[str, Dict] = "nv_ingest_collection",
+        collection_name: str | dict = "nv_ingest_collection",
         milvus_uri: str = "http://localhost:19530",
         sparse: bool = False,
         recreate: bool = True,
@@ -1955,7 +1954,7 @@ class Milvus(VDB):
         access_key: str = "minioadmin",
         secret_key: str = "minioadmin",
         bucket_name: str = None,
-        meta_dataframe: Union[str, pd.DataFrame] = None,
+        meta_dataframe: str | pd.DataFrame = None,
         meta_source_field: str = None,
         meta_fields: list[str] = None,
         stream: bool = False,

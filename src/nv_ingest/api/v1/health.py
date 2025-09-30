@@ -8,7 +8,6 @@ import os
 from fastapi import APIRouter
 from fastapi import status
 from fastapi.responses import JSONResponse
-
 from nv_ingest_api.internal.primitives.nim.model_interface.helpers import is_ready
 
 # logger = logging.getLogger("uvicorn")

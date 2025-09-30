@@ -47,8 +47,8 @@ def kill_pipeline_process_group(process) -> None:
     process : multiprocessing.Process | int
         Process handle (or a raw PID int) for the process whose process group should be terminated.
     """
-    proc: Optional[object] = None
-    pid: Optional[int] = None
+    proc: object | None = None
+    pid: int | None = None
 
     if isinstance(process, int):
         pid = process

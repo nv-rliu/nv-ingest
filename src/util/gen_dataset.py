@@ -51,7 +51,7 @@ def parse_size(size):
 def load_or_scan_files(source_directory, cache_file=None):
     """Load file list from cache or scan the source directory."""
     if cache_file and os.path.exists(cache_file):
-        with open(cache_file, "r") as f:
+        with open(cache_file) as f:
             return json.load(f)
 
     file_list = defaultdict(list)
@@ -176,7 +176,7 @@ def validate_output_file(output_file_path):
     actual proportions match the expected proportions within a 5% tolerance.
     """
     try:
-        with open(output_file_path, "r") as f:
+        with open(output_file_path) as f:
             data = json.load(f)
             sampled_files = data["sampled_files"]
             metadata = data["metadata"]

@@ -2,10 +2,11 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict, Any, Optional
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 import pandas as pd
-
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.schemas.store.store_embedding_schema import EmbeddingStorageSchema
 from nv_ingest_api.internal.store.embed_text_upload import store_text_embeddings_internal
@@ -17,19 +18,19 @@ from nv_ingest_api.util.exception_handlers.decorators import unified_exception_h
 def store_embeddings(
     *,
     df_ledger: pd.DataFrame,
-    milvus_address: Optional[str] = None,
-    milvus_uri: Optional[str] = None,
-    milvus_host: Optional[str] = None,
-    milvus_port: Optional[int] = None,
-    milvus_collection_name: Optional[str] = None,
-    minio_access_key: Optional[str] = None,
-    minio_secret_key: Optional[str] = None,
-    minio_session_token: Optional[str] = None,
-    minio_endpoint: Optional[str] = None,
-    minio_bucket_name: Optional[str] = None,
-    minio_bucket_path: Optional[str] = None,
-    minio_secure: Optional[bool] = None,
-    minio_region: Optional[str] = None,
+    milvus_address: str | None = None,
+    milvus_uri: str | None = None,
+    milvus_host: str | None = None,
+    milvus_port: int | None = None,
+    milvus_collection_name: str | None = None,
+    minio_access_key: str | None = None,
+    minio_secret_key: str | None = None,
+    minio_session_token: str | None = None,
+    minio_endpoint: str | None = None,
+    minio_bucket_name: str | None = None,
+    minio_bucket_path: str | None = None,
+    minio_secure: bool | None = None,
+    minio_region: str | None = None,
 ) -> pd.DataFrame:
     """
     Stores embeddings by configuring task parameters and invoking the internal storage routine.
@@ -78,7 +79,7 @@ def store_embeddings(
     Exception
         Propagates any exception raised during the storage process, wrapped with additional context.
     """
-    params: Dict[str, Any] = {
+    params: dict[str, Any] = {
         "milvus_address": milvus_address,
         "milvus_collection_name": milvus_collection_name,
         "milvus_host": milvus_host,
@@ -95,7 +96,7 @@ def store_embeddings(
     }
     # Remove keys with None values so that default values in the storage schema are used.
     filtered_params = {key: value for key, value in params.items() if value is not None}
-    task_config: Dict[str, Any] = {"params": filtered_params}
+    task_config: dict[str, Any] = {"params": filtered_params}
 
     store_config = EmbeddingStorageSchema()
 
@@ -115,13 +116,13 @@ def store_images_to_minio(
     df_ledger: pd.DataFrame,
     store_structured: bool = True,
     store_unstructured: bool = False,
-    minio_access_key: Optional[str] = None,
-    minio_bucket_name: Optional[str] = None,
-    minio_endpoint: Optional[str] = None,
-    minio_region: Optional[str] = None,
-    minio_secret_key: Optional[str] = None,
+    minio_access_key: str | None = None,
+    minio_bucket_name: str | None = None,
+    minio_endpoint: str | None = None,
+    minio_region: str | None = None,
+    minio_secret_key: str | None = None,
     minio_secure: bool = False,
-    minio_session_token: Optional[str] = None,
+    minio_session_token: str | None = None,
 ) -> pd.DataFrame:
     """
     Store images to a Minio storage backend.

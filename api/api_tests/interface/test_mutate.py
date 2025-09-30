@@ -4,17 +4,18 @@
 
 
 import copy
-from typing import Dict, Any
+from datetime import datetime
+from typing import Any
+from typing import Dict
 
 import pandas as pd
 import pytest
-from datetime import datetime
-
-from nv_ingest_api.interface.mutate import deduplicate_images, filter_images
+from nv_ingest_api.interface.mutate import deduplicate_images
+from nv_ingest_api.interface.mutate import filter_images
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 
 
-def create_image_row(source: str, content: str, width: int, height: int) -> Dict[str, Any]:
+def create_image_row(source: str, content: str, width: int, height: int) -> dict[str, Any]:
     """
     Create a simulated image row dictionary for testing the image filter.
 
@@ -89,7 +90,7 @@ def create_image_row(source: str, content: str, width: int, height: int) -> Dict
     }
 
 
-def create_text_row(source: str, content: str) -> Dict[str, Any]:
+def create_text_row(source: str, content: str) -> dict[str, Any]:
     """
     Create a simulated text row dictionary for testing the image filter.
 

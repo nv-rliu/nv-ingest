@@ -2,8 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import io
 import base64
+import io
 import logging
 from typing import Any
 from typing import List
@@ -13,9 +13,8 @@ from typing import Tuple
 import grpc
 import numpy as np
 import riva.client
-from scipy.io import wavfile
-
 from nv_ingest_api.internal.primitives.tracing.tagging import traceable_func
+from scipy.io import wavfile
 
 try:
     import librosa
@@ -33,10 +32,10 @@ class ParakeetClient:
     def __init__(
         self,
         endpoint: str,
-        auth_token: Optional[str] = None,
-        function_id: Optional[str] = None,
-        use_ssl: Optional[bool] = None,
-        ssl_cert: Optional[str] = None,
+        auth_token: str | None = None,
+        function_id: str | None = None,
+        use_ssl: bool | None = None,
+        ssl_cert: str | None = None,
     ):
         """
         Initialize the ParakeetClient.
@@ -113,7 +112,7 @@ class ParakeetClient:
         profanity_filter: bool = False,
         verbatim_transcripts: bool = True,
         speaker_diarization: bool = False,
-        boosted_lm_words: Optional[List[str]] = None,
+        boosted_lm_words: list[str] | None = None,
         boosted_lm_score: float = 0.0,
         diarization_max_speakers: int = 0,
         start_history: float = 0.0,
@@ -313,12 +312,12 @@ def process_transcription_response(response):
 
 
 def create_audio_inference_client(
-    endpoints: Tuple[str, str],
-    infer_protocol: Optional[str] = None,
-    auth_token: Optional[str] = None,
-    function_id: Optional[str] = None,
+    endpoints: tuple[str, str],
+    infer_protocol: str | None = None,
+    auth_token: str | None = None,
+    function_id: str | None = None,
     use_ssl: bool = False,
-    ssl_cert: Optional[str] = None,
+    ssl_cert: str | None = None,
 ):
     """
     Create a ParakeetClient for interfacing with an audio model inference server.

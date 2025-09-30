@@ -4,27 +4,30 @@
 
 import logging
 import math
-from typing import Dict, Optional, Type, List, Set
 import os
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Type
 
-from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipeline, ScalingConfig
+from nv_ingest_api.util.imports.callable_signatures import ingest_stage_callable_signature
+from nv_ingest_api.util.imports.dynamic_resolvers import resolve_actor_class_from_path
+from nv_ingest_api.util.imports.dynamic_resolvers import resolve_callable_from_path
+from nv_ingest_api.util.introspection.class_inspect import find_pydantic_config_schema
+from nv_ingest_api.util.introspection.class_inspect import find_pydantic_config_schema_unified
+from nv_ingest_api.util.system.hardware_info import SystemResourceProbe
+
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipeline
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import ScalingConfig
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_sink_stage_base import RayActorSinkStage
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_source_stage_base import RayActorSourceStage
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 from nv_ingest.framework.orchestration.ray.util.pipeline.tools import wrap_callable_as_stage
-from nv_ingest.pipeline.pipeline_schema import (
-    PipelineConfigSchema,
-    StageConfig,
-    StageType,
-    ReplicaStrategyConfig,
-)
-from nv_ingest_api.util.imports.callable_signatures import ingest_stage_callable_signature
-from nv_ingest_api.util.imports.dynamic_resolvers import resolve_actor_class_from_path, resolve_callable_from_path
-from nv_ingest_api.util.introspection.class_inspect import (
-    find_pydantic_config_schema,
-    find_pydantic_config_schema_unified,
-)
-from nv_ingest_api.util.system.hardware_info import SystemResourceProbe
+from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
+from nv_ingest.pipeline.pipeline_schema import ReplicaStrategyConfig
+from nv_ingest.pipeline.pipeline_schema import StageConfig
+from nv_ingest.pipeline.pipeline_schema import StageType
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +51,7 @@ class IngestPipelineBuilder:
 
     """
 
-    def __init__(self, config: PipelineConfigSchema, system_resource_probe: Optional[SystemResourceProbe] = None):
+    def __init__(self, config: PipelineConfigSchema, system_resource_probe: SystemResourceProbe | None = None):
         """
         Initializes the IngestPipeline.
 
@@ -76,7 +79,7 @@ class IngestPipelineBuilder:
         self._pipeline: RayPipeline = RayPipeline(scaling_config=scaling_config)
         self._system_resource_probe: SystemResourceProbe = system_resource_probe or SystemResourceProbe()
         self._is_built: bool = False
-        self._built_stages: Set[str] = set()
+        self._built_stages: set[str] = set()
 
     def build(self) -> None:
         """
@@ -132,7 +135,7 @@ class IngestPipelineBuilder:
         """Builds and adds a single stage to the pipeline."""
         logger.debug(f"Building stage '{stage_config.name}'...")
         stage_type_enum = StageType(stage_config.type)
-        expected_base_class: Optional[Type] = {
+        expected_base_class: type | None = {
             StageType.SOURCE: RayActorSourceStage,
             StageType.SINK: RayActorSinkStage,
             StageType.STAGE: RayActorStage,
@@ -342,7 +345,7 @@ class IngestPipelineBuilder:
             if stage_name not in visited:
                 self._detect_cycle_util(stage_name, dependency_graph, visiting, visited)
 
-    def _detect_cycle_util(self, stage_name: str, graph: Dict[str, List[str]], visiting: set, visited: set) -> None:
+    def _detect_cycle_util(self, stage_name: str, graph: dict[str, list[str]], visiting: set, visited: set) -> None:
         """Utility function to detect cycles using DFS."""
         visiting.add(stage_name)
 

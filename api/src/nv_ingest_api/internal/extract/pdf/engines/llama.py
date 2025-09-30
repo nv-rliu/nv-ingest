@@ -21,12 +21,12 @@ import asyncio
 import io
 import logging
 import time
-from typing import Any, Optional
+from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 
 import aiohttp
-
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 
 DEFAULT_RESULT_TYPE = "text"
@@ -44,8 +44,8 @@ def llama_parse_extractor(
     extract_infographics: bool,
     extract_tables: bool,
     extractor_config: dict,
-    execution_trace_log: Optional[List[Any]] = None,
-) -> List[Dict[ContentTypeEnum, Dict[str, Any]]]:
+    execution_trace_log: list[Any] | None = None,
+) -> list[dict[ContentTypeEnum, dict[str, Any]]]:
     """
     Helper function to use LlamaParse API to extract text from a bytestream PDF.
 

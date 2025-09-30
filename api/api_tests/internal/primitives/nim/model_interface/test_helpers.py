@@ -3,21 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import unittest
-from unittest.mock import patch, MagicMock
+from functools import wraps
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import numpy as np
-import requests
-from functools import wraps
-
 import nv_ingest_api.internal.primitives.nim.model_interface.helpers as module_under_test
-
-from nv_ingest_api.internal.primitives.nim.model_interface.helpers import (
-    _query_metadata,
-    get_version,
-    get_model_name,
-    is_ready,
-    preprocess_image_for_ocr,
-)
+import requests
+from nv_ingest_api.internal.primitives.nim.model_interface.helpers import _query_metadata
+from nv_ingest_api.internal.primitives.nim.model_interface.helpers import get_model_name
+from nv_ingest_api.internal.primitives.nim.model_interface.helpers import get_version
+from nv_ingest_api.internal.primitives.nim.model_interface.helpers import is_ready
+from nv_ingest_api.internal.primitives.nim.model_interface.helpers import preprocess_image_for_ocr
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

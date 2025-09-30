@@ -3,21 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 
-import pytest
 import pandas as pd
+import pytest
 import ray
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import LanguageEnum
+from nv_ingest_api.internal.enums.common import TextTypeEnum
+from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
+from nv_ingest_api.internal.schemas.meta.metadata_schema import ContentHierarchySchema
+from nv_ingest_api.util.converters.type_mappings import doc_type_to_content_type
 
 from nv_ingest.framework.orchestration.ray.stages.injectors.metadata_injector import MetadataInjectionStage
-from nv_ingest_api.internal.enums.common import (
-    DocumentTypeEnum,
-    ContentTypeEnum,
-    AccessLevelEnum,
-    LanguageEnum,
-    TextTypeEnum,
-)
-from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
-from nv_ingest_api.util.converters.type_mappings import doc_type_to_content_type
-from nv_ingest_api.internal.schemas.meta.metadata_schema import ContentHierarchySchema
 
 
 # Initialize Ray once at the module level

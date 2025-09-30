@@ -2,10 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import json
+
 # noqa
 import unittest
 from unittest.mock import patch
-import json
+
 import numpy as np
 
 # Import using the specified pattern

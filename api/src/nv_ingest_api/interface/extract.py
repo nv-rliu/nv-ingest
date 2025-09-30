@@ -3,36 +3,34 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Tuple, Optional, Dict, Any
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 import pandas as pd
-from pandas import DataFrame
-
-from . import extraction_interface_relay_constructor
-
-from nv_ingest_api.internal.extract.pdf.pdf_extractor import extract_primitives_from_pdf_internal
-from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
+from nv_ingest_api.internal.extract.audio.audio_extraction import extract_text_from_audio_internal
 from nv_ingest_api.internal.extract.docx.docx_extractor import extract_primitives_from_docx_internal
-from nv_ingest_api.internal.extract.pptx.pptx_extractor import extract_primitives_from_pptx_internal
 from nv_ingest_api.internal.extract.image.chart_extractor import extract_chart_data_from_image_internal
 from nv_ingest_api.internal.extract.image.image_extractor import extract_primitives_from_image_internal
-from nv_ingest_api.internal.extract.image.table_extractor import extract_table_data_from_image_internal
 from nv_ingest_api.internal.extract.image.infographic_extractor import extract_infographic_data_from_image_internal
+from nv_ingest_api.internal.extract.image.table_extractor import extract_table_data_from_image_internal
+from nv_ingest_api.internal.extract.pdf.pdf_extractor import extract_primitives_from_pdf_internal
+from nv_ingest_api.internal.extract.pptx.pptx_extractor import extract_primitives_from_pptx_internal
+from nv_ingest_api.internal.schemas.extract.extract_audio_schema import AudioExtractorSchema
 from nv_ingest_api.internal.schemas.extract.extract_chart_schema import ChartExtractorSchema
 from nv_ingest_api.internal.schemas.extract.extract_docx_schema import DocxExtractorSchema
 from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageExtractorSchema
-from nv_ingest_api.internal.schemas.extract.extract_infographic_schema import (
-    InfographicExtractorConfigSchema,
-    InfographicExtractorSchema,
-)
+from nv_ingest_api.internal.schemas.extract.extract_infographic_schema import InfographicExtractorConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_infographic_schema import InfographicExtractorSchema
 from nv_ingest_api.internal.schemas.extract.extract_pptx_schema import PPTXExtractorSchema
 from nv_ingest_api.internal.schemas.extract.extract_table_schema import TableExtractorSchema
-from nv_ingest_api.internal.schemas.meta.ingest_job_schema import (
-    IngestTaskChartExtraction,
-    IngestTaskTableExtraction,
-)
-from nv_ingest_api.internal.extract.audio.audio_extraction import extract_text_from_audio_internal
-from nv_ingest_api.internal.schemas.extract.extract_audio_schema import AudioExtractorSchema
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskChartExtraction
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskTableExtraction
+from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
+from pandas import DataFrame
+
+from . import extraction_interface_relay_constructor
 
 logger = logging.getLogger(__name__)
 
@@ -53,22 +51,22 @@ def extract_primitives_from_pdf(
     extract_charts: bool = True,
     text_depth: str = "page",
     # Adobe-specific parameters:
-    adobe_client_id: Optional[str] = None,
-    adobe_client_secret: Optional[str] = None,
+    adobe_client_id: str | None = None,
+    adobe_client_secret: str | None = None,
     # LLama
-    llama_api_key: Optional[str] = None,
+    llama_api_key: str | None = None,
     # PDFium-specific parameters:
-    yolox_auth_token: Optional[str] = None,
-    yolox_endpoints: Optional[Tuple[Optional[str], Optional[str]]] = None,
+    yolox_auth_token: str | None = None,
+    yolox_endpoints: tuple[str | None, str | None] | None = None,
     yolox_infer_protocol: str = "http",
     # Nemoretriver Parse parameters:
-    nemoretriever_parse_endpoints: Optional[Tuple[str, str]] = None,
+    nemoretriever_parse_endpoints: tuple[str, str] | None = None,
     nemoretriever_parse_protocol: str = "http",
     nemoretriever_parse_model_name: str = None,
     # UnstructuredIO parameters:
-    unstructured_io_api_key: Optional[str] = None,
+    unstructured_io_api_key: str | None = None,
     # Tika-specific parameter:
-    tika_server_url: Optional[str] = None,
+    tika_server_url: str | None = None,
 ):
     """
     Extract text, images, tables, charts, and infographics from PDF documents.
@@ -239,8 +237,8 @@ def extract_primitives_from_pdf_pdfium(
     extract_charts: bool = True,
     extract_infographics: bool = True,
     text_depth: str = "page",
-    yolox_auth_token: Optional[str] = None,
-    yolox_endpoints: Optional[Tuple[Optional[str], Optional[str]]] = None,
+    yolox_auth_token: str | None = None,
+    yolox_endpoints: tuple[str | None, str | None] | None = None,
     yolox_infer_protocol: str = "http",
 ) -> pd.DataFrame:
     """
@@ -311,12 +309,12 @@ def extract_primitives_from_pdf_nemoretriever_parse(
     extract_charts: bool = True,
     extract_infographics: bool = True,
     text_depth: str = "page",
-    yolox_auth_token: Optional[str] = None,
-    yolox_endpoints: Optional[Tuple[Optional[str], Optional[str]]] = None,
+    yolox_auth_token: str | None = None,
+    yolox_endpoints: tuple[str | None, str | None] | None = None,
     yolox_infer_protocol: str = "http",
-    nemoretriever_parse_endpoints: Optional[Tuple[str, str]] = None,
+    nemoretriever_parse_endpoints: tuple[str, str] | None = None,
     nemoretriever_parse_protocol: str = "http",
-    nemoretriever_parse_model_name: Optional[str] = None,
+    nemoretriever_parse_model_name: str | None = None,
 ) -> pd.DataFrame:
     """
     Extract primitives from PDF documents using the NemoRetriever Parse extraction method.
@@ -481,7 +479,7 @@ def extract_primitives_from_pdf_nemoretriever_parse(
 def extract_primitives_from_audio(
     *,
     df_ledger: pd.DataFrame,
-    audio_endpoints: Tuple[str, str],
+    audio_endpoints: tuple[str, str],
     audio_infer_protocol: str = "grpc",
     auth_token: str = None,
     use_ssl: bool = False,
@@ -536,7 +534,7 @@ def extract_primitives_from_audio(
     ...     ssl_cert="/path/to/cert.pem"
     ... )
     """
-    task_config: Dict[str, Any] = {"params": {"extract_audio_params": {}}}
+    task_config: dict[str, Any] = {"params": {"extract_audio_params": {}}}
 
     extraction_config = AudioExtractorSchema(
         **{
@@ -569,7 +567,7 @@ def extract_primitives_from_pptx(
     extract_tables: bool = True,
     extract_charts: bool = True,
     extract_infographics: bool = True,
-    yolox_endpoints: Optional[Tuple[str, str]] = None,
+    yolox_endpoints: tuple[str, str] | None = None,
     yolox_infer_protocol: str = "grpc",
     auth_token: str = "",
 ) -> pd.DataFrame:
@@ -619,7 +617,7 @@ def extract_primitives_from_pptx(
     It then calls `extract_primitives_from_pptx_internal` with the DataFrame, the task configuration,
     and the extraction configuration.
     """
-    task_config: Dict[str, Any] = {
+    task_config: dict[str, Any] = {
         "params": {
             "extract_text": extract_text,
             "extract_images": extract_images,
@@ -656,7 +654,7 @@ def extract_primitives_from_docx(
     extract_tables: bool = True,
     extract_charts: bool = True,
     extract_infographics: bool = True,
-    yolox_endpoints: Optional[Tuple[str, str]] = None,
+    yolox_endpoints: tuple[str, str] | None = None,
     yolox_infer_protocol: str = "grpc",
     auth_token: str = "",
 ) -> pd.DataFrame:
@@ -703,7 +701,7 @@ def extract_primitives_from_docx(
         If an error occurs during the DOCX extraction process, the exception is logged and re-raised.
     """
     # Build the task configuration with parameters and DOCX-specific extraction settings.
-    task_config: Dict[str, Any] = {
+    task_config: dict[str, Any] = {
         "params": {
             "extract_text": extract_text,
             "extract_images": extract_images,
@@ -742,11 +740,11 @@ def extract_primitives_from_image(
     extract_tables: bool = True,
     extract_charts: bool = True,
     extract_infographics: bool = True,
-    yolox_endpoints: Optional[Tuple[str, str]] = None,
+    yolox_endpoints: tuple[str, str] | None = None,
     yolox_infer_protocol: str = "grpc",
     auth_token: str = "",
 ) -> pd.DataFrame:
-    task_config: Dict[str, Any] = {
+    task_config: dict[str, Any] = {
         "params": {
             "extract_text": extract_text,
             "extract_images": extract_images,
@@ -780,8 +778,8 @@ def extract_primitives_from_image(
 def extract_chart_data_from_image(
     *,
     df_ledger: pd.DataFrame,
-    yolox_endpoints: Tuple[str, str],
-    ocr_endpoints: Tuple[str, str],
+    yolox_endpoints: tuple[str, str],
+    ocr_endpoints: tuple[str, str],
     yolox_protocol: str = "grpc",
     ocr_protocol: str = "grpc",
     auth_token: str = "",
@@ -843,11 +841,11 @@ def extract_chart_data_from_image(
 def extract_table_data_from_image(
     *,
     df_ledger: pd.DataFrame,
-    yolox_endpoints: Optional[Tuple[str, str]] = None,
-    ocr_endpoints: Optional[Tuple[str, str]] = None,
-    yolox_protocol: Optional[str] = None,
-    ocr_protocol: Optional[str] = None,
-    auth_token: Optional[str] = None,
+    yolox_endpoints: tuple[str, str] | None = None,
+    ocr_endpoints: tuple[str, str] | None = None,
+    yolox_protocol: str | None = None,
+    ocr_protocol: str | None = None,
+    auth_token: str | None = None,
 ) -> pd.DataFrame:
     """
     Public interface to extract chart data from a ledger DataFrame.
@@ -907,9 +905,9 @@ def extract_table_data_from_image(
 def extract_infographic_data_from_image(
     *,
     df_ledger: pd.DataFrame,
-    ocr_endpoints: Optional[Tuple[str, str]] = None,
-    ocr_protocol: Optional[str] = None,
-    auth_token: Optional[str] = None,
+    ocr_endpoints: tuple[str, str] | None = None,
+    ocr_protocol: str | None = None,
+    auth_token: str | None = None,
 ) -> pd.DataFrame:
     """
     Extract infographic data from a DataFrame using the configured infographic extraction pipeline.

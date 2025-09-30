@@ -2,8 +2,9 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
+import json
 import logging
+import os
 import warnings
 from math import log
 from typing import Any
@@ -14,11 +15,9 @@ from typing import Tuple
 
 import backoff
 import numpy as np
-import json
 import pandas as pd
-
-from nv_ingest_api.internal.primitives.nim import ModelInterface
 import tritonclient.grpc as grpcclient
+from nv_ingest_api.internal.primitives.nim import ModelInterface
 from nv_ingest_api.internal.primitives.nim.model_interface.decorators import multiprocessing_cache
 from nv_ingest_api.util.image_processing import scale_image_to_encoding_size
 from nv_ingest_api.util.image_processing.transforms import numpy_to_base64
@@ -96,13 +95,13 @@ class YoloxModelInterfaceBase(ModelInterface):
 
     def __init__(
         self,
-        nim_max_image_size: Optional[int] = None,
-        num_classes: Optional[int] = None,
-        conf_threshold: Optional[float] = None,
-        iou_threshold: Optional[float] = None,
-        min_score: Optional[float] = None,
-        final_score: Optional[float] = None,
-        class_labels: Optional[List[str]] = None,
+        nim_max_image_size: int | None = None,
+        num_classes: int | None = None,
+        conf_threshold: float | None = None,
+        iou_threshold: float | None = None,
+        min_score: float | None = None,
+        final_score: float | None = None,
+        class_labels: list[str] | None = None,
     ):
         """
         Initialize the YOLOX model interface.
@@ -117,7 +116,7 @@ class YoloxModelInterfaceBase(ModelInterface):
         self.final_score = final_score
         self.class_labels = class_labels
 
-    def prepare_data_for_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_data_for_inference(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Prepare input data for inference by resizing images and storing their original shapes.
 
@@ -143,8 +142,8 @@ class YoloxModelInterfaceBase(ModelInterface):
         return data
 
     def format_input(
-        self, data: Dict[str, Any], protocol: str, max_batch_size: int, **kwargs
-    ) -> Tuple[List[Any], List[Dict[str, Any]]]:
+        self, data: dict[str, Any], protocol: str, max_batch_size: int, **kwargs
+    ) -> tuple[list[Any], list[dict[str, Any]]]:
         """
         Format input data for the specified protocol, returning a tuple of:
           (formatted_batches, formatted_batch_data)
@@ -179,11 +178,11 @@ class YoloxModelInterfaceBase(ModelInterface):
         """
 
         # Helper functions to chunk a list into sublists of length up to chunk_size.
-        def chunk_list(lst: list, chunk_size: int) -> List[list]:
+        def chunk_list(lst: list, chunk_size: int) -> list[list]:
             chunk_size = max(1, chunk_size)
             return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
-        def chunk_list_geometrically(lst: list, max_size: int) -> List[list]:
+        def chunk_list_geometrically(lst: list, max_size: int) -> list[list]:
             # TRT engine in Yolox NIM (gRPC) only allows a batch size in powers of 2.
             chunks = []
             i = 0
@@ -214,7 +213,7 @@ class YoloxModelInterfaceBase(ModelInterface):
 
         elif protocol == "http":
             logger.debug("Formatting input for HTTP Yolox model")
-            content_list: List[Dict[str, Any]] = []
+            content_list: list[dict[str, Any]] = []
             for image in data["images"]:
                 # Convert to uint8 if needed.
                 if image.dtype != np.uint8:
@@ -249,7 +248,7 @@ class YoloxModelInterfaceBase(ModelInterface):
         else:
             raise ValueError("Invalid protocol specified. Must be 'grpc' or 'http'.")
 
-    def parse_output(self, response: Any, protocol: str, data: Optional[Dict[str, Any]] = None, **kwargs) -> Any:
+    def parse_output(self, response: Any, protocol: str, data: dict[str, Any] | None = None, **kwargs) -> Any:
         """
         Parse the output from the model's inference response.
 
@@ -302,7 +301,7 @@ class YoloxModelInterfaceBase(ModelInterface):
         else:
             raise ValueError("Invalid protocol specified. Must be 'grpc' or 'http'.")
 
-    def process_inference_results(self, output: Any, protocol: str, **kwargs) -> List[Dict[str, Any]]:
+    def process_inference_results(self, output: Any, protocol: str, **kwargs) -> list[dict[str, Any]]:
         """
         Process the results of the Yolox model inference and return the final annotations.
 
@@ -814,7 +813,7 @@ def prefilter_boxes(boxes, scores, labels, weights, thr, class_agnostic=False):
                 warnings.warn("Y2 > 1 in box. Set it to 1. Check that you normalize boxes in [0, 1] range.")
                 y2 = 1
             if (x2 - x1) * (y2 - y1) == 0.0:
-                warnings.warn("Zero area box skipped: {}.".format(box_part))
+                warnings.warn(f"Zero area box skipped: {box_part}.")
                 continue
 
             # [label, score, weight, model index, x1, y1, x2, y2]
@@ -1069,7 +1068,7 @@ def find_boxes_inside(boxes, boxes_to_check, threshold=0.9):
     return boxes_to_check[to_keep]
 
 
-def get_bbox_dict_yolox_graphic(preds, shape, class_labels, threshold_=0.1) -> Dict[str, np.ndarray]:
+def get_bbox_dict_yolox_graphic(preds, shape, class_labels, threshold_=0.1) -> dict[str, np.ndarray]:
     """
     Extracts bounding boxes from YOLOX model predictions:
     - Applies thresholding

@@ -10,18 +10,19 @@ orchestrating configuration resolution, broker setup, and execution
 using the configured strategy pattern.
 """
 
-import logging
 import atexit
+import logging
 import multiprocessing
 import os
 import signal
 from typing import Optional
 
-from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
-from nv_ingest.framework.orchestration.execution.options import ExecutionOptions, ExecutionResult
+from nv_ingest.framework.orchestration.execution.options import ExecutionOptions
+from nv_ingest.framework.orchestration.execution.options import ExecutionResult
+from nv_ingest.framework.orchestration.process.dependent_services import start_simple_message_broker
 from nv_ingest.framework.orchestration.process.strategies import ProcessExecutionStrategy
 from nv_ingest.framework.orchestration.process.strategies import SubprocessStrategy
-from nv_ingest.framework.orchestration.process.dependent_services import start_simple_message_broker
+from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +52,7 @@ class PipelineLifecycleManager:
         """
         self.strategy = strategy
         # Track broker process so we can terminate it during teardown
-        self._broker_process: Optional[multiprocessing.Process] = None
+        self._broker_process: multiprocessing.Process | None = None
 
     def start(self, config: PipelineConfigSchema, options: ExecutionOptions) -> ExecutionResult:
         """
@@ -142,7 +143,7 @@ class PipelineLifecycleManager:
         else:
             logger.debug("Simple broker launch not required")
 
-    def stop(self, pipeline_id: Optional[str] = None) -> None:
+    def stop(self, pipeline_id: str | None = None) -> None:
         """
         Stop a running pipeline.
 

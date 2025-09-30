@@ -3,19 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Any, Optional
-from pydantic import BaseModel
+from typing import Any
+from typing import Optional
+
 import ray
+from nv_ingest_api.internal.primitives.tracing.tagging import traceable
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
+from pydantic import BaseModel
 
 # Import the base class for our stages.
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 from nv_ingest.framework.schemas.framework_job_counter_schema import JobCounterSchema
-from nv_ingest.framework.util.telemetry.global_stats import GlobalStats
-from nv_ingest_api.util.exception_handlers.decorators import (
-    nv_ingest_node_failure_try_except,
-)
 from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
-from nv_ingest_api.internal.primitives.tracing.tagging import traceable
+from nv_ingest.framework.util.telemetry.global_stats import GlobalStats
 
 # Import the JobCounter schema and global stats singleton.
 
@@ -32,7 +32,7 @@ class JobCounterStage(RayActorStage):
     statistic each time it processes a message.
     """
 
-    def __init__(self, config: BaseModel, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: BaseModel, stage_name: str | None = None) -> None:
         # Ensure base attributes (e.g. self._running) are initialized.
         super().__init__(config, stage_name=stage_name)
         # The validated config should be a JobCounterSchema instance.

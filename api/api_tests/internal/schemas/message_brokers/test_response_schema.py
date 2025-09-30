@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.schemas.message_brokers.response_schema import ResponseSchema
+from pydantic import ValidationError
 
 
 def test_response_schema_valid_with_string_response():

@@ -8,7 +8,6 @@ from typing import Dict
 from typing import Optional
 from typing import Tuple
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -32,7 +31,7 @@ class ModelInterface:
 
         raise NotImplementedError("Subclasses should implement this method")
 
-    def parse_output(self, response, protocol: str, data: Optional[dict] = None, **kwargs):
+    def parse_output(self, response, protocol: str, data: dict | None = None, **kwargs):
         """
         Parse the output data from the model's inference response.
 
@@ -83,7 +82,7 @@ class ModelInterface:
         """
         raise NotImplementedError("Subclasses should implement this method")
 
-    def coalesce_requests_to_batch(self, requests, protocol: str, **kwargs) -> Tuple[Any, Dict[str, Any]]:
+    def coalesce_requests_to_batch(self, requests, protocol: str, **kwargs) -> tuple[Any, dict[str, Any]]:
         """
         Takes a list of InferenceRequest objects and combines them into a single
         formatted batch ready for inference.

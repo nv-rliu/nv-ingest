@@ -9,26 +9,26 @@ Unit tests for Structural Text Splitter UDF.
 Tests the structural_split UDF function and its helper functions.
 """
 
-# Add the examples/udfs directory to the path for importing the UDF
-import sys
 import os
 
+# Add the examples/udfs directory to the path for importing the UDF
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../udfs"))
+
+import base64  # noqa: E402
+import uuid  # noqa: E402
+from unittest.mock import patch  # noqa: E402
 
 # Standard library imports
 import pandas as pd  # noqa: E402
 import pytest  # noqa: E402
-import uuid  # noqa: E402
-import base64  # noqa: E402
-from unittest.mock import patch  # noqa: E402
 
 # Import the UDF functions
-from structural_split_udf import (  # noqa: E402
-    structural_split,
-    structural_split_coarse,
-    _split_by_markdown_headers,
-    _extract_header_info,
-)
+from structural_split_udf import _extract_header_info  # noqa: E402
+from structural_split_udf import _split_by_markdown_headers
+from structural_split_udf import structural_split
+from structural_split_udf import structural_split_coarse
 
 
 class MockIngestControlMessage:

@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-
-from nv_ingest_api.internal.enums.common import ContentTypeEnum, DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 from nv_ingest_api.util.converters.type_mappings import doc_type_to_content_type
 
 

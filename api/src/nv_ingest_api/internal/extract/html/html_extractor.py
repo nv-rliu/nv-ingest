@@ -5,23 +5,26 @@
 
 import logging
 import uuid
-from typing import Optional, Dict, Any, Union, Tuple, List
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import pandas as pd
-
-from nv_ingest_api.internal.enums.common import ContentTypeEnum
-from nv_ingest_api.internal.schemas.meta.metadata_schema import MetadataSchema
-from nv_ingest_api.internal.schemas.extract.extract_html_schema import HtmlExtractorSchema
-from nv_ingest_api.util.schema.schema_validator import validate_schema
-from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
-
 from markitdown.converters import HtmlConverter
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.schemas.extract.extract_html_schema import HtmlExtractorSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import MetadataSchema
+from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
+from nv_ingest_api.util.schema.schema_validator import validate_schema
 
 logger = logging.getLogger(__name__)
 
 
 @unified_exception_handler
-def _convert_html(row: pd.Series, execution_trace_log: Optional[List[Any]] = None):
+def _convert_html(row: pd.Series, execution_trace_log: list[Any] | None = None):
     metadata = row.get("metadata")
     html_content = row.get("content")
 
@@ -35,10 +38,10 @@ def _convert_html(row: pd.Series, execution_trace_log: Optional[List[Any]] = Non
 
 def extract_markdown_from_html_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     extraction_config: HtmlExtractorSchema,
-    execution_trace_log: Optional[Dict[str, Any]] = None,
-) -> Tuple[pd.DataFrame, Union[Dict, None]]:
+    execution_trace_log: dict[str, Any] | None = None,
+) -> tuple[pd.DataFrame, dict | None]:
     """
     Processes a pandas DataFrame containing HTML file content, extracting html as text from
     each document and converting it to markdown.

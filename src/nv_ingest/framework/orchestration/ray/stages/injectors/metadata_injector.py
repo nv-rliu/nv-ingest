@@ -2,30 +2,27 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import Optional
-import pandas as pd
-from pydantic import BaseModel
-import ray
 
-from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
+import pandas as pd
+import ray
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import LanguageEnum
+from nv_ingest_api.internal.enums.common import TextTypeEnum
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
 from nv_ingest_api.internal.primitives.tracing.tagging import traceable
-from nv_ingest_api.internal.enums.common import (
-    DocumentTypeEnum,
-    ContentTypeEnum,
-    AccessLevelEnum,
-    TextTypeEnum,
-    LanguageEnum,
-)
 from nv_ingest_api.internal.schemas.meta.metadata_schema import ContentHierarchySchema
 from nv_ingest_api.util.converters.type_mappings import doc_type_to_content_type
-from nv_ingest_api.util.exception_handlers.decorators import (
-    nv_ingest_node_failure_try_except,
-)
-from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
 from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
+from pydantic import BaseModel
+
+from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
+from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +36,7 @@ class MetadataInjectionStage(RayActorStage):
     injection is required, and if so, injects the appropriate metadata.
     """
 
-    def __init__(self, config: BaseModel, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: BaseModel, stage_name: str | None = None) -> None:
         # Call the base initializer to set attributes like self._running.
         super().__init__(config, stage_name=stage_name)
         # Additional initialization can be added here if necessary.

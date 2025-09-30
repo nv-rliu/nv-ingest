@@ -6,7 +6,6 @@ import copy
 from collections import OrderedDict
 
 import pytest
-
 from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
 

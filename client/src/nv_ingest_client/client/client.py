@@ -11,14 +11,16 @@ import math
 import os
 import time
 from collections import defaultdict
+from collections.abc import Callable
 from concurrent.futures import Future
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import as_completed
-from typing import Any, Type, Callable
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Type
 from typing import Union
 
 from nv_ingest_api.util.service_clients.client_base import MessageBrokerClientBase
@@ -31,8 +33,10 @@ from nv_ingest_client.primitives.tasks import Task
 from nv_ingest_client.primitives.tasks import TaskType
 from nv_ingest_client.primitives.tasks import is_valid_task_type
 from nv_ingest_client.primitives.tasks import task_factory
-from nv_ingest_client.util.processing import handle_future_result, IngestJobFailure
-from nv_ingest_client.util.util import create_job_specs_for_batch, check_ingest_result
+from nv_ingest_client.util.processing import IngestJobFailure
+from nv_ingest_client.util.processing import handle_future_result
+from nv_ingest_client.util.util import check_ingest_result
+from nv_ingest_client.util.util import create_job_specs_for_batch
 
 logger = logging.getLogger(__name__)
 
@@ -71,12 +75,12 @@ class _ConcurrentProcessor:
     def __init__(
         self,
         client: "NvIngestClient",
-        job_indices: List[str],
-        job_queue_id: Optional[str],
+        job_indices: list[str],
+        job_queue_id: str | None,
         batch_size: int,
-        timeout: Tuple[int, Union[float, None]],
-        max_job_retries: Optional[int],
-        completion_callback: Optional[Callable[[Dict[str, Any], str], None]],
+        timeout: tuple[int, float | None],
+        max_job_retries: int | None,
+        completion_callback: Callable[[dict[str, Any], str], None] | None,
         fail_on_submit_error: bool,
         stream_to_callback_only: bool,
         verbose: bool = False,
@@ -123,7 +127,7 @@ class _ConcurrentProcessor:
             If the client's `_worker_pool` is not a `ThreadPoolExecutor`.
         """
         self.client = client
-        self.all_job_indices_list: List[str] = list(job_indices)
+        self.all_job_indices_list: list[str] = list(job_indices)
         self.job_queue_id = job_queue_id
         self.batch_size = batch_size
         self.timeout = timeout
@@ -134,10 +138,10 @@ class _ConcurrentProcessor:
         self.verbose = verbose
 
         # State variables managed across batch cycles
-        self.retry_job_ids: List[str] = []
-        self.retry_counts: Dict[str, int] = defaultdict(int)
-        self.results: List[Dict[str, Any]] = []  # Stores successful results (full dicts)
-        self.failures: List[Tuple[str, str]] = []  # (job_index, error_message)
+        self.retry_job_ids: list[str] = []
+        self.retry_counts: dict[str, int] = defaultdict(int)
+        self.results: list[dict[str, Any]] = []  # Stores successful results (full dicts)
+        self.failures: list[tuple[str, str]] = []  # (job_index, error_message)
 
         # --- Initial Checks ---
         if not self.job_queue_id:
@@ -202,7 +206,7 @@ class _ConcurrentProcessor:
                     f"Could not update state to FAILED for job {job_index} " f"after failure: {state_update_err}"
                 )
 
-    def _handle_processing_success(self, job_index: str, result_data: Dict[str, Any], trace_id: Optional[str]) -> None:
+    def _handle_processing_success(self, job_index: str, result_data: dict[str, Any], trace_id: str | None) -> None:
         """
         Handles the successful fetch and retrieval of a job result.
 
@@ -289,7 +293,7 @@ class _ConcurrentProcessor:
     # Public Methods
     # --------------------------------------------------------------------------
 
-    def run(self) -> Tuple[List[Dict[str, Any]], List[Tuple[str, str]]]:
+    def run(self) -> tuple[list[dict[str, Any]], list[tuple[str, str]]]:
         """
         Executes the main processing loop in batches.
 
@@ -325,7 +329,7 @@ class _ConcurrentProcessor:
         while (submitted_new_indices_count < total_jobs) or self.retry_job_ids:
 
             # --- Determine Jobs for Current Batch ---
-            current_batch_job_indices: List[str] = []
+            current_batch_job_indices: list[str] = []
 
             # Add retries from the previous batch first
             if self.retry_job_ids:
@@ -528,11 +532,11 @@ class NvIngestClient:
 
     def __init__(
         self,
-        message_client_allocator: Type[MessageBrokerClientBase] = RestClient,
-        message_client_hostname: Optional[str] = "localhost",
-        message_client_port: Optional[int] = 7670,
-        message_client_kwargs: Optional[Dict[str, Any]] = None,
-        msg_counter_id: Optional[str] = "nv-ingest-message-id",
+        message_client_allocator: type[MessageBrokerClientBase] = RestClient,
+        message_client_hostname: str | None = "localhost",
+        message_client_port: int | None = 7670,
+        message_client_kwargs: dict[str, Any] | None = None,
+        msg_counter_id: str | None = "nv-ingest-message-id",
         worker_pool_size: int = 8,
     ) -> None:
         """
@@ -627,7 +631,7 @@ class NvIngestClient:
     def _get_and_check_job_state(
         self,
         job_index: str,
-        required_state: Optional[Union[JobStateEnum, List[JobStateEnum]]] = None,
+        required_state: JobStateEnum | list[JobStateEnum] | None = None,
     ) -> JobState:
         """
         Retrieve and optionally validate the state of a job.
@@ -695,7 +699,7 @@ class NvIngestClient:
 
         return job_index
 
-    def add_job(self, job_spec: Union[BatchJobSpec, JobSpec]) -> Union[str, List[str]]:
+    def add_job(self, job_spec: BatchJobSpec | JobSpec) -> str | list[str]:
         """
         Add one or more jobs to the client for later processing.
 
@@ -732,12 +736,12 @@ class NvIngestClient:
 
     def create_job(
         self,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         source_id: str,
         source_name: str,
-        document_type: Optional[str] = None,
-        tasks: Optional[List[Task]] = None,
-        extended_options: Optional[Dict[str, Any]] = None,
+        document_type: str | None = None,
+        tasks: list[Task] | None = None,
+        extended_options: dict[str, Any] | None = None,
     ) -> str:
         """
         Construct and register a new job from provided metadata.
@@ -798,9 +802,9 @@ class NvIngestClient:
 
     def create_task(
         self,
-        job_index: Union[str, int],
+        job_index: str | int,
         task_type: TaskType,
-        task_params: Optional[Dict[str, Any]] = None,
+        task_params: dict[str, Any] | None = None,
     ) -> None:
         """
         Create and attach a new task to a pending job by type and parameters.
@@ -826,9 +830,9 @@ class NvIngestClient:
     def _fetch_job_result(
         self,
         job_index: str,
-        timeout: Tuple[int, Optional[float]] = (100, None),
+        timeout: tuple[int, float | None] = (100, None),
         data_only: bool = False,
-    ) -> Tuple[Any, str, Optional[str]]:
+    ) -> tuple[Any, str, str | None]:
         """
         Retrieve the result of a submitted job, handling status codes.
 
@@ -949,9 +953,9 @@ class NvIngestClient:
 
     def fetch_job_result_cli(
         self,
-        job_ids: Union[str, List[str]],
+        job_ids: str | list[str],
         data_only: bool = False,
-    ) -> List[Tuple[Any, str, Optional[str]]]:
+    ) -> list[tuple[Any, str, str | None]]:
         """
         Fetch job results via CLI semantics (synchronous list return).
 
@@ -972,7 +976,7 @@ class NvIngestClient:
 
         return [self._fetch_job_result(job_id, data_only=data_only) for job_id in job_ids]
 
-    def _validate_batch_size(self, batch_size: Optional[int]) -> int:
+    def _validate_batch_size(self, batch_size: int | None) -> int:
         """
         Validates and returns a sanitized batch_size value.
 
@@ -1013,20 +1017,20 @@ class NvIngestClient:
 
     def process_jobs_concurrently(
         self,
-        job_indices: Union[str, List[str]],
-        job_queue_id: Optional[str] = None,
-        batch_size: Optional[int] = None,
+        job_indices: str | list[str],
+        job_queue_id: str | None = None,
+        batch_size: int | None = None,
         concurrency_limit: int = 64,
         timeout: int = 100,
-        max_job_retries: Optional[int] = None,
+        max_job_retries: int | None = None,
         retry_delay: float = 5.0,
         fail_on_submit_error: bool = False,
-        completion_callback: Optional[Callable[[Any, str], None]] = None,
+        completion_callback: Callable[[Any, str], None] | None = None,
         return_failures: bool = False,
         data_only: bool = True,
         stream_to_callback_only: bool = False,
         verbose: bool = False,
-    ) -> Union[List[Any], Tuple[List[Any], List[Tuple[str, str]]]]:
+    ) -> list[Any] | tuple[list[Any], list[tuple[str, str]]]:
         """
         Submit and fetch multiple jobs concurrently.
 
@@ -1083,7 +1087,7 @@ class NvIngestClient:
         validated_batch_size = self._validate_batch_size(batch_size)
 
         # Prepare timeout tuple for fetch calls
-        effective_timeout: Tuple[int, None] = (timeout, None)
+        effective_timeout: tuple[int, None] = (timeout, None)
 
         # Delegate to the concurrent processor
         processor = _ConcurrentProcessor(
@@ -1108,7 +1112,7 @@ class NvIngestClient:
             logger.warning(f"{len(failures)} job(s) failed during concurrent processing." " Check logs for details.")
         return results
 
-    def _ensure_submitted(self, job_ids: Union[str, List[str]]) -> None:
+    def _ensure_submitted(self, job_ids: str | list[str]) -> None:
         """
         Block until all specified jobs have been marked submitted.
 
@@ -1135,7 +1139,7 @@ class NvIngestClient:
             job_state.trace_id = future.result()[0]  # Trace_id from `submit_job` endpoint submission
             job_state.future = None
 
-    def fetch_job_result_async(self, job_ids: Union[str, List[str]], data_only: bool = True) -> Dict[Future, str]:
+    def fetch_job_result_async(self, job_ids: str | list[str], data_only: bool = True) -> dict[Future, str]:
         """
         Fetches job results for a list or a single job ID asynchronously and returns a mapping of futures to job IDs.
 
@@ -1166,7 +1170,7 @@ class NvIngestClient:
         self,
         job_index: str,
         job_queue_id: str,
-    ) -> Optional[Dict]:
+    ) -> dict | None:
         """
         Submits a job to a specified job queue and optionally waits for a response if blocking is True.
 
@@ -1217,10 +1221,10 @@ class NvIngestClient:
 
     def submit_job(
         self,
-        job_indices: Union[str, List[str]],
+        job_indices: str | list[str],
         job_queue_id: str,
         batch_size: int = 10,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Submit one or more jobs in batches.
 
@@ -1272,7 +1276,7 @@ class NvIngestClient:
 
         return results
 
-    def submit_job_async(self, job_indices: Union[str, List[str]], job_queue_id: str) -> Dict[Future, str]:
+    def submit_job_async(self, job_indices: str | list[str], job_queue_id: str) -> dict[Future, str]:
         """
         Asynchronously submits one or more jobs to a specified job queue using a thread pool.
         This method handles both single job ID or a list of job IDs.
@@ -1312,14 +1316,14 @@ class NvIngestClient:
 
     def fetch_job_result(
         self,
-        job_ids: Union[str, List[str]],
+        job_ids: str | list[str],
         timeout: float = 100,
-        max_retries: Optional[int] = None,
+        max_retries: int | None = None,
         retry_delay: float = 1,
         verbose: bool = False,
-        completion_callback: Optional[Callable[[Dict, str], None]] = None,
+        completion_callback: Callable[[dict, str], None] | None = None,
         return_failures: bool = False,
-    ) -> Union[List[Tuple[Optional[Dict], str]], Tuple[List[Tuple[Optional[Dict], str]], List[Tuple[str, str]]]]:
+    ) -> list[tuple[dict | None, str]] | tuple[list[tuple[dict | None, str]], list[tuple[str, str]]]:
         """
         Fetches job results for multiple job IDs concurrently with individual timeouts and retry logic.
 
@@ -1433,7 +1437,7 @@ class NvIngestClient:
 
         return results
 
-    def create_jobs_for_batch(self, files_batch: List[str], tasks: Dict[str, Any]) -> List[str]:
+    def create_jobs_for_batch(self, files_batch: list[str], tasks: dict[str, Any]) -> list[str]:
         """
         Create and submit job specifications (JobSpecs) for a batch of files, returning the job IDs.
         This function takes a batch of files, processes each file to extract its content and type,

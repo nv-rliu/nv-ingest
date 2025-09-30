@@ -7,10 +7,9 @@ Comprehensive black box tests for UDF stage functionality.
 """
 
 import pytest
-
 from nv_ingest_api.internal.meta.udf import udf_stage_callable_fn
-from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
 from nv_ingest_api.internal.primitives.control_message_task import ControlMessageTask
+from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
 from nv_ingest_api.internal.schemas.meta.udf import UDFStageSchema
 
 

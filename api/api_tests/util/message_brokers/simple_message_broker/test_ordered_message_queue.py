@@ -2,10 +2,10 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 import threading
 from uuid import uuid4
 
+import pytest
 from nv_ingest_api.util.message_brokers.simple_message_broker.ordered_message_queue import OrderedMessageQueue
 
 

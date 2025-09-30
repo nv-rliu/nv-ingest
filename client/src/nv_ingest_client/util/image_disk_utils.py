@@ -19,10 +19,13 @@ Typical use cases:
 
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any
+from typing import Dict
+from typing import List
 
+from nv_ingest_api.util.image_processing.transforms import _detect_base64_image_format
+from nv_ingest_api.util.image_processing.transforms import save_image_to_disk
 from nv_ingest_client.client.util.processing import get_valid_filename
-from nv_ingest_api.util.image_processing.transforms import save_image_to_disk, _detect_base64_image_format
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +54,7 @@ def _detect_extension_from_content(image_content: str) -> str:
 
 
 def save_images_to_disk(
-    response_data: List[Dict[str, Any]],
+    response_data: list[dict[str, Any]],
     output_directory: str,
     save_charts: bool = True,
     save_tables: bool = True,
@@ -60,7 +63,7 @@ def save_images_to_disk(
     save_raw_images: bool = False,
     organize_by_type: bool = True,
     output_format: str = "auto",
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """
     Save base64-encoded images from ingestion results to disk as actual image files.
 
@@ -229,7 +232,7 @@ def save_images_to_disk(
     return image_counts
 
 
-def save_images_from_response(response: Dict[str, Any], output_directory: str, **kwargs) -> Dict[str, int]:
+def save_images_from_response(response: dict[str, Any], output_directory: str, **kwargs) -> dict[str, int]:
     """
     Convenience function to save images from a full API response.
 
@@ -257,8 +260,8 @@ def save_images_from_response(response: Dict[str, Any], output_directory: str, *
 
 
 def save_images_from_ingestor_results(
-    results: List[List[Dict[str, Any]]], output_directory: str, **kwargs
-) -> Dict[str, int]:
+    results: list[list[dict[str, Any]]], output_directory: str, **kwargs
+) -> dict[str, int]:
     """
     Save images from Ingestor.ingest() results.
 

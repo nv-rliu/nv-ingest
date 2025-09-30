@@ -11,20 +11,19 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from pydantic import field_validator, model_validator, Field
-
-from nv_ingest_api.internal.enums.common import (
-    AccessLevelEnum,
-    ContentTypeEnum,
-    TextTypeEnum,
-    LanguageEnum,
-    TableFormatEnum,
-    StatusEnum,
-    DocumentTypeEnum,
-    TaskTypeEnum,
-)
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import LanguageEnum
+from nv_ingest_api.internal.enums.common import StatusEnum
+from nv_ingest_api.internal.enums.common import TableFormatEnum
+from nv_ingest_api.internal.enums.common import TaskTypeEnum
+from nv_ingest_api.internal.enums.common import TextTypeEnum
 from nv_ingest_api.internal.schemas.meta.base_model_noext import BaseModelNoExt
 from nv_ingest_api.util.converters import datetools
+from pydantic import Field
+from pydantic import field_validator
+from pydantic import model_validator
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +44,7 @@ class SourceMetadataSchema(BaseModelNoExt):
     source_location: str = ""
     """The URL, URI, or pointer to the storage location of the source file."""
 
-    source_type: Union[DocumentTypeEnum, str]
+    source_type: DocumentTypeEnum | str
     """The type of the source file, such as pdf, docx, pptx, or txt."""
 
     collection_id: str = ""
@@ -63,10 +62,10 @@ class SourceMetadataSchema(BaseModelNoExt):
     partition_id: int = -1
     """The offset of this data fragment within a larger set of fragments."""
 
-    access_level: Union[AccessLevelEnum, int] = AccessLevelEnum.UNKNOWN
+    access_level: AccessLevelEnum | int = AccessLevelEnum.UNKNOWN
     """The role-based access control for the source."""
 
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
     @field_validator("date_created", "last_modified")
     @classmethod
@@ -80,9 +79,9 @@ class NearbyObjectsSubSchema(BaseModelNoExt):
     Schema to hold related extracted object.
     """
 
-    content: List[str] = Field(default_factory=list)
-    bbox: List[tuple] = Field(default_factory=list)
-    type: List[str] = Field(default_factory=list)
+    content: list[str] = Field(default_factory=list)
+    bbox: list[tuple] = Field(default_factory=list)
+    type: list[str] = Field(default_factory=list)
 
 
 class NearbyObjectsSchema(BaseModelNoExt):
@@ -125,7 +124,7 @@ class ContentMetadataSchema(BaseModelNoExt):
     hierarchy: ContentHierarchySchema = ContentHierarchySchema()
     """The location or order of the content within the source."""
 
-    subtype: Union[ContentTypeEnum, str] = ""
+    subtype: ContentTypeEnum | str = ""
     """The type of the content for structured data types, such as table or chart."""
 
     start_time: int = -1
@@ -134,7 +133,7 @@ class ContentMetadataSchema(BaseModelNoExt):
     end_time: int = -1
     """The timestamp of the end of a piece of audio content."""
 
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
 
 class TextMetadataSchema(BaseModelNoExt):
@@ -148,7 +147,7 @@ class TextMetadataSchema(BaseModelNoExt):
     summary: str = ""
     """An abbreviated summary of the content."""
 
-    keywords: Union[str, List[str], Dict] = ""
+    keywords: str | list[str] | dict = ""
     """Keywords, named entities, or other phrases."""
 
     language: LanguageEnum = "en"  # default to Unknown? Maybe do some kind of heuristic check
@@ -160,7 +159,7 @@ class TextMetadataSchema(BaseModelNoExt):
     text_location_max_dimensions: tuple = (0, 0)
     """The maximum dimensions of the bounding box of the text, in the format (x_max,y_max)."""
 
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
 
 class ImageMetadataSchema(BaseModelNoExt):
@@ -168,7 +167,7 @@ class ImageMetadataSchema(BaseModelNoExt):
     The schema for the extracted image content.
     """
 
-    image_type: Union[DocumentTypeEnum, str]
+    image_type: DocumentTypeEnum | str
     """The type of the image, such as structured, natural, hybrid, and others."""
 
     structured_image_type: ContentTypeEnum = ContentTypeEnum.NONE
@@ -195,7 +194,7 @@ class ImageMetadataSchema(BaseModelNoExt):
     height: int = 0
     """The height of the image."""
 
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
     @field_validator("image_type")
     def validate_image_type(cls, v):
@@ -228,7 +227,7 @@ class TableMetadataSchema(BaseModelNoExt):
     table_content: str = ""
     """Extracted text content, formatted according to table_metadata.table_format."""
 
-    table_content_format: Union[TableFormatEnum, str] = ""
+    table_content_format: TableFormatEnum | str = ""
 
     table_location: tuple = (0, 0, 0, 0)
     """The bounding box of the table, in the format (x1,y1,x2,y2)."""
@@ -239,7 +238,7 @@ class TableMetadataSchema(BaseModelNoExt):
     uploaded_image_uri: str = ""
     """A mirror of source_metadata.source_location."""
 
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
 
 class ChartMetadataSchema(BaseModelNoExt):
@@ -259,7 +258,7 @@ class ChartMetadataSchema(BaseModelNoExt):
     table_content: str = ""
     """Extracted text content, formatted according to chart_metadata.table_format."""
 
-    table_content_format: Union[TableFormatEnum, str] = ""
+    table_content_format: TableFormatEnum | str = ""
 
     table_location: tuple = (0, 0, 0, 0)
     """The bounding box of the chart, in the format (x1,y1,x2,y2)."""
@@ -270,7 +269,7 @@ class ChartMetadataSchema(BaseModelNoExt):
     uploaded_image_uri: str = ""
     """A mirror of source_metadata.source_location."""
 
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
 
 class AudioMetadataSchema(BaseModelNoExt):
@@ -284,7 +283,7 @@ class AudioMetadataSchema(BaseModelNoExt):
     audio_type: str = ""
     """The type or format of the audio, such as mp3, wav."""
 
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
 
 # TODO consider deprecating this in favor of info msg...
@@ -293,7 +292,7 @@ class ErrorMetadataSchema(BaseModelNoExt):
     status: StatusEnum
     source_id: str = ""
     error_msg: str
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
 
 class InfoMessageMetadataSchema(BaseModelNoExt):
@@ -301,7 +300,7 @@ class InfoMessageMetadataSchema(BaseModelNoExt):
     status: StatusEnum
     message: str
     filter: bool
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
 
 # Main metadata schema
@@ -316,43 +315,43 @@ class MetadataSchema(BaseModelNoExt):
     content_url: str = ""
     """A URL that points to the location of the content, if applicable."""
 
-    embedding: Optional[List[float]] = None
+    embedding: list[float] | None = None
     """An optional numerical vector representation (embedding) of the content."""
 
-    source_metadata: Optional[SourceMetadataSchema] = None
+    source_metadata: SourceMetadataSchema | None = None
     """Metadata about the original source of the content."""
 
-    content_metadata: Optional[ContentMetadataSchema] = None
+    content_metadata: ContentMetadataSchema | None = None
     """General metadata about the extracted content itself."""
 
-    audio_metadata: Optional[AudioMetadataSchema] = None
+    audio_metadata: AudioMetadataSchema | None = None
     """Specific metadata for audio content. Automatically set to None if content_metadata.type is not AUDIO."""
 
-    text_metadata: Optional[TextMetadataSchema] = None
+    text_metadata: TextMetadataSchema | None = None
     """Specific metadata for text content. Automatically set to None if content_metadata.type is not TEXT."""
 
-    image_metadata: Optional[ImageMetadataSchema] = None
+    image_metadata: ImageMetadataSchema | None = None
     """Specific metadata for image content. Automatically set to None if content_metadata.type is not IMAGE."""
 
-    table_metadata: Optional[TableMetadataSchema] = None
+    table_metadata: TableMetadataSchema | None = None
     """Specific metadata for tabular content. Automatically set to None if content_metadata.type is not STRUCTURED."""
 
-    chart_metadata: Optional[ChartMetadataSchema] = None
+    chart_metadata: ChartMetadataSchema | None = None
     """Specific metadata for chart content. Automatically set to None if content_metadata.type is not STRUCTURED."""
 
-    error_metadata: Optional[ErrorMetadataSchema] = None
+    error_metadata: ErrorMetadataSchema | None = None
     """Metadata that describes any errors encountered during processing."""
 
-    info_message_metadata: Optional[InfoMessageMetadataSchema] = None
+    info_message_metadata: InfoMessageMetadataSchema | None = None
     """Informational messages related to the processing."""
 
-    debug_metadata: Optional[Dict[str, Any]] = None
+    debug_metadata: dict[str, Any] | None = None
     """A dictionary for storing any arbitrary debug information."""
 
     raise_on_failure: bool = False
     """If True, indicates that processing should halt on failure."""
 
-    custom_content: Optional[Dict[str, Any]] = None
+    custom_content: dict[str, Any] | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -369,7 +368,7 @@ class MetadataSchema(BaseModelNoExt):
         return values
 
 
-def validate_metadata(metadata: Dict[str, Any]) -> MetadataSchema:
+def validate_metadata(metadata: dict[str, Any]) -> MetadataSchema:
     """
     Validates the given metadata dictionary against the MetadataSchema.
 

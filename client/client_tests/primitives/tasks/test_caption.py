@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskCaptionSchema
 from nv_ingest_client.primitives.tasks.caption import CaptionTask
 

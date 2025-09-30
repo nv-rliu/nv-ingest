@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
+
 import cv2
 import numpy as np
 import tritonclient.grpc as grpcclient

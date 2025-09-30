@@ -6,7 +6,13 @@ import asyncio
 import functools
 import logging
 import re
-from typing import Dict, List, Any, Union, Tuple, Optional, Callable
+from collections.abc import Callable
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 from pydantic import BaseModel
 
@@ -14,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 def filter_by_task(
-    required_tasks: List[Union[str, Tuple[Any, ...]]],
-    forward_func: Optional[Callable[[Any], Any]] = None,
+    required_tasks: list[str | tuple[Any, ...]],
+    forward_func: Callable[[Any], Any] | None = None,
 ) -> Callable:
     """
     Decorator that checks whether an IngestControlMessage contains any of the required tasks.
@@ -39,7 +45,7 @@ def filter_by_task(
 
     def decorator(func: Callable) -> Callable:
         # Helper to extract the IngestControlMessage from the arguments.
-        def extract_message(args: Tuple) -> Any:
+        def extract_message(args: tuple) -> Any:
             if args and hasattr(args[0], "get_tasks"):
                 return args[0]
             elif len(args) > 1 and hasattr(args[1], "get_tasks"):
@@ -54,7 +60,7 @@ def filter_by_task(
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 message = extract_message(args)
-                tasks: Dict[str, List[Any]] = {}
+                tasks: dict[str, list[Any]] = {}
                 for task in message.get_tasks():
                     tasks.setdefault(task.type, []).append(task.properties)
                 for required_task in required_tasks:
@@ -113,7 +119,7 @@ def filter_by_task(
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
                 message = extract_message(args)
-                tasks: Dict[str, List[Any]] = {}
+                tasks: dict[str, list[Any]] = {}
                 for task in message.get_tasks():
                     tasks.setdefault(task.type, []).append(task.properties)
                 for required_task in required_tasks:

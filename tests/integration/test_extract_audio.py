@@ -1,8 +1,8 @@
+import os
+import socket
 import subprocess
 import sys
 import time
-import os
-import socket
 
 import pytest
 from nv_ingest_api.util.message_brokers.simple_message_broker import SimpleClient

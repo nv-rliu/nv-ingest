@@ -6,7 +6,9 @@ import pytest
 from pydantic import ValidationError
 
 from nv_ingest.pipeline.ingest_pipeline import IngestPipelineBuilder
-from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema, StageConfig, EdgeConfig
+from nv_ingest.pipeline.pipeline_schema import EdgeConfig
+from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
+from nv_ingest.pipeline.pipeline_schema import StageConfig
 
 
 def test_dependency_on_non_existent_stage_raises_error():

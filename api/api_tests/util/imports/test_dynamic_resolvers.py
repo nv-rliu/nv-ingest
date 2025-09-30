@@ -3,19 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
-import types
-import pytest
-import sys
-import ray
 import os
+import sys
+import types
+
+import pytest
+import ray
+from nv_ingest_api.util.imports.dynamic_resolvers import resolve_actor_class_from_path
+from nv_ingest_api.util.imports.dynamic_resolvers import resolve_callable_from_path
+from nv_ingest_api.util.imports.dynamic_resolvers import resolve_obj_from_path
 from pydantic import BaseModel
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
-from nv_ingest_api.util.imports.dynamic_resolvers import (
-    resolve_obj_from_path,
-    resolve_callable_from_path,
-    resolve_actor_class_from_path,
-)
 
 
 # Define dummy classes in the global scope so Ray workers can find them

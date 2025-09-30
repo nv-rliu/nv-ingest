@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
-from typing import Callable
+from collections.abc import Callable
 from typing import Dict
 from typing import Type
 from typing import Union
@@ -33,7 +33,7 @@ class TaskUnimplemented(Task):
 
 
 # Mapping of TaskType to Task classes, arranged alphabetically by task type
-_TASK_MAP: Dict[TaskType, Callable] = {
+_TASK_MAP: dict[TaskType, Callable] = {
     TaskType.CAPTION: CaptionTask,
     TaskType.DEDUP: DedupTask,
     TaskType.EMBED: EmbedTask,
@@ -47,7 +47,7 @@ _TASK_MAP: Dict[TaskType, Callable] = {
 }
 
 
-def task_factory(task_type: Union[TaskType, str], **kwargs) -> Task:
+def task_factory(task_type: TaskType | str, **kwargs) -> Task:
     """
     Factory method for creating tasks based on the provided task type.
 
@@ -77,7 +77,7 @@ def task_factory(task_type: Union[TaskType, str], **kwargs) -> Task:
     elif not isinstance(task_type, TaskType):
         raise ValueError("task_type must be a TaskType enum member or a valid task type string")
 
-    task_class: Type[Task] = _TASK_MAP[task_type]
+    task_class: type[Task] = _TASK_MAP[task_type]
 
     # Inspect the constructor (__init__) of the task class to get its parameters
     sig = inspect.signature(task_class.__init__)

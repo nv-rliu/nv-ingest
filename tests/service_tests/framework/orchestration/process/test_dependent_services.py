@@ -2,9 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 import multiprocessing
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock
+from unittest.mock import Mock
+from unittest.mock import patch
+
+import pytest
 
 from nv_ingest.framework.orchestration.process.dependent_services import start_simple_message_broker
 

@@ -2,10 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 from unittest.mock import MagicMock
-from nv_ingest_api.util.service_clients.client_base import MessageBrokerClientBase, FetchMode
+
+import pytest
 from nv_ingest_api.internal.schemas.message_brokers.response_schema import ResponseSchema
+from nv_ingest_api.util.service_clients.client_base import FetchMode
+from nv_ingest_api.util.service_clients.client_base import MessageBrokerClientBase
 
 
 def test_fetch_mode_enum_members():

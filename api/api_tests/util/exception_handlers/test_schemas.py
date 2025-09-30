@@ -5,9 +5,8 @@
 from unittest.mock import patch
 
 import pytest
-from pydantic import BaseModel
-
 from nv_ingest_api.util.exception_handlers.schemas import schema_exception_handler
+from pydantic import BaseModel
 
 MODULE_UNDER_TEST = "nv_ingest_api.util.exception_handlers.schemas"
 

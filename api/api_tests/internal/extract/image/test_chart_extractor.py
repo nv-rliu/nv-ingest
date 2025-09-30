@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import unittest
-from unittest.mock import Mock, patch
-import pandas as pd
+from unittest.mock import Mock
+from unittest.mock import patch
 
 # Import the module under test
 import nv_ingest_api.internal.extract.image.chart_extractor as module_under_test
+import pandas as pd
 from nv_ingest_api.internal.extract.image.chart_extractor import extract_chart_data_from_image_internal
 
 # Define module path constant for patching

@@ -9,10 +9,11 @@ import backoff
 import cv2
 import numpy as np
 import requests
-
 from nv_ingest_api.internal.primitives.nim.model_interface.decorators import multiprocessing_cache
-from nv_ingest_api.util.image_processing.transforms import pad_image, normalize_image
-from nv_ingest_api.util.string_processing import generate_url, remove_url_endpoints
+from nv_ingest_api.util.image_processing.transforms import normalize_image
+from nv_ingest_api.util.image_processing.transforms import pad_image
+from nv_ingest_api.util.string_processing import generate_url
+from nv_ingest_api.util.string_processing import remove_url_endpoints
 
 cv2.setNumThreads(1)
 logger = logging.getLogger(__name__)
@@ -85,8 +86,8 @@ def preprocess_image_for_paddle(array: np.ndarray, image_max_dimension: int = 96
 
 def preprocess_image_for_ocr(
     array: np.ndarray,
-    target_height: Optional[int] = None,
-    target_width: Optional[int] = None,
+    target_height: int | None = None,
+    target_width: int | None = None,
     pad_how: str = "bottom_right",
     normalize: bool = False,
     channel_first: bool = False,

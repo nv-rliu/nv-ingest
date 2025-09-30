@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import unittest
-import time
-from multiprocessing import Process, Queue
 import logging
+import time
+import unittest
+from multiprocessing import Process
+from multiprocessing import Queue
 
 from nv_ingest_api.internal.primitives.nim.model_interface.decorators import multiprocessing_cache
 

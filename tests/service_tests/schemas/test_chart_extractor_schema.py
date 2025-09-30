@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from nv_ingest_api.internal.schemas.extract.extract_chart_schema import ChartExtractorConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_chart_schema import ChartExtractorSchema
 from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.extract.extract_chart_schema import ChartExtractorConfigSchema, ChartExtractorSchema
 
 
 # Test cases for ChartExtractorConfigSchema

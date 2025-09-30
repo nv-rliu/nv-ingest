@@ -7,18 +7,19 @@ import json
 import logging
 import os
 from json import JSONDecodeError
-from typing import Optional, Dict, Any
-
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Optional
 
 import redis
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import validate_ingest_job
+from nv_ingest_api.util.service_clients.client_base import FetchMode
+from nv_ingest_api.util.service_clients.redis.redis_client import RedisClient
 
 from nv_ingest.framework.schemas.framework_message_wrapper_schema import MessageWrapper
 from nv_ingest.framework.schemas.framework_processing_job_schema import ProcessingJob
 from nv_ingest.framework.util.service.meta.ingest.ingest_service_meta import IngestServiceMeta
-from nv_ingest_api.internal.schemas.meta.ingest_job_schema import validate_ingest_job
-from nv_ingest_api.util.service_clients.client_base import FetchMode
-from nv_ingest_api.util.service_clients.redis.redis_client import RedisClient
 
 logger = logging.getLogger("uvicorn")
 
@@ -69,7 +70,7 @@ class RedisIngestService(IngestServiceMeta):
             result_data_ttl: int = int(os.getenv("RESULT_DATA_TTL_SECONDS", "3600"))
             state_ttl: int = int(os.getenv("STATE_TTL_SECONDS", "7200"))
 
-            cache_config: Dict[str, Any] = {
+            cache_config: dict[str, Any] = {
                 "directory": os.getenv("FETCH_CACHE_DIR", "./.fetch_cache"),
                 "ttl": int(os.getenv("FETCH_CACHE_TTL_SECONDS", "3600")),
             }
@@ -96,9 +97,9 @@ class RedisIngestService(IngestServiceMeta):
         redis_port: int,
         redis_task_queue: str,
         fetch_mode: "FetchMode",
-        result_data_ttl_seconds: Optional[int],
-        state_ttl_seconds: Optional[int],
-        cache_config: Optional[Dict[str, Any]],
+        result_data_ttl_seconds: int | None,
+        state_ttl_seconds: int | None,
+        cache_config: dict[str, Any] | None,
         use_ssl: bool,
     ) -> None:
         """
@@ -127,8 +128,8 @@ class RedisIngestService(IngestServiceMeta):
         self._redis_port: int = redis_port
         self._redis_task_queue: str = redis_task_queue
         self._fetch_mode: "FetchMode" = fetch_mode
-        self._result_data_ttl_seconds: Optional[int] = result_data_ttl_seconds
-        self._state_ttl_seconds: Optional[int] = state_ttl_seconds
+        self._result_data_ttl_seconds: int | None = result_data_ttl_seconds
+        self._state_ttl_seconds: int | None = state_ttl_seconds
 
         self._bulk_vdb_cache_prefix: str = "vdb_bulk_upload_cache:"
         self._cache_prefix: str = "processing_cache:"
@@ -205,7 +206,7 @@ class RedisIngestService(IngestServiceMeta):
                 updated_tasks.append(task)
             job_spec["tasks"] = updated_tasks
             job_spec_json = json.dumps(job_spec)
-            ttl_for_result: Optional[int] = (
+            ttl_for_result: int | None = (
                 self._result_data_ttl_seconds if self._fetch_mode == FetchMode.NON_DESTRUCTIVE else None
             )
             logger.debug(
@@ -229,7 +230,7 @@ class RedisIngestService(IngestServiceMeta):
             logger.exception(f"Unexpected error submitting job {trace_id}: {err}")
             raise
 
-    async def fetch_job(self, job_id: str) -> Optional[Dict]:
+    async def fetch_job(self, job_id: str) -> dict | None:
         """
         Fetches the job result using the configured RedisClient fetch mode and timeout.
         Executes the synchronous client call asynchronously.
@@ -286,7 +287,7 @@ class RedisIngestService(IngestServiceMeta):
         None
         """
         state_key: str = f"{self._state_prefix}{job_id}"
-        ttl_to_set: Optional[int] = self._state_ttl_seconds
+        ttl_to_set: int | None = self._state_ttl_seconds
         try:
             logger.debug(f"Setting state for {job_id} to {state} with TTL {ttl_to_set}")
             await asyncio.to_thread(
@@ -301,7 +302,7 @@ class RedisIngestService(IngestServiceMeta):
         except Exception as err:
             logger.exception(f"Unexpected error setting state for {state_key}: {err}")
 
-    async def get_job_state(self, job_id: str) -> Optional[str]:
+    async def get_job_state(self, job_id: str) -> str | None:
         """
         Retrieves the explicit state of a job.
 
@@ -317,7 +318,7 @@ class RedisIngestService(IngestServiceMeta):
         """
         state_key: str = f"{self._state_prefix}{job_id}"
         try:
-            data_bytes: Optional[bytes] = await asyncio.to_thread(self._ingest_client.get_client().get, state_key)
+            data_bytes: bytes | None = await asyncio.to_thread(self._ingest_client.get_client().get, state_key)
             if data_bytes:
                 state: str = data_bytes.decode("utf-8")
                 logger.debug(f"Retrieved state for {job_id}: {state}")
@@ -332,7 +333,7 @@ class RedisIngestService(IngestServiceMeta):
             logger.exception(f"Unexpected error getting state for {state_key}: {err}")
             return None
 
-    async def set_processing_cache(self, job_id: str, jobs_data: List["ProcessingJob"]) -> None:
+    async def set_processing_cache(self, job_id: str, jobs_data: list["ProcessingJob"]) -> None:
         """
         Stores processing jobs data in a simple key-value cache.
 
@@ -359,7 +360,7 @@ class RedisIngestService(IngestServiceMeta):
         except Exception as err:
             logger.exception(f"Error setting cache for {cache_key}: {err}")
 
-    async def get_processing_cache(self, job_id: str) -> List["ProcessingJob"]:
+    async def get_processing_cache(self, job_id: str) -> list["ProcessingJob"]:
         """
         Retrieves processing jobs data from the simple key-value cache.
 
@@ -375,7 +376,7 @@ class RedisIngestService(IngestServiceMeta):
         """
         cache_key: str = f"{self._cache_prefix}{job_id}"
         try:
-            data_bytes: Optional[bytes] = await asyncio.to_thread(self._ingest_client.get_client().get, cache_key)
+            data_bytes: bytes | None = await asyncio.to_thread(self._ingest_client.get_client().get, cache_key)
             if data_bytes is None:
                 return []
             return [ProcessingJob(**job) for job in json.loads(data_bytes)]

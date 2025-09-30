@@ -2,13 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-import pandas as pd
-from typing import Dict, Union
+from typing import Dict
+from typing import Union
 
-from nv_ingest_api.internal.mutate.filter import (
-    filter_images_internal,
-)
+import pandas as pd
+import pytest
+from nv_ingest_api.internal.mutate.filter import filter_images_internal
 
 
 # Dummy enumerations and helper functions for testing.
@@ -50,7 +49,7 @@ def patch_dependencies(monkeypatch):
 # Test when required columns are missing.
 def test_missing_required_columns():
     df = pd.DataFrame({"wrong_column": ["IMAGE"], "metadata": [{"image_metadata": {"width": 200, "height": 100}}]})
-    task_params: Dict[str, Union[int, float, bool]] = {
+    task_params: dict[str, int | float | bool] = {
         "min_size": 100,
         "max_aspect_ratio": 4,
         "min_aspect_ratio": 1,

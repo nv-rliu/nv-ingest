@@ -3,15 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 import base64
 import io
+from unittest.mock import ANY
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import numpy as np
-import pytest
-from unittest.mock import patch, MagicMock, ANY
-
 import nv_ingest_api.internal.extract.pdf.engines.pdfium as module_under_test
-from nv_ingest_api.internal.extract.pdf.engines.pdfium import (
-    _extract_page_elements_using_image_ensemble,
-)
+import pytest
+from nv_ingest_api.internal.extract.pdf.engines.pdfium import _extract_page_elements_using_image_ensemble
 from nv_ingest_api.util.metadata.aggregators import CroppedImageWithContent
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"

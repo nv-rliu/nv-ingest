@@ -2,10 +2,10 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-import nv_ingest_api.util.system.hardware_info as module_under_test
-
 from unittest.mock import patch
+
+import nv_ingest_api.util.system.hardware_info as module_under_test
+import pytest
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

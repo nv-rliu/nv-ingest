@@ -2,15 +2,17 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-import pandas as pd
-from pydantic import BaseModel, Field
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
+import nv_ingest_api.internal.store.embed_text_upload as module_under_test
+import pandas as pd
+import pytest
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.schemas.store.store_embedding_schema import EmbeddingStorageSchema
-import nv_ingest_api.internal.store.embed_text_upload as module_under_test
 from nv_ingest_api.internal.store.embed_text_upload import store_text_embeddings_internal
+from pydantic import BaseModel
+from pydantic import Field
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

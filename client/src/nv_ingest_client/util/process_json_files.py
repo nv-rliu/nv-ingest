@@ -84,7 +84,7 @@ def main(json_files, output_file):
         # Read and collect entries from all files
         for json_file in json_files:
             click.echo(f"Reading file: {json_file}")
-            with open(json_file, "r") as file:
+            with open(json_file) as file:
                 content = file.read()
                 all_entries.extend(json.loads(content))
 

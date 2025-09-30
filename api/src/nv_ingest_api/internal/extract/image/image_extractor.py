@@ -7,17 +7,18 @@ import base64
 import functools
 import io
 import logging
-from typing import Any, Union, Tuple
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import pandas as pd
-from pydantic import BaseModel
-
 from nv_ingest_api.internal.extract.image.image_helpers.common import unstructured_image_extractor
 from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageConfigSchema
 from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,9 @@ logger = logging.getLogger(__name__)
 @unified_exception_handler
 def _decode_and_extract_from_image(
     base64_row: pd.Series,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     validated_extraction_config: ImageConfigSchema,
-    execution_trace_log: Optional[List[Any]] = None,
+    execution_trace_log: list[Any] | None = None,
 ) -> Any:
     """
     Decode base64-encoded image content from a DataFrame row and extract data using a specified extraction method.
@@ -69,7 +70,7 @@ def _decode_and_extract_from_image(
 
     # Retrieve document type and initialize source_id.
     document_type: Any = base64_row["document_type"]
-    source_id: Optional[Any] = None
+    source_id: Any | None = None
 
     try:
         base64_content: str = base64_row["content"]
@@ -92,7 +93,7 @@ def _decode_and_extract_from_image(
 
         # Determine the extraction method and parameters.
         # extract_method: str = task_config.get("method", "image")
-        extract_params: Dict[str, Any] = task_config.get("params", {})
+        extract_params: dict[str, Any] = task_config.get("params", {})
         extract_params["document_type"] = document_type
 
         try:
@@ -141,10 +142,10 @@ def _decode_and_extract_from_image(
 @unified_exception_handler
 def extract_primitives_from_image_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Union[Dict[str, Any], BaseModel],
+    task_config: dict[str, Any] | BaseModel,
     extraction_config: Any,
-    execution_trace_log: Optional[Dict[str, Any]] = None,
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    execution_trace_log: dict[str, Any] | None = None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
     """
     Process a DataFrame containing base64-encoded image files and extract primitives from each image.
 

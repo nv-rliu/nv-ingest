@@ -44,7 +44,7 @@ class InfographicExtractionTask(Task):
         info += f"  params: {self._params}\n"
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis
         """

@@ -14,7 +14,6 @@ from typing import Tuple
 import backoff
 import numpy as np
 import tritonclient.grpc as grpcclient
-
 from nv_ingest_api.internal.primitives.nim import ModelInterface
 from nv_ingest_api.internal.primitives.nim.model_interface.decorators import multiprocessing_cache
 from nv_ingest_api.internal.primitives.nim.model_interface.helpers import preprocess_image_for_paddle
@@ -35,7 +34,7 @@ class OCRModelInterfaceBase(ModelInterface):
         self,
         response: Any,
         protocol: str,
-        data: Optional[Dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
         model_name: str = DEFAULT_OCR_MODEL_NAME,
         **kwargs: Any,
     ) -> Any:
@@ -65,7 +64,7 @@ class OCRModelInterfaceBase(ModelInterface):
             If an invalid protocol is specified.
         """
         # Retrieve image dimensions if available
-        dims: Optional[List[Tuple[int, int]]] = data.get("image_dims") if data else None
+        dims: list[tuple[int, int]] | None = data.get("image_dims") if data else None
 
         if protocol == "grpc":
             logger.debug("Parsing output from gRPC OCR model (batched).")
@@ -116,7 +115,7 @@ class OCRModelInterfaceBase(ModelInterface):
 
         return potential_memory_bytes <= memory_budget_bytes
 
-    def _prepare_ocr_payload(self, base64_img: str) -> Dict[str, Any]:
+    def _prepare_ocr_payload(self, base64_img: str) -> dict[str, Any]:
         """
         DEPRECATED by batch logic in format_input. Kept here if you need single-image direct calls.
 
@@ -139,9 +138,9 @@ class OCRModelInterfaceBase(ModelInterface):
 
     def _extract_content_from_ocr_http_response(
         self,
-        json_response: Dict[str, Any],
-        dimensions: List[Dict[str, Any]],
-    ) -> List[Tuple[str, str]]:
+        json_response: dict[str, Any],
+        dimensions: list[dict[str, Any]],
+    ) -> list[tuple[str, str]]:
         """
         Extract content from the JSON response of a OCR HTTP API request.
 
@@ -169,7 +168,7 @@ class OCRModelInterfaceBase(ModelInterface):
         if "data" not in json_response or not json_response["data"]:
             raise RuntimeError("Unexpected response format: 'data' key is missing or empty.")
 
-        results: List[str] = []
+        results: list[str] = []
         for item_idx, item in enumerate(json_response["data"]):
             text_detections = item.get("text_detections", [])
             text_predictions = []
@@ -195,9 +194,9 @@ class OCRModelInterfaceBase(ModelInterface):
     def _extract_content_from_ocr_grpc_response(
         self,
         response: np.ndarray,
-        dimensions: List[Dict[str, Any]],
+        dimensions: list[dict[str, Any]],
         model_name: str = DEFAULT_OCR_MODEL_NAME,
-    ) -> List[Tuple[str, str]]:
+    ) -> list[tuple[str, str]]:
         """
         Parse a gRPC response for one or more images. The response can have two possible shapes:
           - (3,) for batch_size=1
@@ -240,7 +239,7 @@ class OCRModelInterfaceBase(ModelInterface):
         elif response.ndim != 2 or response.shape[0] != 3:
             raise ValueError(f"Unexpected response shape: {response.shape}. Expecting (3,) or (3, n).")
         batch_size = response.shape[1]
-        results: List[Tuple[str, str]] = []
+        results: list[tuple[str, str]] = []
 
         for i in range(batch_size):
             # 1) Parse bounding boxes
@@ -285,14 +284,14 @@ class OCRModelInterfaceBase(ModelInterface):
 
     @staticmethod
     def _postprocess_ocr_response(
-        bounding_boxes: List[Any],
-        text_predictions: List[str],
-        conf_scores: List[float],
-        dims: Optional[List[Dict[str, Any]]] = None,
+        bounding_boxes: list[Any],
+        text_predictions: list[str],
+        conf_scores: list[float],
+        dims: list[dict[str, Any]] | None = None,
         img_index: int = 0,
         scale_coordinates: bool = True,
         shift_coordinates: bool = True,
-    ) -> Tuple[List[Any], List[str]]:
+    ) -> tuple[list[Any], list[str]]:
         """
         Convert bounding boxes with normalized coordinates to pixel cooridnates by using
         the dimensions. Also shift the coorindates if the inputs were padded. For multiple images,
@@ -338,15 +337,15 @@ class OCRModelInterfaceBase(ModelInterface):
         pad_height = dims[img_index].get("pad_height", 0) if shift_coordinates else 0.0
         scale_factor = dims[img_index].get("scale_factor", 1.0) if scale_coordinates else 1.0
 
-        bboxes: List[List[float]] = []
-        texts: List[str] = []
-        confs: List[float] = []
+        bboxes: list[list[float]] = []
+        texts: list[str] = []
+        confs: list[float] = []
 
         # Convert normalized coords back to actual pixel coords
         for box, txt, conf in zip(bounding_boxes, text_predictions, conf_scores):
             if box == "nan":
                 continue
-            points: List[List[float]] = []
+            points: list[list[float]] = []
             for point in box:
                 # Convert normalized coords back to actual pixel coords,
                 # and shift them back to their original positions if padded.
@@ -378,7 +377,7 @@ class PaddleOCRModelInterface(OCRModelInterfaceBase):
         """
         return "PaddleOCR"
 
-    def prepare_data_for_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_data_for_inference(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Decode one or more base64-encoded images into NumPy arrays, storing them
         alongside their dimensions in `data`.
@@ -409,7 +408,7 @@ class PaddleOCRModelInterface(OCRModelInterfaceBase):
             if not isinstance(base64_list, list):
                 raise ValueError("The 'base64_images' key must contain a list of base64-encoded strings.")
 
-            images: List[np.ndarray] = []
+            images: list[np.ndarray] = []
             for b64 in base64_list:
                 img = base64_to_numpy(b64)
                 images.append(img)
@@ -426,7 +425,7 @@ class PaddleOCRModelInterface(OCRModelInterfaceBase):
 
         return data
 
-    def format_input(self, data: Dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
+    def format_input(self, data: dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
         """
         Format input data for the specified protocol ("grpc" or "http"), supporting batched data.
 
@@ -458,7 +457,7 @@ class PaddleOCRModelInterface(OCRModelInterfaceBase):
 
         images = data["images"]
 
-        dims: List[Dict[str, Any]] = []
+        dims: list[dict[str, Any]] = []
         data["image_dims"] = dims
 
         # Helper function to split a list into chunks of size up to chunk_size.
@@ -473,7 +472,7 @@ class PaddleOCRModelInterface(OCRModelInterfaceBase):
 
         if protocol == "grpc":
             logger.debug("Formatting input for gRPC OCR model (batched).")
-            processed: List[np.ndarray] = []
+            processed: list[np.ndarray] = []
 
             for img in images:
                 arr, _dims = preprocess_image_for_paddle(img)
@@ -501,7 +500,7 @@ class PaddleOCRModelInterface(OCRModelInterfaceBase):
             else:
                 base64_list = [data["base64_image"]]
 
-            input_list: List[Dict[str, Any]] = []
+            input_list: list[dict[str, Any]] = []
             for b64, img in zip(base64_list, images):
                 image_url = f"data:image/png;base64,{b64}"
                 image_obj = {"type": "image_url", "url": image_url}
@@ -542,7 +541,7 @@ class NemoRetrieverOCRModelInterface(OCRModelInterfaceBase):
         """
         return "NemoRetrieverOCR"
 
-    def prepare_data_for_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_data_for_inference(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Decode one or more base64-encoded images into NumPy arrays, storing them
         alongside their dimensions in `data`.
@@ -573,7 +572,7 @@ class NemoRetrieverOCRModelInterface(OCRModelInterfaceBase):
             if not isinstance(base64_list, list):
                 raise ValueError("The 'base64_images' key must contain a list of base64-encoded strings.")
 
-            images: List[np.ndarray] = []
+            images: list[np.ndarray] = []
             for b64 in base64_list:
                 img = base64_to_numpy(b64)
                 images.append(img)
@@ -592,11 +591,11 @@ class NemoRetrieverOCRModelInterface(OCRModelInterfaceBase):
 
     def coalesce_requests_to_batch(
         self,
-        requests: List[np.ndarray],
-        original_image_shapes: List[Tuple[int, int]],
+        requests: list[np.ndarray],
+        original_image_shapes: list[tuple[int, int]],
         protocol: str,
         **kwargs,
-    ) -> Tuple[List[Any], List[Dict[str, Any]]]:
+    ) -> tuple[list[Any], list[dict[str, Any]]]:
         """
         Takes a list of individual data items (NumPy image arrays) and combines them
         into a single formatted batch ready for inference.
@@ -625,7 +624,7 @@ class NemoRetrieverOCRModelInterface(OCRModelInterfaceBase):
 
         return self._format_single_batch(requests, original_image_shapes, protocol, **kwargs)
 
-    def format_input(self, data: Dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
+    def format_input(self, data: dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
         """
         Format input data for the specified protocol ("grpc" or "http"), supporting batched data.
 
@@ -682,18 +681,18 @@ class NemoRetrieverOCRModelInterface(OCRModelInterfaceBase):
 
     def _format_single_batch(
         self,
-        batch_images: List[str],
-        batch_dims: List[Tuple[int, int]],
+        batch_images: list[str],
+        batch_dims: list[tuple[int, int]],
         protocol: str,
         **kwargs,
-    ) -> Tuple[Any, Dict[str, Any]]:
-        dims: List[Dict[str, Any]] = []
+    ) -> tuple[Any, dict[str, Any]]:
+        dims: list[dict[str, Any]] = []
 
         merge_level = kwargs.get("merge_level", "paragraph")
 
         if protocol == "grpc":
             logger.debug("Formatting input for gRPC OCR model (batched).")
-            processed: List[np.ndarray] = []
+            processed: list[np.ndarray] = []
 
             for img, shape in zip(batch_images, batch_dims):
                 _dims = {"new_width": shape[1], "new_height": shape[0]}
@@ -718,7 +717,7 @@ class NemoRetrieverOCRModelInterface(OCRModelInterfaceBase):
         elif protocol == "http":
             logger.debug("Formatting input for HTTP OCR model (batched).")
 
-            input_list: List[Dict[str, Any]] = []
+            input_list: list[dict[str, Any]] = []
             for b64, shape in zip(batch_images, batch_dims):
                 image_url = f"data:image/png;base64,{b64}"
                 image_obj = {"type": "image_url", "url": image_url}

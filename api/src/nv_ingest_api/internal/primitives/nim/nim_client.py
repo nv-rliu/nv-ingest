@@ -5,22 +5,23 @@
 import hashlib
 import json
 import logging
+import queue
 import threading
 import time
-import queue
 from collections import namedtuple
-from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from concurrent.futures import Future
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
 from typing import Any
 from typing import Optional
-from typing import Tuple, Union
+from typing import Tuple
+from typing import Union
 
 import numpy as np
 import requests
 import tritonclient.grpc as grpcclient
-
 from nv_ingest_api.internal.primitives.tracing.tagging import traceable_func
 from nv_ingest_api.util.string_processing import generate_url
-
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +38,14 @@ class NimClient:
         self,
         model_interface,
         protocol: str,
-        endpoints: Tuple[str, str],
-        auth_token: Optional[str] = None,
+        endpoints: tuple[str, str],
+        auth_token: str | None = None,
         timeout: float = 120.0,
         max_retries: int = 5,
         max_429_retries: int = 5,
         enable_dynamic_batching: bool = False,
         dynamic_batch_timeout: float = 0.1,  # 100 milliseconds
-        dynamic_batch_memory_budget_mb: Optional[float] = None,
+        dynamic_batch_memory_budget_mb: float | None = None,
     ):
         """
         Initialize the NimClient with the specified model interface, protocol, and server endpoints.
@@ -292,8 +293,8 @@ class NimClient:
         return all_results
 
     def _grpc_infer(
-        self, formatted_input: Union[list, list[np.ndarray]], model_name: str, **kwargs
-    ) -> Union[list, list[np.ndarray]]:
+        self, formatted_input: list | list[np.ndarray], model_name: str, **kwargs
+    ) -> list | list[np.ndarray]:
         """
         Perform inference using the gRPC protocol.
 
@@ -530,7 +531,7 @@ class NimClient:
             for req in requests:
                 req.future.set_exception(e)
 
-    def submit(self, data: Any, model_name: str, dims: Tuple[int, int], **kwargs) -> Future:
+    def submit(self, data: Any, model_name: str, dims: tuple[int, int], **kwargs) -> Future:
         """
         Submits a single inference request to the dynamic batcher.
 
@@ -586,7 +587,7 @@ class NimClientManager:
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
-                    cls._instance = super(NimClientManager, cls).__new__(cls)
+                    cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self):

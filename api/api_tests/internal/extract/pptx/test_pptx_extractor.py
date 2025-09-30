@@ -4,14 +4,14 @@
 
 import base64
 import io
-
-import pandas as pd
-from unittest.mock import patch, MagicMock
-
-import pytest
-from pydantic import BaseModel, Field
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import nv_ingest_api.internal.extract.pptx.pptx_extractor as module_under_test
+import pandas as pd
+import pytest
+from pydantic import BaseModel
+from pydantic import Field
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

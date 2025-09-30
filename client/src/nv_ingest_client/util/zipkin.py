@@ -6,7 +6,8 @@ import asyncio
 import json
 import logging
 import os
-from typing import Dict, Any
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -29,7 +30,7 @@ class AsyncZipkinClient:
         self._max_retries = max_retries
         self._retry_delay = retry_delay
 
-    async def fetch(self, sem, trace_id: str, url: str) -> Dict[str, str]:
+    async def fetch(self, sem, trace_id: str, url: str) -> dict[str, str]:
         """
         Perform a GET request to the given URL with retry logic for 404 status codes.
 
@@ -59,7 +60,7 @@ class AsyncZipkinClient:
 
         raise RuntimeError(f"Max retries exceeded for URL: {url}")
 
-    async def get_metrics(self, trace_ids: List[str]):
+    async def get_metrics(self, trace_ids: list[str]):
         urls = []
         for trace_id in trace_ids:
             logger.debug(f"Trace-ID in URL: {trace_id}")
@@ -73,7 +74,7 @@ class AsyncZipkinClient:
 
 
 def collect_traces_from_zipkin(
-    zipkin_host: str, zipkin_port: int, trace_id_map: Dict[str, str], concurrent_requests: Optional[int] = 1
+    zipkin_host: str, zipkin_port: int, trace_id_map: dict[str, str], concurrent_requests: int | None = 1
 ) -> list[Any]:
     zipkin_client = AsyncZipkinClient(zipkin_host, zipkin_port, concurrent_requests)
 
@@ -89,7 +90,7 @@ def collect_traces_from_zipkin(
 
 def write_results_to_output_directory(
     output_directory: str,
-    trace_responses: List[Dict[str, str]],
+    trace_responses: list[dict[str, str]],
 ) -> None:
     logger.info(f"Writing {len(trace_responses)} to output_directory: {output_directory}")
 

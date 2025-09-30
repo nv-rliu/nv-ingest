@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class IngestJobFailure(Exception):
     """Custom exception to handle failed job ingestion results."""
 
-    def __init__(self, message: str, description: str, annotations: Dict[str, Any]):
+    def __init__(self, message: str, description: str, annotations: dict[str, Any]):
         super().__init__(message)
         self.description = description
         self.annotations = annotations
@@ -32,7 +32,7 @@ class IngestJobFailure(Exception):
 def handle_future_result(
     future: concurrent.futures.Future,
     timeout=10,
-) -> Tuple[Dict[str, Any], str]:
+) -> tuple[dict[str, Any], str]:
     """
     Handle the result of a completed future job and process annotations.
 
@@ -103,7 +103,7 @@ def handle_future_result(
     return (result, trace_id)
 
 
-def highlight_error_in_original(original_str: str, task_name: str, error_detail: Dict[str, Any]) -> str:
+def highlight_error_in_original(original_str: str, task_name: str, error_detail: dict[str, Any]) -> str:
     """
     Highlights the error-causing text in the original JSON string based on the error type.
 
@@ -139,7 +139,7 @@ def highlight_error_in_original(original_str: str, task_name: str, error_detail:
     """
     try:
         error_type: str = error_detail.get("type", "unknown")
-        loc: List[Any] = error_detail.get("loc", [])
+        loc: list[Any] = error_detail.get("loc", [])
         if loc:
             # Build a string representation of the error location
             error_location: str = "->".join(map(str, loc))
@@ -193,7 +193,7 @@ def format_validation_error(e: ValidationError, task_id: str, original_str: str)
     str
         A detailed error message with highlighted problematic fields.
     """
-    error_messages: List[str] = []
+    error_messages: list[str] = []
     for error in e.errors():
         error_message = f"(Schema Error): {error['msg']}"
         highlighted_str = highlight_error_in_original(original_str, task_id, error)
@@ -201,7 +201,7 @@ def format_validation_error(e: ValidationError, task_id: str, original_str: str)
     return "\n".join(error_messages)
 
 
-def check_schema(schema: Type[BaseModel], options: dict, task_id: str, original_str: str) -> BaseModel:
+def check_schema(schema: type[BaseModel], options: dict, task_id: str, original_str: str) -> BaseModel:
     """
     Validates the provided options against the given schema and returns a schema instance.
 

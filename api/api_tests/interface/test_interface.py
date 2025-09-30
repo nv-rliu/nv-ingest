@@ -3,17 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import unittest
-from unittest.mock import patch
-import pandas as pd
 from io import BytesIO
-from pandas.testing import assert_frame_equal
+from unittest.mock import patch
 
+import pandas as pd
+from nv_ingest_api.interface.transform import transform_image_create_vlm_caption
+from nv_ingest_api.interface.transform import transform_text_create_embeddings
+from nv_ingest_api.interface.transform import transform_text_split_and_tokenize
 from nv_ingest_api.internal.enums.common import DocumentTypeEnum
-from nv_ingest_api.interface.transform import (
-    transform_text_create_embeddings,
-    transform_image_create_vlm_caption,
-    transform_text_split_and_tokenize,
-)
+from pandas.testing import assert_frame_equal
 
 
 class TestTransformTextCreateEmbeddings(unittest.TestCase):

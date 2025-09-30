@@ -16,32 +16,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import io
 import logging
+import os
 from datetime import datetime
-from typing import Dict, IO, Any
+from typing import IO
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 
 import numpy as np
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YoloxPageElementsModelInterface
+from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageConfigSchema
+from nv_ingest_api.util.image_processing.transforms import crop_image
+from nv_ingest_api.util.image_processing.transforms import numpy_to_base64
+from nv_ingest_api.util.metadata.aggregators import CroppedImageWithContent
+from nv_ingest_api.util.metadata.aggregators import construct_image_metadata_from_base64
+from nv_ingest_api.util.metadata.aggregators import construct_page_element_metadata
+from nv_ingest_api.util.nim import create_inference_client
 from PIL import Image
 
 # from wand.image import Image as WandImage
 
-from nv_ingest_api.internal.enums.common import AccessLevelEnum
-from nv_ingest_api.internal.primitives.nim.model_interface.yolox import (
-    YoloxPageElementsModelInterface,
-)
-from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageConfigSchema
-from nv_ingest_api.util.image_processing.transforms import crop_image, numpy_to_base64
-from nv_ingest_api.util.metadata.aggregators import (
-    CroppedImageWithContent,
-    construct_page_element_metadata,
-    construct_image_metadata_from_base64,
-)
-from nv_ingest_api.util.nim import create_inference_client
 
 logger = logging.getLogger(__name__)
 
@@ -107,10 +106,10 @@ def convert_svg_to_bitmap(image_stream: io.BytesIO) -> np.ndarray:
 
 
 def extract_page_element_images(
-    annotation_dict: Dict[str, List[List[float]]],
+    annotation_dict: dict[str, list[list[float]]],
     original_image: np.ndarray,
     page_idx: int,
-    page_elements: List[Tuple[int, "CroppedImageWithContent"]],
+    page_elements: list[tuple[int, "CroppedImageWithContent"]],
 ) -> None:
     """
     Handle the extraction of tables and charts from the inference results and run additional model inference.
@@ -174,10 +173,10 @@ def extract_page_element_images(
 
 
 def extract_page_elements_from_images(
-    images: List[np.ndarray],
+    images: list[np.ndarray],
     config: ImageConfigSchema,
-    trace_info: Optional[List] = None,
-) -> List[Tuple[int, object]]:
+    trace_info: list | None = None,
+) -> list[tuple[int, object]]:
     """
     Detect and extract tables/charts from a list of NumPy images using YOLOX.
 
@@ -254,9 +253,9 @@ def unstructured_image_extractor(
     extract_infographics: bool,
     extract_tables: bool,
     extract_charts: bool,
-    extraction_config: Dict[str, Any],
-    extraction_trace_log: Optional[Dict[str, Any]] = None,
-) -> List[Any]:
+    extraction_config: dict[str, Any],
+    extraction_trace_log: dict[str, Any] | None = None,
+) -> list[Any]:
     """
     Extract primitives from an unstructured image bytestream.
 
@@ -314,13 +313,13 @@ def unstructured_image_extractor(
         raise ValueError(f"Unsupported document type: {document_type}")
 
     # Retrieve additional row-specific data and source identifier.
-    row_data: Dict[str, Any] = extraction_config.get("row_data", {})
+    row_data: dict[str, Any] = extraction_config.get("row_data", {})
     source_id: str = row_data.get("source_id", "unknown_source")
 
     # Build source metadata based on row data.
-    base_unified_metadata: Dict[str, Any] = row_data.get(extraction_config.get("metadata_column", "metadata"), {})
+    base_unified_metadata: dict[str, Any] = row_data.get(extraction_config.get("metadata_column", "metadata"), {})
     current_iso_datetime: str = datetime.now().isoformat()
-    source_metadata: Dict[str, Any] = {
+    source_metadata: dict[str, Any] = {
         "source_name": source_id if os.path.splitext(source_id)[1] else f"{source_id}.{document_type}",
         "source_id": source_id,
         "source_location": row_data.get("source_location", ""),
@@ -353,7 +352,7 @@ def unstructured_image_extractor(
     else:
         raise ValueError(f"Unsupported document type: {document_type}")
 
-    extracted_data: List[Any] = []
+    extracted_data: list[Any] = []
 
     # Text extraction stub (not supported for raw images)
     if extract_text:

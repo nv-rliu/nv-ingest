@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from nv_ingest.framework.util.flow_control import filter_by_task
 from nv_ingest.framework.util.flow_control.filter_by_task import _is_subset
 
-
 # =============================================================================
 # Helper Classes for Testing filter_by_task
 # =============================================================================

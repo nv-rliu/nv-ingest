@@ -3,18 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
-import pytest
 from typing import Optional
 from unittest.mock import Mock
 
-from pydantic import BaseModel, Field
-
+import pytest
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
-from nv_ingest_api.util.introspection.class_inspect import (
-    find_pydantic_config_schema,
-    find_pydantic_config_schema_for_callable,
-    find_pydantic_config_schema_unified,
-)
+from nv_ingest_api.util.introspection.class_inspect import find_pydantic_config_schema
+from nv_ingest_api.util.introspection.class_inspect import find_pydantic_config_schema_for_callable
+from nv_ingest_api.util.introspection.class_inspect import find_pydantic_config_schema_unified
+from pydantic import BaseModel
+from pydantic import Field
 
 
 # Test fixtures - Mock classes and schemas for testing
@@ -34,7 +32,7 @@ class MockSchemaWithValidation(BaseModel):
     """Mock Pydantic schema with validation for testing."""
 
     required_field: str = Field(..., description="Required field")
-    optional_field: Optional[int] = Field(None, description="Optional field")
+    optional_field: int | None = Field(None, description="Optional field")
 
 
 class MockActorWithSchema:
@@ -326,7 +324,8 @@ class TestEdgeCases:
 
     def test_schema_with_generic_types(self):
         """Test schema detection with generic types."""
-        from typing import Generic, TypeVar
+        from typing import Generic
+        from typing import TypeVar
 
         T = TypeVar("T")
 

@@ -14,14 +14,17 @@ capacity planning decisions.
 import logging
 import os
 from collections import defaultdict
-from typing import Any, Dict, List, Union
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Union
 
 logger = logging.getLogger(__name__)
 
 
 def analyze_document_chunks(
-    results: Union[List[List[Dict[str, Any]]], List[Dict[str, Any]]]
-) -> Dict[str, Dict[str, Dict[str, int]]]:
+    results: list[list[dict[str, Any]]] | list[dict[str, Any]],
+) -> dict[str, dict[str, dict[str, int]]]:
     """
     Analyze ingestor results to count elements by type and page for each document.
 
@@ -140,7 +143,7 @@ def analyze_document_chunks(
     return document_page_counts
 
 
-def _normalize_results_format(results: Union[List[List[Dict]], List[Dict]]) -> List[List[Dict]]:
+def _normalize_results_format(results: list[list[dict]] | list[dict]) -> list[list[dict]]:
     """
     Normalize various input formats to consistent List[List[Dict]] structure.
 
@@ -180,7 +183,7 @@ def _normalize_results_format(results: Union[List[List[Dict]], List[Dict]]) -> L
     return [[item] for item in results if item]
 
 
-def _extract_elements_from_doc(doc_results) -> List[Dict]:
+def _extract_elements_from_doc(doc_results) -> list[dict]:
     """
     Extract elements from document results, handling various data types.
 
@@ -205,7 +208,7 @@ def _extract_elements_from_doc(doc_results) -> List[Dict]:
         return [doc_results] if doc_results else []
 
 
-def _extract_document_name(element: Dict[str, Any]) -> str:
+def _extract_document_name(element: dict[str, Any]) -> str:
     """
     Extract clean document name from element metadata.
 
@@ -225,7 +228,7 @@ def _extract_document_name(element: Dict[str, Any]) -> str:
     return os.path.basename(source_id)
 
 
-def _extract_page_key(element: Dict[str, Any]) -> str:
+def _extract_page_key(element: dict[str, Any]) -> str:
     """
     Extract page key from element metadata for consistent page naming.
 
@@ -251,7 +254,7 @@ def _extract_page_key(element: Dict[str, Any]) -> str:
         return "unknown"
 
 
-def _categorize_element(element: Dict[str, Any]) -> str:
+def _categorize_element(element: dict[str, Any]) -> str:
     """
     Categorize element by type using document_type and content metadata.
 
@@ -294,7 +297,7 @@ def _categorize_element(element: Dict[str, Any]) -> str:
     return "text"  # Default to text for safety
 
 
-def _initialize_element_counts() -> Dict[str, int]:
+def _initialize_element_counts() -> dict[str, int]:
     """
     Initialize element counts dictionary with all supported types.
 

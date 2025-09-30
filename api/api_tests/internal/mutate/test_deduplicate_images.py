@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import hashlib
-import pytest
-import pandas as pd
-from typing import Dict, Union
+from typing import Dict
+from typing import Union
 
-from nv_ingest_api.internal.mutate.deduplicate import _hash_content, deduplicate_images_internal
+import pandas as pd
+import pytest
+from nv_ingest_api.internal.mutate.deduplicate import _hash_content
+from nv_ingest_api.internal.mutate.deduplicate import deduplicate_images_internal
 
 
 # Dummy enumeration for testing purposes.
@@ -53,7 +55,7 @@ def test_hash_content_missing_key():
 def test_deduplicate_missing_required_columns():
     # DataFrame missing 'document_type' and 'metadata' columns.
     df = pd.DataFrame({"wrong_column": [1, 2, 3]})
-    task_config: Dict[str, Union[int, float, bool, str]] = {"hash_algorithm": "md5", "filter": True}
+    task_config: dict[str, int | float | bool | str] = {"hash_algorithm": "md5", "filter": True}
     with pytest.raises(ValueError):
         deduplicate_images_internal(df, task_config, mutate_config=None, execution_trace_log=None)
 

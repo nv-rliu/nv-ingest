@@ -3,26 +3,27 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import os
 import copy
 import logging
+import os
 import uuid
-from typing import Any, Optional, Dict
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Optional
 
 import pandas as pd
-from transformers import AutoTokenizer
-
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.schemas.transform.transform_text_splitter_schema import TextSplitterSchema
 from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
+from transformers import AutoTokenizer
 
 logger = logging.getLogger(__name__)
 
 
-def _build_split_documents(row, chunks: List[str]) -> List[dict[str, Any]]:
+def _build_split_documents(row, chunks: list[str]) -> list[dict[str, Any]]:
     """Build documents from text chunks"""
-    documents: List[dict] = []
+    documents: list[dict] = []
 
     for i, text in enumerate(chunks):
         if text is None or not text.strip():
@@ -67,9 +68,9 @@ def _split_into_chunks(text, tokenizer, chunk_size=1024, chunk_overlap=20):
 @unified_exception_handler
 def transform_text_split_and_tokenize_internal(
     df_transform_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     transform_config: TextSplitterSchema,
-    execution_trace_log: Optional[Dict[str, Any]],
+    execution_trace_log: dict[str, Any] | None,
 ) -> pd.DataFrame:
     """
     Internal function to split and tokenize text in a ledger DataFrame.
@@ -110,13 +111,13 @@ def transform_text_split_and_tokenize_internal(
     _ = execution_trace_log  # Placeholder for potential execution trace logging.
 
     # Override parameters using task_config, with fallback to transform_config.
-    tokenizer_identifier: Optional[str] = task_config.get("tokenizer", transform_config.tokenizer)
+    tokenizer_identifier: str | None = task_config.get("tokenizer", transform_config.tokenizer)
     chunk_size: int = task_config.get("chunk_size", transform_config.chunk_size)
     chunk_overlap: int = task_config.get("chunk_overlap", transform_config.chunk_overlap)
-    params: Dict[str, Any] = task_config.get("params", {})
+    params: dict[str, Any] = task_config.get("params", {})
 
-    hf_access_token: Optional[str] = params.get("hf_access_token", None)
-    split_source_types: List[str] = params.get("split_source_types", ["text"])
+    hf_access_token: str | None = params.get("hf_access_token", None)
+    split_source_types: list[str] = params.get("split_source_types", ["text"])
 
     logger.debug(
         f"Splitting text with tokenizer: {tokenizer_identifier}, "
@@ -157,7 +158,7 @@ def transform_text_split_and_tokenize_internal(
 
     tokenizer_model = AutoTokenizer.from_pretrained(tokenizer_identifier, token=hf_access_token)
 
-    split_docs: List[Dict[str, Any]] = []
+    split_docs: list[dict[str, Any]] = []
     for _, row in df_filtered.iterrows():
         if row["document_type"] == ContentTypeEnum.AUDIO:
             content: str = (
@@ -167,7 +168,7 @@ def transform_text_split_and_tokenize_internal(
             )
         else:
             content: str = row["metadata"]["content"] if row["metadata"]["content"] is not None else ""
-        chunks: List[str] = _split_into_chunks(content, tokenizer_model, chunk_size, chunk_overlap)
+        chunks: list[str] = _split_into_chunks(content, tokenizer_model, chunk_size, chunk_overlap)
         split_docs.extend(_build_split_documents(row, chunks))
 
     split_docs_df: pd.DataFrame = pd.DataFrame(split_docs)

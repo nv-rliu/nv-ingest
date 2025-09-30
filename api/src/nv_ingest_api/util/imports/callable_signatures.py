@@ -4,9 +4,9 @@
 
 
 import inspect
-from pydantic import BaseModel
 
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
+from pydantic import BaseModel
 
 
 def ingest_stage_callable_signature(sig: inspect.Signature):

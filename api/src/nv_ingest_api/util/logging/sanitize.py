@@ -4,7 +4,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, MutableMapping, Sequence, Set
+from collections.abc import Mapping
+from collections.abc import MutableMapping
+from collections.abc import Sequence
+from typing import Any
+from typing import Set
 
 try:
     # Pydantic is optional at runtime for this helper; import if available
@@ -13,7 +17,7 @@ except Exception:  # pragma: no cover - pydantic always present in this repo
     BaseModel = None  # type: ignore
 
 
-_DEFAULT_SENSITIVE_KEYS: Set[str] = {
+_DEFAULT_SENSITIVE_KEYS: set[str] = {
     "access_token",
     "api_key",
     "authorization",
@@ -45,7 +49,7 @@ def _is_sequence(obj: Any) -> bool:
 
 def sanitize_for_logging(
     data: Any,
-    sensitive_keys: Set[str] | None = None,
+    sensitive_keys: set[str] | None = None,
     redaction: str = _REDACTION,
 ) -> Any:
     """

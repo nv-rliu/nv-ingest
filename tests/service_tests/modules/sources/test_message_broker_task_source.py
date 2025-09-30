@@ -4,19 +4,20 @@
 import threading
 import time
 from typing import Literal
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
 import ray
 from pydantic import ValidationError
 
+from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import BrokerParamsRedis
 from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import (
-    RedisClientConfig,
-    BrokerParamsRedis,
-    SimpleClientConfig,
     MessageBrokerTaskSourceConfig,
-    MessageBrokerTaskSourceStage,
 )
+from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import MessageBrokerTaskSourceStage
+from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import RedisClientConfig
+from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import SimpleClientConfig
 
 
 # Initialize Ray once at the module level

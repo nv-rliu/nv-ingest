@@ -29,8 +29,8 @@ class FilterTask(Task):
         self,
         content_type: _TypeContentType = "image",
         min_size: int = 128,
-        max_aspect_ratio: Union[int, float] = 5.0,
-        min_aspect_ratio: Union[int, float] = 0.2,
+        max_aspect_ratio: int | float = 5.0,
+        min_aspect_ratio: int | float = 0.2,
         filter: bool = False,
     ) -> None:
         """
@@ -68,7 +68,7 @@ class FilterTask(Task):
         info += f"  filter: {self._filter}\n"
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis
         """

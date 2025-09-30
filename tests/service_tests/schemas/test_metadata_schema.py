@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
-from nv_ingest_api.internal.enums.common import TaskTypeEnum, StatusEnum
+from nv_ingest_api.internal.enums.common import StatusEnum
+from nv_ingest_api.internal.enums.common import TaskTypeEnum
+from nv_ingest_api.internal.schemas.meta.metadata_schema import ChartMetadataSchema
 from nv_ingest_api.internal.schemas.meta.metadata_schema import ContentHierarchySchema
 from nv_ingest_api.internal.schemas.meta.metadata_schema import ContentMetadataSchema
 from nv_ingest_api.internal.schemas.meta.metadata_schema import ErrorMetadataSchema
@@ -16,9 +16,8 @@ from nv_ingest_api.internal.schemas.meta.metadata_schema import SourceMetadataSc
 from nv_ingest_api.internal.schemas.meta.metadata_schema import TableFormatEnum
 from nv_ingest_api.internal.schemas.meta.metadata_schema import TableMetadataSchema
 from nv_ingest_api.internal.schemas.meta.metadata_schema import TextMetadataSchema
-
-from nv_ingest_api.internal.schemas.meta.metadata_schema import ChartMetadataSchema
 from nv_ingest_client.cli.util.click import TaskType
+from pydantic import ValidationError
 
 
 # Test cases for SourceMetadataSchema

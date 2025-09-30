@@ -10,8 +10,8 @@ import logging
 from typing import Dict
 from typing import Literal
 
-from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskStoreSchema
 from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskStoreEmbedSchema
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskStoreSchema
 
 from .task_base import Task
 
@@ -75,7 +75,7 @@ class StoreTask(Task):
             info += f"  {key}: {value}\n"
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis (fixme)
         """
@@ -131,7 +131,7 @@ class StoreEmbedTask(Task):
             info += f"  {key}: {value}\n"
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis (fixme)
         """

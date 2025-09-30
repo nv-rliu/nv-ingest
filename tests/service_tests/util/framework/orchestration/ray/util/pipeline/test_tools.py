@@ -3,15 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import pandas as pd
 import pytest
 import ray
-from pydantic import BaseModel
-import pandas as pd
-
-from nv_ingest.framework.orchestration.ray.util.pipeline.tools import (
-    wrap_callable_as_stage,
-)
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
+from pydantic import BaseModel
+
+from nv_ingest.framework.orchestration.ray.util.pipeline.tools import wrap_callable_as_stage
 
 
 @pytest.fixture(scope="session", autouse=True)

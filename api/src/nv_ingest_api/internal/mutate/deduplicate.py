@@ -2,12 +2,14 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
 import hashlib
-from typing import Any, Dict, Optional, List
+import logging
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 
 import pandas as pd
-
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.schemas.mutate.mutate_image_dedup_schema import ImageDedupSchema
 
@@ -40,9 +42,9 @@ def _hash_content(x: Any, algorithm: str = "md5") -> bytes:
 
 def deduplicate_images_internal(
     df_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     mutate_config: ImageDedupSchema = ImageDedupSchema(),
-    execution_trace_log: Optional[List[Any]] = None,
+    execution_trace_log: list[Any] | None = None,
 ) -> pd.DataFrame:
     """
     Deduplicate images in a DataFrame based on content hashes.

@@ -3,7 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from pydantic import ConfigDict, BaseModel, model_validator, field_validator, Field
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import Field
+from pydantic import field_validator
+from pydantic import model_validator
 
 
 class ImageCaptionExtractionSchema(BaseModel):

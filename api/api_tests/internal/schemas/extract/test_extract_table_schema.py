@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from nv_ingest_api.internal.schemas.extract.extract_table_schema import TableExtractorConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_table_schema import TableExtractorSchema
 from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.extract.extract_table_schema import TableExtractorConfigSchema, TableExtractorSchema
-
 
 ### Tests for TableExtractorConfigSchema ###
 

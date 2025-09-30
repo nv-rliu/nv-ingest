@@ -4,19 +4,20 @@
 
 import logging
 import os
-from typing import Any, Union, Optional
+from typing import Any
 from typing import Dict
+from typing import Optional
+from typing import Union
 
 import pandas as pd
 from minio import Minio
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.schemas.store.store_embedding_schema import EmbeddingStorageSchema
+from pydantic import BaseModel
 from pymilvus import Collection
 from pymilvus import connections
 from pymilvus.bulk_writer.constants import BulkFileType
 from pymilvus.bulk_writer.remote_bulk_writer import RemoteBulkWriter
-from pydantic import BaseModel
-
-from nv_ingest_api.internal.enums.common import ContentTypeEnum
-from nv_ingest_api.internal.schemas.store.store_embedding_schema import EmbeddingStorageSchema
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ _DEFAULT_ENDPOINT = os.environ.get("MINIO_INTERNAL_ADDRESS", "minio:9000")
 _DEFAULT_BUCKET_NAME = os.environ.get("MINIO_BUCKET", "nv-ingest")
 
 
-def _upload_text_embeddings(df_store_ledger: pd.DataFrame, task_config: Dict[str, Any]) -> pd.DataFrame:
+def _upload_text_embeddings(df_store_ledger: pd.DataFrame, task_config: dict[str, Any]) -> pd.DataFrame:
     """
     Uploads embeddings to MinIO for contents (e.g., images) contained in a DataFrame.
     The image metadata in the "metadata" column is updated with the URL (or path) of the uploaded data.
@@ -87,8 +88,8 @@ def _upload_text_embeddings(df_store_ledger: pd.DataFrame, task_config: Dict[str
     """
     try:
         # Retrieve connection parameters for MinIO
-        minio_access_key: Optional[str] = task_config.get("minio_access_key")
-        minio_secret_key: Optional[str] = task_config.get("minio_secret_key")
+        minio_access_key: str | None = task_config.get("minio_access_key")
+        minio_secret_key: str | None = task_config.get("minio_secret_key")
         minio_endpoint: str = task_config.get("minio_endpoint", _DEFAULT_ENDPOINT)
         minio_bucket_name: str = task_config.get("minio_bucket_name", _DEFAULT_BUCKET_NAME)
         minio_bucket_path: str = task_config.get("minio_bucket_path", "embeddings")
@@ -143,7 +144,7 @@ def _upload_text_embeddings(df_store_ledger: pd.DataFrame, task_config: Dict[str
 
         # Process each row in the DataFrame
         for idx, row in df_store_ledger.iterrows():
-            metadata: Dict[str, Any] = row["metadata"].copy()
+            metadata: dict[str, Any] = row["metadata"].copy()
             # Update embedding metadata with the bucket path
             metadata["embedding_metadata"] = {"uploaded_embedding_url": minio_bucket_path}
 
@@ -177,9 +178,9 @@ def _upload_text_embeddings(df_store_ledger: pd.DataFrame, task_config: Dict[str
 
 def store_text_embeddings_internal(
     df_store_ledger: pd.DataFrame,
-    task_config: Union[BaseModel, Dict[str, Any]],
+    task_config: BaseModel | dict[str, Any],
     store_config: EmbeddingStorageSchema,
-    execution_trace_log: Optional[Dict[str, Any]] = None,
+    execution_trace_log: dict[str, Any] | None = None,
 ) -> pd.DataFrame:
     """
     Stores embeddings by uploading content from a DataFrame to MinIO.
@@ -219,7 +220,7 @@ def store_text_embeddings_internal(
 
         # Set content types for embeddings and update params
         content_types = {ContentTypeEnum.EMBEDDING: True}
-        params: Dict[str, Any] = task_config.get("params", {})
+        params: dict[str, Any] = task_config.get("params", {})
         params["content_types"] = content_types
 
         # Perform the upload of embeddings

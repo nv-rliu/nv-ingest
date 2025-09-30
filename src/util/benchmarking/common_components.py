@@ -7,7 +7,8 @@ import mimetypes
 import os
 import sys
 import time
-from typing import Dict, Tuple
+from typing import Dict
+from typing import Tuple
 
 import numpy as np
 import requests
@@ -30,7 +31,7 @@ def detect_mime_type(image_path: str) -> str:
         return "image/png"
 
 
-essential_headers: Dict[str, str] = {
+essential_headers: dict[str, str] = {
     "accept": "application/json",
     "content-type": "application/json",
 }
@@ -53,12 +54,12 @@ def load_image_numpy(image_path: str) -> np.ndarray:
         return np.array(img)
 
 
-def build_http_payload_from_data_url(data_url: str, batch_size: int) -> Dict:
+def build_http_payload_from_data_url(data_url: str, batch_size: int) -> dict:
     input_list = [{"type": "image_url", "url": data_url} for _ in range(max(1, batch_size))]
     return {"input": input_list}
 
 
-def http_post_with_timing(url: str, payload: Dict, timeout: int, headers: Dict[str, str]) -> Tuple[object, float]:
+def http_post_with_timing(url: str, payload: dict, timeout: int, headers: dict[str, str]) -> tuple[object, float]:
     start = time.time()
     try:
         response = requests.post(url, json=payload, timeout=timeout, headers=headers)
@@ -75,7 +76,7 @@ def yolox_grpc_infer_with_timing(
     image_np: np.ndarray,
     batch_size: int,
     timeout: int,
-) -> Tuple[object, float]:
+) -> tuple[object, float]:
     """
     Perform a single Yolox inference over gRPC and measure elapsed time.
 
@@ -92,10 +93,10 @@ def yolox_grpc_infer_with_timing(
         if api_src not in sys.path:
             sys.path.insert(0, api_src)
 
-        from nv_ingest_api.internal.primitives.nim.model_interface.yolox import (  # type: ignore
-            YoloxPageElementsModelInterface,
-            get_yolox_model_name,
+        from nv_ingest_api.internal.primitives.nim.model_interface.yolox import (
+            YoloxPageElementsModelInterface,  # type: ignore
         )
+        from nv_ingest_api.internal.primitives.nim.model_interface.yolox import get_yolox_model_name
         from nv_ingest_api.util.nim import create_inference_client  # type: ignore
     except Exception:
         return "error", 0.0

@@ -4,21 +4,20 @@
 
 import logging
 import pprint
-from typing import Any, Optional
+from typing import Any
+from typing import Optional
 
 import ray
-
-from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
-from nv_ingest.framework.util.flow_control import filter_by_task
-from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
 from nv_ingest_api.internal.primitives.ingest_control_message import remove_task_by_type
 from nv_ingest_api.internal.primitives.tracing.tagging import traceable
 from nv_ingest_api.internal.schemas.transform.transform_image_caption_schema import ImageCaptionExtractionSchema
 from nv_ingest_api.internal.transform.caption_image import transform_image_create_vlm_caption_internal
-from nv_ingest_api.util.exception_handlers.decorators import (
-    nv_ingest_node_failure_try_except,
-)
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
 from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
+
+from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
+from nv_ingest.framework.util.flow_control import filter_by_task
+from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +32,7 @@ class ImageCaptionTransformStage(RayActorStage):
     are stored in the control message.
     """
 
-    def __init__(self, config: ImageCaptionExtractionSchema, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: ImageCaptionExtractionSchema, stage_name: str | None = None) -> None:
         super().__init__(config, stage_name=stage_name)
         try:
             self.validated_config = config

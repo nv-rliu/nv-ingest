@@ -4,16 +4,16 @@
 
 import logging
 import time
-from typing import Any, Optional
-from pydantic import BaseModel
+from typing import Any
+from typing import Optional
+
 import ray
+from nv_ingest_api.internal.primitives.tracing.tagging import traceable
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
+from pydantic import BaseModel
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
-from nv_ingest_api.internal.primitives.tracing.tagging import traceable
-from nv_ingest_api.util.exception_handlers.decorators import (
-    nv_ingest_node_failure_try_except,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class ThroughputMonitorStage(RayActorStage):
     It also adds the throughput as metadata on the control message before passing it on.
     """
 
-    def __init__(self, config: BaseModel, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: BaseModel, stage_name: str | None = None) -> None:
         # Initialize base attributes (e.g., self._running, self.start_time) via the base class.
         super().__init__(config, stage_name=stage_name)
         self.count = 0

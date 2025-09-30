@@ -2,9 +2,10 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict
-
+from abc import ABC
+from abc import abstractmethod
+from typing import Any
+from typing import Dict
 
 # TODO(Devin): Early prototype. Not currently used anywhere
 
@@ -58,7 +59,7 @@ class RayActorEdge(ABC):
         pass
 
     @abstractmethod
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """
         Get current statistics for the edge.
 

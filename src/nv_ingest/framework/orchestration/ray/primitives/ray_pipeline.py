@@ -2,30 +2,37 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import multiprocessing
-import threading
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from types import FunctionType
-
-import psutil
-import uuid
-import ray
-from ray.exceptions import GetTimeoutError
-from ray.util.queue import Queue as RayQueue
-from typing import Dict, Optional, List, Tuple, Any
-from pydantic import BaseModel
 import concurrent.futures
 import logging
+import multiprocessing
+import threading
 import time
+import uuid
+from abc import ABC
+from abc import abstractmethod
+from dataclasses import dataclass
+from types import FunctionType
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
-from nv_ingest.framework.orchestration.ray.primitives.pipeline_topology import PipelineTopology, StageInfo
-from nv_ingest.framework.orchestration.process.termination import kill_pipeline_process_group
-from nv_ingest.framework.orchestration.ray.primitives.ray_stat_collector import RayStatsCollector
-from nv_ingest.framework.orchestration.ray.util.pipeline.pid_controller import PIDController, ResourceConstraintManager
-from nv_ingest.framework.orchestration.ray.util.pipeline.tools import wrap_callable_as_stage
+import psutil
+import ray
 from nv_ingest_api.util.imports.callable_signatures import ingest_stage_callable_signature
 from nv_ingest_api.util.imports.dynamic_resolvers import resolve_callable_from_path
+from pydantic import BaseModel
+from ray.exceptions import GetTimeoutError
+from ray.util.queue import Queue as RayQueue
+
+from nv_ingest.framework.orchestration.process.termination import kill_pipeline_process_group
+from nv_ingest.framework.orchestration.ray.primitives.pipeline_topology import PipelineTopology
+from nv_ingest.framework.orchestration.ray.primitives.pipeline_topology import StageInfo
+from nv_ingest.framework.orchestration.ray.primitives.ray_stat_collector import RayStatsCollector
+from nv_ingest.framework.orchestration.ray.util.pipeline.pid_controller import PIDController
+from nv_ingest.framework.orchestration.ray.util.pipeline.pid_controller import ResourceConstraintManager
+from nv_ingest.framework.orchestration.ray.util.pipeline.tools import wrap_callable_as_stage
 
 logger = logging.getLogger(__name__)
 
@@ -215,7 +222,7 @@ class RayPipeline(PipelineInterface):
 
         # --- State ---
         # self.scaling_state: Dict[str, str] = {}
-        self.prev_global_memory_usage: Optional[int] = None
+        self.prev_global_memory_usage: int | None = None
         self._state_lock: threading.Lock = threading.Lock()
         self._stopping = False
 
@@ -225,7 +232,7 @@ class RayPipeline(PipelineInterface):
         self.dynamic_memory_threshold = self.scaling_config.dynamic_memory_threshold
 
         # --- Background Threads ---
-        self._scaling_thread: Optional[threading.Thread] = None
+        self._scaling_thread: threading.Thread | None = None
         self._scaling_monitoring = False
 
         # --- Queue Flushing ---
@@ -287,7 +294,7 @@ class RayPipeline(PipelineInterface):
         except Exception as e:
             logger.error(f"Exception during RayPipeline cleanup: {e}")
 
-    def get_stages_info(self) -> List[StageInfo]:
+    def get_stages_info(self) -> list[StageInfo]:
         """
         Returns a snapshot of the current stage information.
 
@@ -298,7 +305,7 @@ class RayPipeline(PipelineInterface):
         """
         return self.topology.get_stages_info()
 
-    def get_stage_actors(self) -> Dict[str, List[Any]]:
+    def get_stage_actors(self) -> dict[str, list[Any]]:
         """
         Returns a snapshot of the current actors per stage.
 
@@ -309,7 +316,7 @@ class RayPipeline(PipelineInterface):
         """
         return self.topology.get_stage_actors()
 
-    def get_edge_queues(self) -> Dict[str, Tuple[Any, int]]:
+    def get_edge_queues(self) -> dict[str, tuple[Any, int]]:
         """
         Returns a snapshot of the current edge queues.
 
@@ -384,7 +391,7 @@ class RayPipeline(PipelineInterface):
 
         logger.debug("[Build-Actors] Initial actor instantiation complete.")
 
-    def _create_and_wire_edges(self) -> List[ray.ObjectRef]:
+    def _create_and_wire_edges(self) -> list[ray.ObjectRef]:
         """
         Creates queues, wires actors (using topology), and updates topology.
 
@@ -395,7 +402,7 @@ class RayPipeline(PipelineInterface):
         """
         logger.debug("[Build-Wiring] Creating and wiring edges...")
         wiring_refs = []
-        new_edge_queues: Dict[str, Tuple[Any, int]] = {}
+        new_edge_queues: dict[str, tuple[Any, int]] = {}
 
         current_connections = self.topology.get_connections()
         current_stage_actors = self.topology.get_stage_actors()  # Gets copy
@@ -428,7 +435,7 @@ class RayPipeline(PipelineInterface):
         return wiring_refs
 
     @staticmethod
-    def _wait_for_wiring(wiring_refs: List[ray.ObjectRef]) -> None:
+    def _wait_for_wiring(wiring_refs: list[ray.ObjectRef]) -> None:
         """
         Waits for remote wiring calls to complete.
 
@@ -613,7 +620,7 @@ class RayPipeline(PipelineInterface):
         return self
 
     # ----- Pipeline Build Process ---
-    def build(self) -> Dict[str, List[Any]]:
+    def build(self) -> dict[str, list[Any]]:
         """
         Builds the pipeline: configures, instantiates, wires, using topology.
 
@@ -680,7 +687,7 @@ class RayPipeline(PipelineInterface):
             # Propagate error to halt the scaling operation
             raise RuntimeError(f"Actor creation failed for stage '{stage_info.name}' during scale up") from e
 
-    def _get_wiring_refs_for_actor(self, actor: Any, stage_name: str) -> List[ray.ObjectRef]:
+    def _get_wiring_refs_for_actor(self, actor: Any, stage_name: str) -> list[ray.ObjectRef]:
         """
         Gets wiring futures for a single actor using topology for queues/connections.
 
@@ -722,7 +729,7 @@ class RayPipeline(PipelineInterface):
         return wiring_refs
 
     @staticmethod
-    def _start_actors(actors_to_start: List[Any], stage_name: str) -> None:
+    def _start_actors(actors_to_start: list[Any], stage_name: str) -> None:
         """
         Starts a list of actors if they have a 'start' method and waits for completion.
 
@@ -829,7 +836,7 @@ class RayPipeline(PipelineInterface):
             if current_state == "Scaling Up":
                 self.topology.update_scaling_state(stage_name, "Idle")
 
-    def _handle_scale_down(self, stage_name: str, current_replicas: List[Any], target_count: int) -> None:
+    def _handle_scale_down(self, stage_name: str, current_replicas: list[Any], target_count: int) -> None:
         """
         Handles scaling down: initiates stop on actors and marks them for removal
         by the topology's garbage collection mechanism.
@@ -1030,7 +1037,7 @@ class RayPipeline(PipelineInterface):
         overall_success = False
         source_actors_paused = []
         pause_refs = []
-        new_edge_queues_map: Optional[Dict[str, Tuple[Any, int]]] = None
+        new_edge_queues_map: dict[str, tuple[Any, int]] | None = None
 
         try:
             # --- Get structure snapshots from topology ---
@@ -1180,8 +1187,8 @@ class RayPipeline(PipelineInterface):
             logger.debug("Manual flush denied: pipeline not quiet or interval not met.")
 
     def _gather_controller_metrics(
-        self, current_stage_stats: Dict[str, Dict[str, int]], global_in_flight: int
-    ) -> Dict[str, Dict[str, Any]]:
+        self, current_stage_stats: dict[str, dict[str, int]], global_in_flight: int
+    ) -> dict[str, dict[str, Any]]:
         """
         Gathers metrics using provided stats and topology.
 
@@ -1253,8 +1260,8 @@ class RayPipeline(PipelineInterface):
             return self.prev_global_memory_usage if self.prev_global_memory_usage is not None else 0
 
     def _calculate_scaling_adjustments(
-        self, current_stage_metrics: Dict[str, Dict[str, Any]], global_in_flight: int, current_global_memory_mb: int
-    ) -> Dict[str, int]:
+        self, current_stage_metrics: dict[str, dict[str, Any]], global_in_flight: int, current_global_memory_mb: int
+    ) -> dict[str, int]:
         """
         Runs controllers to get target replica counts using topology for edge count.
 
@@ -1296,7 +1303,7 @@ class RayPipeline(PipelineInterface):
             logger.warning("[ScalingCalc] Falling back to current replica counts.")
             return {name: metrics.get("replicas", 0) for name, metrics in current_stage_metrics.items()}
 
-    def _apply_scaling_actions(self, final_adjustments: Dict[str, int]) -> None:
+    def _apply_scaling_actions(self, final_adjustments: dict[str, int]) -> None:
         """
         Applies scaling by calling _scale_stage, using topology for validation.
 

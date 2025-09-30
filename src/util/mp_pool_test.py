@@ -7,9 +7,8 @@ import logging
 import click
 import numpy as np
 import psutil
-from tqdm import tqdm
-
 from nv_ingest_api.util.multi_processing import ProcessWorkerPoolSingleton
+from tqdm import tqdm
 
 
 # Example CPU-intensive task

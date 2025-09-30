@@ -5,8 +5,9 @@
 # TODO(Devin): Early prototype. Not currently used anywhere
 
 import logging
-from typing import Any, Dict
 from threading import Lock
+from typing import Any
+from typing import Dict
 
 import ray
 from ray.util.queue import Queue
@@ -63,7 +64,7 @@ class RayQueueEdge(RayActorEdge):
             logger.info(f"Item read from queue. New read_count: {self.stats['read_count']}")
         return item
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """
         Get current statistics for the queue.
         """

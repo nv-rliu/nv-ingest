@@ -9,14 +9,17 @@ This module contains generic helper functions for converting individual paramete
 into structured configuration objects, supporting the declarative execution architecture.
 """
 
-from typing import Optional, TextIO
+from typing import Optional
+from typing import TextIO
 
-from nv_ingest.framework.orchestration.execution.options import PipelineRuntimeOverrides, ExecutionOptions
-from nv_ingest.framework.orchestration.process.strategies import ProcessExecutionStrategy, create_execution_strategy
+from nv_ingest.framework.orchestration.execution.options import ExecutionOptions
+from nv_ingest.framework.orchestration.execution.options import PipelineRuntimeOverrides
+from nv_ingest.framework.orchestration.process.strategies import ProcessExecutionStrategy
+from nv_ingest.framework.orchestration.process.strategies import create_execution_strategy
 
 
 def create_runtime_overrides(
-    disable_dynamic_scaling: Optional[bool], dynamic_memory_threshold: Optional[float]
+    disable_dynamic_scaling: bool | None, dynamic_memory_threshold: float | None
 ) -> PipelineRuntimeOverrides:
     """
     Create runtime override object from individual parameters.
@@ -41,7 +44,7 @@ def create_runtime_overrides(
     )
 
 
-def create_execution_options(block: bool, stdout: Optional[TextIO], stderr: Optional[TextIO]) -> ExecutionOptions:
+def create_execution_options(block: bool, stdout: TextIO | None, stderr: TextIO | None) -> ExecutionOptions:
     """
     Create execution options object from individual parameters.
 

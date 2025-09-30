@@ -4,18 +4,16 @@
 
 import unittest
 from unittest.mock import patch
+
 import numpy as np
 
 # Import the module under test
 import nv_ingest_api.internal.primitives.nim.model_interface.yolox as model_interface_module
-from nv_ingest_api.internal.primitives.nim.model_interface.yolox import (
-    expand_table_bboxes,
-    weighted_boxes_fusion,
-    expand_chart_bboxes,
-    prefilter_boxes,
-    find_matching_box_fast,
-)
-
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import expand_chart_bboxes
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import expand_table_bboxes
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import find_matching_box_fast
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import prefilter_boxes
+from nv_ingest_api.internal.primitives.nim.model_interface.yolox import weighted_boxes_fusion
 
 MODULE_UNDER_TEST = f"{model_interface_module.__name__}"
 

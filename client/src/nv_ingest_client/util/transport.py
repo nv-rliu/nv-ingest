@@ -1,5 +1,6 @@
-import re
 import logging
+import re
+
 from nv_ingest_api.internal.primitives.nim import NimClient
 from nv_ingest_api.internal.primitives.nim.model_interface.text_embedding import EmbeddingModelInterface
 

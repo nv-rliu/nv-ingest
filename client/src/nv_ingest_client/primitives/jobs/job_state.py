@@ -63,10 +63,10 @@ class JobState:
         self,
         job_spec: JobSpec,
         state: JobStateEnum = JobStateEnum.PENDING,
-        future: Optional[Future] = None,
-        response: Optional[Dict] = None,
-        response_channel: Optional[str] = None,
-        trace_id: Optional[str] = None,
+        future: Future | None = None,
+        response: dict | None = None,
+        response_channel: str | None = None,
+        trace_id: str | None = None,
     ) -> None:
         self._job_spec = job_spec
         self._state = state
@@ -93,7 +93,7 @@ class JobState:
         self._job_spec = value
 
     @property
-    def job_id(self) -> Union[UUID, str]:
+    def job_id(self) -> UUID | str:
         """Gets the job's unique identifier."""
         return self._job_spec.job_id
 
@@ -119,7 +119,7 @@ class JobState:
         self._state = value
 
     @property
-    def future(self) -> Optional[Future]:
+    def future(self) -> Future | None:
         """Gets the future object associated with the job's asynchronous operation."""
         return self._future
 
@@ -130,17 +130,17 @@ class JobState:
 
     # TODO(Devin): Not convinced we need 'response' probably remove.
     @property
-    def response(self) -> Optional[Dict]:
+    def response(self) -> dict | None:
         """Gets the response data received for the job."""
         return self._response
 
     @response.setter
-    def response(self, value: Dict) -> None:
+    def response(self, value: dict) -> None:
         """Sets the response data received for the job, with constraints."""
         self._response = value
 
     @property
-    def trace_id(self) -> Optional[str]:
+    def trace_id(self) -> str | None:
         """Gets the trace_id from the job submission"""
         return self._trace_id
 

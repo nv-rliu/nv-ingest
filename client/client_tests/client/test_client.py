@@ -8,8 +8,8 @@ from unittest.mock import MagicMock
 from unittest.mock import Mock
 from unittest.mock import patch
 
+import nv_ingest_client.client.client as module_under_test
 import pytest
-
 from nv_ingest_api.internal.schemas.message_brokers.response_schema import ResponseSchema
 from nv_ingest_client.client import NvIngestClient
 from nv_ingest_client.primitives.jobs import JobSpec
@@ -18,8 +18,6 @@ from nv_ingest_client.primitives.jobs import JobStateEnum
 from nv_ingest_client.primitives.tasks import ExtractTask
 from nv_ingest_client.primitives.tasks import SplitTask
 from nv_ingest_client.primitives.tasks import TaskType
-
-import nv_ingest_client.client.client as module_under_test
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

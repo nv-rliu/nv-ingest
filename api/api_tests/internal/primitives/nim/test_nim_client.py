@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import unittest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock
+from unittest.mock import call
+from unittest.mock import patch
+
 import numpy as np
 import requests
-
 from nv_ingest_api.internal.primitives.nim.nim_client import NimClient
 
 

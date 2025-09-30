@@ -7,6 +7,7 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import click
+import nv_ingest_client.cli.util.click as module_under_test
 import pytest
 from nv_ingest_client.cli.util.click import click_match_and_validate_files
 from nv_ingest_client.cli.util.click import click_validate_batch_size
@@ -18,8 +19,6 @@ from nv_ingest_client.primitives.tasks import ExtractTask
 from nv_ingest_client.primitives.tasks import SplitTask
 from nv_ingest_client.primitives.tasks import StoreEmbedTask
 from nv_ingest_client.primitives.tasks import StoreTask
-
-import nv_ingest_client.cli.util.click as module_under_test
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

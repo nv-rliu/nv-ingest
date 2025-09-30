@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES.
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-from nv_ingest_api.internal.schemas.meta.ingest_job_schema import DocumentTypeEnum
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import DocumentTypeEnum
 
 DOC_TO_CONTENT_MAP = {
     DocumentTypeEnum.BMP: ContentTypeEnum.IMAGE,

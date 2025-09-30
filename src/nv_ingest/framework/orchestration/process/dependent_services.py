@@ -10,9 +10,10 @@ that the pipeline requires, such as message brokers and other infrastructure.
 """
 
 import logging
-import os
 import multiprocessing
+import os
 import socket
+
 from nv_ingest_api.util.message_brokers.simple_message_broker.broker import SimpleMessageBroker
 
 logger = logging.getLogger(__name__)

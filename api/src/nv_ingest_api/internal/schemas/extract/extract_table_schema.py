@@ -7,8 +7,11 @@ import logging
 from typing import Optional
 from typing import Tuple
 
-from pydantic import field_validator, model_validator, ConfigDict, BaseModel, Field
-
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import Field
+from pydantic import field_validator
+from pydantic import model_validator
 
 logger = logging.getLogger(__name__)
 
@@ -42,12 +45,12 @@ class TableExtractorConfigSchema(BaseModel):
         Pydantic config option to forbid extra fields.
     """
 
-    auth_token: Optional[str] = Field(default=None, repr=False)
+    auth_token: str | None = Field(default=None, repr=False)
 
-    yolox_endpoints: Tuple[Optional[str], Optional[str]] = (None, None)
+    yolox_endpoints: tuple[str | None, str | None] = (None, None)
     yolox_infer_protocol: str = ""
 
-    ocr_endpoints: Tuple[Optional[str], Optional[str]] = (None, None)
+    ocr_endpoints: tuple[str | None, str | None] = (None, None)
     ocr_infer_protocol: str = ""
 
     nim_batch_size: int = 2
@@ -125,5 +128,5 @@ class TableExtractorSchema(BaseModel):
             raise ValueError(f"{field.field_name} must be greater than 0.")
         return v
 
-    endpoint_config: Optional[TableExtractorConfigSchema] = None
+    endpoint_config: TableExtractorConfigSchema | None = None
     model_config = ConfigDict(extra="forbid")

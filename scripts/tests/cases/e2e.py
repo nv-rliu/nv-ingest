@@ -1,17 +1,20 @@
+import json
+import logging
 import os
 import sys
 import time
-import json
-import logging
 from datetime import datetime
 
 from nv_ingest_client.client import Ingestor
-from nv_ingest_client.util.milvus import nvingest_retrieval
 from nv_ingest_client.util.document_analysis import analyze_document_chunks
+from nv_ingest_client.util.milvus import nvingest_retrieval
 
 # Import from interact module (now properly structured)
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
-from interact import embed_info, milvus_chunks, segment_results, kv_event_log  # noqa: E402
+from interact import embed_info  # noqa: E402
+from interact import kv_event_log
+from interact import milvus_chunks
+from interact import segment_results
 
 # Future: Will integrate with modular ingest_documents.py when VDB upload is separated
 

@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.schemas.meta.base_model_noext import BaseModelNoExt
+from pydantic import ValidationError
 
 
 # Example subclass for testing

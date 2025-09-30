@@ -24,7 +24,7 @@ class AudioExtractionTask(Task):
         grpc_endpoint: str = None,
         http_endpoint: str = None,
         infer_protocol: str = None,
-        function_id: Optional[str] = None,
+        function_id: str | None = None,
         use_ssl: bool = None,
         ssl_cert: str = None,
         segment_audio: bool = None,
@@ -78,7 +78,7 @@ class AudioExtractionTask(Task):
 
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis
         """

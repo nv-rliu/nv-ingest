@@ -16,19 +16,20 @@
 # limitations under the License.
 
 import logging
-import numpy as np
-from typing import List, Tuple, Optional
+from typing import List
+from typing import Optional
+from typing import Tuple
 
-from nv_ingest_api.internal.primitives.nim.default_values import (
-    YOLOX_MAX_BATCH_SIZE,
-    YOLOX_NUM_CLASSES,
-    YOLOX_CONF_THRESHOLD,
-    YOLOX_IOU_THRESHOLD,
-    YOLOX_MIN_SCORE,
-    YOLOX_FINAL_SCORE,
-)
+import numpy as np
+from nv_ingest_api.internal.primitives.nim.default_values import YOLOX_CONF_THRESHOLD
+from nv_ingest_api.internal.primitives.nim.default_values import YOLOX_FINAL_SCORE
+from nv_ingest_api.internal.primitives.nim.default_values import YOLOX_IOU_THRESHOLD
+from nv_ingest_api.internal.primitives.nim.default_values import YOLOX_MAX_BATCH_SIZE
+from nv_ingest_api.internal.primitives.nim.default_values import YOLOX_MIN_SCORE
+from nv_ingest_api.internal.primitives.nim.default_values import YOLOX_NUM_CLASSES
 from nv_ingest_api.internal.primitives.nim.model_interface.yolox import YoloxPageElementsModelInterface
-from nv_ingest_api.util.image_processing.transforms import crop_image, numpy_to_base64
+from nv_ingest_api.util.image_processing.transforms import crop_image
+from nv_ingest_api.util.image_processing.transforms import numpy_to_base64
 from nv_ingest_api.util.metadata.aggregators import CroppedImageWithContent
 from nv_ingest_api.util.nim import create_inference_client
 
@@ -93,10 +94,10 @@ def extract_tables_and_charts_from_image(annotation_dict, original_image, page_i
 
 
 def extract_tables_and_charts_yolox(
-    pages: List[Tuple[int, np.ndarray]],
+    pages: list[tuple[int, np.ndarray]],
     config: dict,
-    trace_info: Optional[List] = None,
-) -> List[Tuple[int, object]]:
+    trace_info: list | None = None,
+) -> list[tuple[int, object]]:
     """
     Given a list of (page_index, image) tuples and a configuration dictionary,
     this function calls the YOLOX-based inference service to extract table and chart

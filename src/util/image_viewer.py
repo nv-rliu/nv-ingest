@@ -8,10 +8,12 @@ import json
 import tkinter as tk
 from io import BytesIO
 from tkinter import ttk
-from typing import List, Tuple
+from typing import List
+from typing import Tuple
 
 import click
-from PIL import Image, ImageTk
+from PIL import Image
+from PIL import ImageTk
 
 
 @click.command()
@@ -32,12 +34,12 @@ def main(file_path: str) -> None:
     file_path : str
         Path to the JSON file containing the images.
     """
-    images: List[Image.Image] = load_images_from_json(file_path)
+    images: list[Image.Image] = load_images_from_json(file_path)
     app = ImageViewerApp(images)
     app.run()
 
 
-def load_images_from_json(json_file_path: str) -> List[Image.Image]:
+def load_images_from_json(json_file_path: str) -> list[Image.Image]:
     """
     Load and decode images from a JSON file.
 
@@ -56,7 +58,7 @@ def load_images_from_json(json_file_path: str) -> List[Image.Image]:
     List[Image.Image]
         A list of PIL Image objects.
     """
-    with open(json_file_path, "r") as file:
+    with open(json_file_path) as file:
         data = json.load(file)
 
     def create_default_image() -> Image.Image:
@@ -72,7 +74,7 @@ def load_images_from_json(json_file_path: str) -> List[Image.Image]:
         default_img = Image.new("RGB", (width, height), color="black")
         return default_img
 
-    images: List[Image.Image] = []
+    images: list[Image.Image] = []
     for item in data:  # Assuming the JSON is a list of objects.
         if item.get("document_type") in ("image", "structured"):
             content: str = item.get("metadata", {}).get("content", "")
@@ -92,7 +94,7 @@ def load_images_from_json(json_file_path: str) -> List[Image.Image]:
     return images
 
 
-def keep_aspect_ratio_resize(image: Image.Image, max_size: Tuple[int, int]) -> Image.Image:
+def keep_aspect_ratio_resize(image: Image.Image, max_size: tuple[int, int]) -> Image.Image:
     """
     Resize an image to fit within max_size while preserving its aspect ratio.
 
@@ -128,9 +130,9 @@ class ImageViewerApp:
 
     def __init__(
         self,
-        images: List[Image.Image],
-        initial_window_size: Tuple[int, int] = (1024, 768),
-        initial_thumb_size: Tuple[int, int] = (256, 256),
+        images: list[Image.Image],
+        initial_window_size: tuple[int, int] = (1024, 768),
+        initial_thumb_size: tuple[int, int] = (256, 256),
     ) -> None:
         """
         Initialize the ImageViewerApp.
@@ -144,9 +146,9 @@ class ImageViewerApp:
         initial_thumb_size : Tuple[int, int], optional
             Initial thumbnail size (width, height), by default (256, 256).
         """
-        self.images_original: List[Image.Image] = images
+        self.images_original: list[Image.Image] = images
         self.window_width, self.window_height = initial_window_size
-        self.thumb_size: Tuple[int, int] = initial_thumb_size
+        self.thumb_size: tuple[int, int] = initial_thumb_size
 
         self.root = tk.Tk()
         self.root.title("Image Viewer")
@@ -183,13 +185,13 @@ class ImageViewerApp:
         self.next_button.pack(side=tk.RIGHT, padx=10)
 
         self.page: int = 0
-        self.frames: List[tk.Widget] = []
-        self.images: List[Image.Image] = []
+        self.frames: list[tk.Widget] = []
+        self.images: list[Image.Image] = []
 
         self.update_pagination()
 
         # Store old window size to update layout on size changes.
-        self.old_window_size: Tuple[int, int] = (self.window_width, self.window_height)
+        self.old_window_size: tuple[int, int] = (self.window_width, self.window_height)
         self.root.bind("<ButtonRelease-1>", self.on_mouse_release)
         # Bind keyboard events for navigation.
         self.root.bind("<Left>", lambda e: self.prev_page())
@@ -258,7 +260,7 @@ class ImageViewerApp:
 
         start: int = self.page * self.images_per_page
         end: int = min(start + self.images_per_page, len(self.images))
-        images_to_show: List[Image.Image] = self.images[start:end]
+        images_to_show: list[Image.Image] = self.images[start:end]
 
         total_images: int = len(self.images)
         total_pages: int = (

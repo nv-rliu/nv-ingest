@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+from io import BytesIO
 from math import ceil
 from math import floor
 from typing import Optional
@@ -10,10 +11,8 @@ from typing import Tuple
 
 import cv2
 import numpy as np
-from io import BytesIO
-from PIL import Image
-
 from nv_ingest_api.util.converters import bytetools
+from PIL import Image
 
 # Configure OpenCV to use a single thread for image processing
 cv2.setNumThreads(1)
@@ -27,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def _resize_image_opencv(
-    array: np.ndarray, target_size: Tuple[int, int], interpolation=cv2.INTER_LANCZOS4
+    array: np.ndarray, target_size: tuple[int, int], interpolation=cv2.INTER_LANCZOS4
 ) -> np.ndarray:
     """
     Resizes a NumPy array representing an image using OpenCV.
@@ -51,7 +50,7 @@ def _resize_image_opencv(
 
 def scale_image_to_encoding_size(
     base64_image: str, max_base64_size: int = 180_000, initial_reduction: float = 0.9, format: str = "PNG", **kwargs
-) -> Tuple[str, Tuple[int, int]]:
+) -> tuple[str, tuple[int, int]]:
     """
     Decodes a base64-encoded image, resizes it if needed, and re-encodes it as base64.
     Ensures the final image size is within the specified limit.
@@ -123,7 +122,7 @@ def scale_image_to_encoding_size(
         raise
 
 
-def _detect_base64_image_format(base64_string: str) -> Optional[str]:
+def _detect_base64_image_format(base64_string: str) -> str | None:
     """
     Detects the format of a base64-encoded image using Pillow.
 
@@ -211,7 +210,7 @@ def pad_image(
     background_color: int = 255,
     dtype=np.uint8,
     how: str = "center",
-) -> Tuple[np.ndarray, Tuple[int, int]]:
+) -> tuple[np.ndarray, tuple[int, int]]:
     """
     Pads a NumPy array representing an image to the specified target dimensions.
 
@@ -297,8 +296,8 @@ def check_numpy_image_size(image: np.ndarray, min_height: int, min_width: int) -
 
 
 def crop_image(
-    array: np.array, bbox: Tuple[int, int, int, int], min_width: int = 1, min_height: int = 1
-) -> Optional[np.ndarray]:
+    array: np.array, bbox: tuple[int, int, int, int], min_width: int = 1, min_height: int = 1
+) -> np.ndarray | None:
     """
     Crops a NumPy array representing an image according to the specified bounding box.
 
@@ -640,7 +639,7 @@ def base64_to_numpy(base64_string: str) -> np.ndarray:
 
 
 def scale_numpy_image(
-    img_arr: np.ndarray, scale_tuple: Optional[Tuple[int, int]] = None, interpolation=Image.LANCZOS
+    img_arr: np.ndarray, scale_tuple: tuple[int, int] | None = None, interpolation=Image.LANCZOS
 ) -> np.ndarray:
     """
     Scales a NumPy image array using OpenCV with aspect ratio preservation.

@@ -2,15 +2,14 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import os
 from unittest.mock import patch
 
-import pytest
-import os
-from nv_ingest_client.cli.util.click import generate_matching_files
-from nv_ingest_client.util.util import filter_function_kwargs
-from nv_ingest_client.util.util import ClientConfigSchema
-
 import nv_ingest_client.util.util as module_under_test
+import pytest
+from nv_ingest_client.cli.util.click import generate_matching_files
+from nv_ingest_client.util.util import ClientConfigSchema
+from nv_ingest_client.util.util import filter_function_kwargs
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

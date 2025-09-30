@@ -4,7 +4,8 @@
 
 from abc import ABC
 from abc import abstractmethod
-from enum import Enum, auto
+from enum import Enum
+from enum import auto
 from typing import Tuple
 
 from nv_ingest_api.internal.schemas.message_brokers.response_schema import ResponseSchema
@@ -60,7 +61,7 @@ class MessageBrokerClientBase(ABC):
 
     @abstractmethod
     def fetch_message(
-        self, job_index: str, timeout: Tuple[int, float] = (100, None), override_fetch_mode: FetchMode = None
+        self, job_index: str, timeout: tuple[int, float] = (100, None), override_fetch_mode: FetchMode = None
     ) -> ResponseSchema:
         """
         Fetches a message from the specified queue with retries on failure.

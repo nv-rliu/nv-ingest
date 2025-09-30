@@ -6,14 +6,13 @@ from io import BytesIO
 from unittest.mock import mock_open
 from unittest.mock import patch
 
+import nv_ingest_client.util.file_processing.extract as module_under_test
 import pytest
 from nv_ingest_client.util.file_processing.extract import DocumentTypeEnum
 from nv_ingest_client.util.file_processing.extract import detect_encoding_and_read_text_file
 from nv_ingest_client.util.file_processing.extract import extract_file_content
 from nv_ingest_client.util.file_processing.extract import get_or_infer_file_type
 from nv_ingest_client.util.file_processing.extract import serialize_to_base64
-
-import nv_ingest_client.util.file_processing.extract as module_under_test
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

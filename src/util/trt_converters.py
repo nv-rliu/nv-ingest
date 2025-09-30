@@ -15,12 +15,12 @@ from pydantic import ValidationError
 class IOConfig(BaseModel):
     name: str
     dtype: str
-    shape: List[int]
+    shape: list[int]
 
 
 class ModelIOConfig(BaseModel):
-    inputs: List[IOConfig]
-    outputs: List[IOConfig]
+    inputs: list[IOConfig]
+    outputs: list[IOConfig]
 
 
 def generate_preferred_batch_sizes(max_batch_size: int) -> str:

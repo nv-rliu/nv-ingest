@@ -5,7 +5,8 @@
 
 import logging
 
-from pydantic import ConfigDict, BaseModel
+from pydantic import BaseModel
+from pydantic import ConfigDict
 
 logger = logging.getLogger(__name__)
 

@@ -2,22 +2,21 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import ray
 import logging
 import time
 
-# Import the source and sink stages and their configuration models.
-from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import (
-    MessageBrokerTaskSourceStage,
-    MessageBrokerTaskSourceConfig,
-)
-from nv_ingest.framework.orchestration.ray.stages.sinks.message_broker_task_sink import (
-    MessageBrokerTaskSinkStage,
-    MessageBrokerTaskSinkConfig,
-)
+import ray
 
 # Import the async queue edge.
 from nv_ingest.framework.orchestration.ray.edges.async_queue_edge import AsyncQueueEdge
+from nv_ingest.framework.orchestration.ray.stages.sinks.message_broker_task_sink import MessageBrokerTaskSinkConfig
+from nv_ingest.framework.orchestration.ray.stages.sinks.message_broker_task_sink import MessageBrokerTaskSinkStage
+
+# Import the source and sink stages and their configuration models.
+from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import (
+    MessageBrokerTaskSourceConfig,
+)
+from nv_ingest.framework.orchestration.ray.stages.sources.message_broker_task_source import MessageBrokerTaskSourceStage
 
 
 def main():

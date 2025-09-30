@@ -2,11 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pandas as pd
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import nv_ingest_api.internal.transform.embed_text as module_under_test
+import pandas as pd
+import pytest
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

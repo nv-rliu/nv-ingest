@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from nv_ingest_api.internal.schemas.extract.extract_audio_schema import AudioConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_audio_schema import AudioExtractorSchema
 from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.extract.extract_audio_schema import AudioConfigSchema, AudioExtractorSchema
 
 
 def test_audio_config_schema_valid_grpc():

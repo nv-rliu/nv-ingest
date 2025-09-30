@@ -10,7 +10,7 @@ from typing import Dict
 logger = logging.getLogger(__name__)
 
 
-def merge_dict(defaults: Dict[str, Any], overrides: Dict[str, Any]) -> Dict[str, Any]:
+def merge_dict(defaults: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
     """
     Recursively merges two dictionaries, with values from the `overrides` dictionary taking precedence.
 

@@ -1,7 +1,9 @@
 import asyncio
-import ray
 import logging
-from typing import Any, Dict
+from typing import Any
+from typing import Dict
+
+import ray
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_edge_base import RayActorEdge
 
@@ -53,7 +55,7 @@ class AsyncQueueEdge(RayActorEdge):
             logger.info(f"Item read from queue. New read_count: {self.stats['read_count']}")
         return item
 
-    async def get_stats(self) -> Dict[str, int]:
+    async def get_stats(self) -> dict[str, int]:
         """
         Get current statistics for the queue.
         """

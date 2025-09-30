@@ -16,13 +16,10 @@ from unittest.mock import patch
 
 import nv_ingest_client.client.interface as module_under_test
 import pytest
-
-from client.client_tests.utilities_for_test import (
-    cleanup_test_workspace,
-    create_test_workspace,
-    get_git_root,
-    find_root_by_pattern,
-)
+from client.client_tests.utilities_for_test import cleanup_test_workspace
+from client.client_tests.utilities_for_test import create_test_workspace
+from client.client_tests.utilities_for_test import find_root_by_pattern
+from client.client_tests.utilities_for_test import get_git_root
 from nv_ingest_client.client import Ingestor
 from nv_ingest_client.client import LazyLoadedList
 from nv_ingest_client.client import NvIngestClient
@@ -38,9 +35,8 @@ from nv_ingest_client.primitives.tasks import SplitTask
 from nv_ingest_client.primitives.tasks import StoreEmbedTask
 from nv_ingest_client.primitives.tasks import StoreTask
 from nv_ingest_client.primitives.tasks import TableExtractionTask
-from nv_ingest_client.util.vdb.milvus import Milvus
 from nv_ingest_client.util.vdb import VDB
-
+from nv_ingest_client.util.vdb.milvus import Milvus
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

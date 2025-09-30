@@ -53,7 +53,7 @@ class DedupTask(Task):
         info += f"  filter: {self._filter}\n"
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert to a dict for submission to redis
         """

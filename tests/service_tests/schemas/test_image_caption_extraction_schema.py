@@ -1,9 +1,6 @@
 import pytest
+from nv_ingest_api.internal.schemas.transform.transform_image_caption_schema import ImageCaptionExtractionSchema
 from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.transform.transform_image_caption_schema import (
-    ImageCaptionExtractionSchema,
-)
 
 
 def test_valid_schema():

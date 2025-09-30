@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.schemas.transform.transform_image_filter_schema import ImageFilterSchema
+from pydantic import ValidationError
 
 
 def test_image_filter_schema_defaults():

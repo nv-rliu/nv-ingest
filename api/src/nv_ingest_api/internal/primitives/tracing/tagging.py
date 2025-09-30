@@ -13,7 +13,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-def traceable(trace_name: Optional[str] = None):
+def traceable(trace_name: str | None = None):
     """
     A decorator that adds entry and exit trace timestamps to a IngestControlMessage's metadata
     based on the presence of a 'config::add_trace_tagging' flag.

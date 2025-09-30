@@ -2,23 +2,20 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import uuid
-import socket
-import socketserver
 import json
 import logging
+import socket
+import socketserver
 import threading
+import uuid
 from typing import Optional
 
-from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.message_brokers.request_schema import (
-    PushRequestSchema,
-    PopRequestSchema,
-    SizeRequestSchema,
-)
+from nv_ingest_api.internal.schemas.message_brokers.request_schema import PopRequestSchema
+from nv_ingest_api.internal.schemas.message_brokers.request_schema import PushRequestSchema
+from nv_ingest_api.internal.schemas.message_brokers.request_schema import SizeRequestSchema
 from nv_ingest_api.internal.schemas.message_brokers.response_schema import ResponseSchema
 from nv_ingest_api.util.message_brokers.simple_message_broker.ordered_message_queue import OrderedMessageQueue
+from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -301,7 +298,7 @@ class SimpleMessageBrokerHandler(socketserver.BaseRequestHandler):
             size = queue.qsize()
         return ResponseSchema(response_code=0, response=str(size))
 
-    def _wait_for_ack(self, transaction_id: str, timeout: Optional[float]) -> bool:
+    def _wait_for_ack(self, transaction_id: str, timeout: float | None) -> bool:
         """
         Waits for an acknowledgment (ACK) from the client for a specific transaction.
 
@@ -330,7 +327,7 @@ class SimpleMessageBrokerHandler(socketserver.BaseRequestHandler):
             ack_data = ack_data_bytes.decode("utf-8")
             ack_response = json.loads(ack_data)
             return ack_response.get("transaction_id") == transaction_id and ack_response.get("ack") is True
-        except (socket.timeout, json.JSONDecodeError, ConnectionResetError) as e:
+        except (TimeoutError, json.JSONDecodeError, ConnectionResetError) as e:
             logger.error(f"Error waiting for ACK: {e}")
             return False
         finally:
@@ -362,7 +359,7 @@ class SimpleMessageBrokerHandler(socketserver.BaseRequestHandler):
         except Exception as e:
             logger.error(f"Unexpected error while sending response: {e}")
 
-    def _recv_exact(self, num_bytes: int) -> Optional[bytes]:
+    def _recv_exact(self, num_bytes: int) -> bytes | None:
         """
         Receives an exact number of bytes from the client connection.
 
@@ -419,7 +416,7 @@ class SimpleMessageBroker(socketserver.ThreadingMixIn, socketserver.TCPServer):
         with cls._instances_lock:
             if key not in cls._instances:
                 # Create a new instance and store it in the instances dictionary
-                instance = super(SimpleMessageBroker, cls).__new__(cls)
+                instance = super().__new__(cls)
                 cls._instances[key] = instance
             else:
                 instance = cls._instances[key]

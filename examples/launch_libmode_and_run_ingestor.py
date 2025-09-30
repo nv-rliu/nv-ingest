@@ -4,14 +4,15 @@
 
 import logging
 import os
-import time
 import sys
+import time
 
-from nv_ingest.framework.orchestration.ray.util.pipeline.pipeline_runners import run_pipeline
 from nv_ingest_api.util.logging.configuration import configure_logging as configure_local_logging
 from nv_ingest_api.util.message_brokers.simple_message_broker import SimpleClient
 from nv_ingest_client.client import Ingestor
 from nv_ingest_client.client import NvIngestClient
+
+from nv_ingest.framework.orchestration.ray.util.pipeline.pipeline_runners import run_pipeline
 
 # Configure the logger
 logger = logging.getLogger(__name__)

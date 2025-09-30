@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Any, Dict
 from queue import Queue
 from threading import Lock
+from typing import Any
+from typing import Dict
 
 import ray
 
@@ -62,7 +63,7 @@ class ThreadedQueueEdge(RayActorEdge):
             logger.info(f"Item read from queue. New read_count: {self.stats['read_count']}")
         return item
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """
         Get current statistics for the queue.
         """

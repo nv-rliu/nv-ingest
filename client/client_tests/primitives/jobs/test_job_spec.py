@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 from unittest.mock import Mock
 from unittest.mock import patch
 
+import nv_ingest_client.primitives.jobs.job_spec as module_under_test
 import pytest
 from nv_ingest_client.primitives.jobs.job_spec import BatchJobSpec
 from nv_ingest_client.primitives.jobs.job_spec import JobSpec
@@ -17,14 +18,12 @@ from nv_ingest_client.primitives.tasks import DedupTask
 from nv_ingest_client.primitives.tasks import EmbedTask
 from nv_ingest_client.primitives.tasks import Task
 
-import nv_ingest_client.primitives.jobs.job_spec as module_under_test
-
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 
 
 # Assuming the Task class has a to_dict method
 class MockTask(Task):
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {"document_type": "pdf", "task": "mocktask"}
 
 

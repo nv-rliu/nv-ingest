@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from pydantic import ConfigDict, BaseModel
+from pydantic import BaseModel
+from pydantic import ConfigDict
 
 
 class OpenTelemetryTracerSchema(BaseModel):

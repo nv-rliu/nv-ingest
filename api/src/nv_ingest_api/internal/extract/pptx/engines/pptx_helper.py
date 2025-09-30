@@ -15,16 +15,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import io
+import logging
 import re
 import uuid
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List, Tuple, IO
+from typing import IO
+from typing import Dict
+from typing import List
 from typing import Optional
+from typing import Tuple
 
 import pandas as pd
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
+from nv_ingest_api.internal.enums.common import ContentDescriptionEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import TableFormatEnum
+from nv_ingest_api.internal.enums.common import TextTypeEnum
+from nv_ingest_api.internal.extract.image.image_helpers.common import extract_page_elements_from_images
+from nv_ingest_api.internal.extract.image.image_helpers.common import load_and_preprocess_image
+from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_pptx_schema import PPTXConfigSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
+from nv_ingest_api.util.converters import bytetools
+from nv_ingest_api.util.detectors.language import detect_language
+from nv_ingest_api.util.metadata.aggregators import construct_page_element_metadata
 from pptx import Presentation
 from pptx.enum.dml import MSO_COLOR_TYPE
 from pptx.enum.dml import MSO_THEME_COLOR  # noqa
@@ -33,32 +50,16 @@ from pptx.enum.shapes import PP_PLACEHOLDER  # noqa
 from pptx.shapes.autoshape import Shape
 from pptx.slide import Slide
 
-from nv_ingest_api.internal.enums.common import AccessLevelEnum, DocumentTypeEnum
-from nv_ingest_api.internal.enums.common import ContentTypeEnum
-from nv_ingest_api.internal.enums.common import ContentDescriptionEnum
-from nv_ingest_api.internal.enums.common import TableFormatEnum
-from nv_ingest_api.internal.enums.common import TextTypeEnum
-from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
-from nv_ingest_api.internal.extract.image.image_helpers.common import (
-    load_and_preprocess_image,
-    extract_page_elements_from_images,
-)
-from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageConfigSchema
-from nv_ingest_api.internal.schemas.extract.extract_pptx_schema import PPTXConfigSchema
-from nv_ingest_api.util.converters import bytetools
-from nv_ingest_api.util.detectors.language import detect_language
-from nv_ingest_api.util.metadata.aggregators import construct_page_element_metadata
-
 logger = logging.getLogger(__name__)
 
 
 def _finalize_images(
-    pending_images: List[Tuple[Shape, int, int, int, dict, dict, dict]],
-    extracted_data: List,
+    pending_images: list[tuple[Shape, int, int, int, dict, dict, dict]],
+    extracted_data: list,
     pptx_extraction_config: PPTXConfigSchema,
     extract_tables: bool = False,
     extract_charts: bool = False,
-    trace_info: Optional[Dict] = None,
+    trace_info: dict | None = None,
 ):
     """
     Post-process all pending images.
@@ -218,7 +219,7 @@ def python_pptx(
     extract_tables: bool,
     extract_charts: bool,
     extraction_config: dict,
-    execution_trace_log: Optional[List] = None,
+    execution_trace_log: list | None = None,
 ):
     _ = extract_infographics
     _ = execution_trace_log
@@ -554,10 +555,10 @@ def _construct_image_metadata(
     shape_idx: int,
     slide_idx: int,
     slide_count: int,
-    page_nearby_blocks: Dict,
+    page_nearby_blocks: dict,
     base64_img: str,
-    source_metadata: Dict,
-    base_unified_metadata: Dict,
+    source_metadata: dict,
+    base_unified_metadata: dict,
 ):
     """
     Build standard PPTX image metadata.
@@ -610,8 +611,8 @@ def _construct_table_metadata(
     shape,
     slide_idx: int,
     slide_count: int,
-    source_metadata: Dict,
-    base_unified_metadata: Dict,
+    source_metadata: dict,
+    base_unified_metadata: dict,
 ):
     table = [[cell.text for cell in row.cells] for row in shape.table.rows]
     df = pd.DataFrame(table[1:], columns=table[0])
@@ -656,9 +657,9 @@ def _construct_table_metadata(
 
 
 def get_bbox(
-    presentation_object: Optional[Presentation] = None,
-    shape_object: Optional[Slide] = None,
-    text_depth: Optional[TextTypeEnum] = None,
+    presentation_object: Presentation | None = None,
+    shape_object: Slide | None = None,
+    text_depth: TextTypeEnum | None = None,
 ):
     """
     Safely computes bounding box for a slide, shape, or document.

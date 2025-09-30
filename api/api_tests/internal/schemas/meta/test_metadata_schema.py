@@ -3,19 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.enums.common import TextTypeEnum
-from nv_ingest_api.internal.schemas.meta.metadata_schema import (  # Adjust import path
-    ContentTypeEnum,
-    validate_metadata,
-    ImageMetadataSchema,
-    TableMetadataSchema,
-    SourceMetadataSchema,
-    AudioMetadataSchema,
-    datetools,
-    MetadataSchema,
-)
+from nv_ingest_api.internal.schemas.meta.metadata_schema import AudioMetadataSchema  # Adjust import path
+from nv_ingest_api.internal.schemas.meta.metadata_schema import ContentTypeEnum
+from nv_ingest_api.internal.schemas.meta.metadata_schema import ImageMetadataSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import MetadataSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import SourceMetadataSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import TableMetadataSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import datetools
+from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
+from pydantic import ValidationError
 
 
 def test_valid_text_metadata_auto_nulls_others():

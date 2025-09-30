@@ -12,12 +12,12 @@ from typing import Optional
 from typing import Union
 from uuid import UUID
 
-from nv_ingest_client.primitives.tasks import Task
 from nv_ingest_client.primitives.tasks import ExtractTask
+from nv_ingest_client.primitives.tasks import Task
 from nv_ingest_client.primitives.tasks.audio_extraction import AudioExtractionTask
-from nv_ingest_client.primitives.tasks.table_extraction import TableExtractionTask
 from nv_ingest_client.primitives.tasks.chart_extraction import ChartExtractionTask
 from nv_ingest_client.primitives.tasks.infographic_extraction import InfographicExtractionTask
+from nv_ingest_client.primitives.tasks.table_extraction import TableExtractionTask
 from nv_ingest_client.util.dataset import get_dataset_files
 from nv_ingest_client.util.dataset import get_dataset_statistics
 
@@ -65,11 +65,11 @@ class JobSpec:
     def __init__(
         self,
         payload: str = None,
-        tasks: Optional[List] = None,
-        source_id: Optional[str] = None,
-        source_name: Optional[str] = None,
-        document_type: Optional[str] = None,
-        extended_options: Optional[Dict] = None,
+        tasks: list | None = None,
+        source_id: str | None = None,
+        source_name: str | None = None,
+        document_type: str | None = None,
+        extended_options: dict | None = None,
     ) -> None:
         self._document_type = document_type or "txt"
         self._extended_options = extended_options or {}
@@ -91,7 +91,7 @@ class JobSpec:
             f"{task_info}"
         )
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Converts the job specification instance into a dictionary suitable for JSON serialization.
 
@@ -113,11 +113,11 @@ class JobSpec:
         }
 
     @property
-    def payload(self) -> Dict:
+    def payload(self) -> dict:
         return self._payload
 
     @payload.setter
-    def payload(self, payload: Dict) -> None:
+    def payload(self, payload: dict) -> None:
         self._payload = payload
 
     @property
@@ -218,7 +218,7 @@ class BatchJobSpec:
         A dictionary that maps document types to a list of `JobSpec` instances.
     """
 
-    def __init__(self, job_specs_or_files: Optional[Union[List[JobSpec], List[str]]] = None) -> None:
+    def __init__(self, job_specs_or_files: list[JobSpec] | list[str] | None = None) -> None:
         """
         Initializes the BatchJobSpec instance.
 
@@ -238,7 +238,7 @@ class BatchJobSpec:
             else:
                 raise ValueError("Invalid input type for job_specs. Must be a list of JobSpec or file paths.")
 
-    def from_job_specs(self, job_specs: Union[JobSpec, List[JobSpec]]) -> None:
+    def from_job_specs(self, job_specs: JobSpec | list[JobSpec]) -> None:
         """
         Initializes the batch with a list of `JobSpec` instances.
 
@@ -253,7 +253,7 @@ class BatchJobSpec:
         for job_spec in job_specs:
             self.add_job_spec(job_spec)
 
-    def from_files(self, files: Union[str, List[str]]) -> None:
+    def from_files(self, files: str | list[str]) -> None:
         """
         Initializes the batch by generating job specifications from file paths.
 
@@ -262,9 +262,9 @@ class BatchJobSpec:
         files : Union[str, List[str]]
             A single file path or a list of file paths to create job specifications from.
         """
+        from nv_ingest_client.util.util import balanced_groups_flat_order
         from nv_ingest_client.util.util import create_job_specs_for_batch
         from nv_ingest_client.util.util import generate_matching_files
-        from nv_ingest_client.util.util import balanced_groups_flat_order
 
         if isinstance(files, str):
             files = [files]
@@ -363,7 +363,7 @@ class BatchJobSpec:
         for job_spec in target_job_specs:
             job_spec.add_task(task)
 
-    def to_dict(self) -> Dict[str, List[Dict]]:
+    def to_dict(self) -> dict[str, list[dict]]:
         """
         Serializes the batch of job specifications into a list of dictionaries.
 
@@ -394,7 +394,7 @@ class BatchJobSpec:
         return result
 
     @property
-    def job_specs(self) -> Dict[str, List[str]]:
+    def job_specs(self) -> dict[str, list[str]]:
         """
         A property that returns a dictionary of job specs categorized by document type.
 
@@ -406,7 +406,7 @@ class BatchJobSpec:
         return self._file_type_to_job_spec
 
     @property
-    def file_types(self) -> List[str]:
+    def file_types(self) -> list[str]:
         """
         Returns the list of unique file types present in the batch.
 
@@ -421,7 +421,7 @@ class BatchJobSpec:
         return list(self._file_type_to_job_spec.keys())
 
     @property
-    def tasks(self) -> Dict[str, List[Task]]:
+    def tasks(self) -> dict[str, list[Task]]:
         """
         Adds a task to the relevant job specifications in the batch.
 

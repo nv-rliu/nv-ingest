@@ -2,15 +2,16 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional
-from rich.console import Console
-from rich.live import Live
-from rich.table import Table
+import logging
+import time
 import tkinter as tk
 from tkinter import ttk
 from tkinter.ttk import Style
-import logging
-import time
+from typing import Optional
+
+from rich.console import Console
+from rich.live import Live
+from rich.table import Table
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class UtilizationDisplay:
 
     def __init__(self, refresh_rate: float = 2):
         self.console = Console()
-        self.live: Optional[Live] = None
+        self.live: Live | None = None
         self.refresh_rate = refresh_rate
 
     def _create_table(self):
@@ -90,7 +91,7 @@ class GuiUtilizationDisplay:
                 root_test = tk.Tk()
                 root_test.withdraw()
                 root_test.destroy()
-                cls._instance = super(GuiUtilizationDisplay, cls).__new__(cls)
+                cls._instance = super().__new__(cls)
                 cls._instance._initialized = False
                 logger.info("GUI mode enabled. Tkinter seems available.")
             except tk.TclError as e:

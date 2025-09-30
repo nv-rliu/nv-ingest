@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import shutil
 import subprocess
 import tempfile
-import shutil
-from typing import List, Tuple, Optional
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 
 def get_git_root(file_path):
@@ -117,7 +119,7 @@ def create_test_file(directory: str, filename: str, content: str = None) -> str:
     return file_path
 
 
-def create_test_documents(workspace: str, file_specs: List[Tuple[str, Optional[str]]] = None) -> List[str]:
+def create_test_documents(workspace: str, file_specs: list[tuple[str, str | None]] = None) -> list[str]:
     """
     Create multiple test documents in a workspace.
 
@@ -147,7 +149,7 @@ def create_test_documents(workspace: str, file_specs: List[Tuple[str, Optional[s
     return created_files
 
 
-def create_jsonl_test_file(directory: str, filename: str, data_entries: List[dict]) -> str:
+def create_jsonl_test_file(directory: str, filename: str, data_entries: list[dict]) -> str:
     """
     Create a JSONL test file with the given data entries.
 
@@ -199,13 +201,13 @@ class TestWorkspace:
             raise RuntimeError("Workspace not initialized. Use within 'with' statement.")
         return create_test_file(self.path, filename, content)
 
-    def create_documents(self, file_specs: List[Tuple[str, Optional[str]]] = None) -> List[str]:
+    def create_documents(self, file_specs: list[tuple[str, str | None]] = None) -> list[str]:
         """Create multiple test documents in this workspace."""
         if self.path is None:
             raise RuntimeError("Workspace not initialized. Use within 'with' statement.")
         return create_test_documents(self.path, file_specs)
 
-    def create_jsonl_file(self, filename: str, data_entries: List[dict]) -> str:
+    def create_jsonl_file(self, filename: str, data_entries: list[dict]) -> str:
         """Create a JSONL test file in this workspace."""
         if self.path is None:
             raise RuntimeError("Workspace not initialized. Use within 'with' statement.")

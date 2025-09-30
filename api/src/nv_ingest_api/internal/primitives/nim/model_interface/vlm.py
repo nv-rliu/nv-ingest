@@ -2,9 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict, Any, Optional, Tuple, List
-
 import logging
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 from nv_ingest_api.internal.primitives.nim import ModelInterface
 
@@ -23,7 +26,7 @@ class VLMModelInterface(ModelInterface):
         """
         return "VLM"
 
-    def prepare_data_for_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_data_for_inference(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Prepare input data for VLM inference. Accepts either a single base64 image or a list of images.
         Ensures that a 'prompt' is provided.
@@ -50,8 +53,8 @@ class VLMModelInterface(ModelInterface):
         return data
 
     def format_input(
-        self, data: Dict[str, Any], protocol: str, max_batch_size: int, **kwargs
-    ) -> Tuple[List[Any], List[Dict[str, Any]]]:
+        self, data: dict[str, Any], protocol: str, max_batch_size: int, **kwargs
+    ) -> tuple[list[Any], list[dict[str, Any]]]:
         """
         Format the input payload for the VLM endpoint. This method constructs one payload per batch,
         where each payload includes one message per image in the batch.
@@ -114,7 +117,7 @@ class VLMModelInterface(ModelInterface):
             batch_data_list.append({"base64_images": batch, "prompt": prompt})
         return payloads, batch_data_list
 
-    def parse_output(self, response: Any, protocol: str, data: Optional[Dict[str, Any]] = None, **kwargs) -> Any:
+    def parse_output(self, response: Any, protocol: str, data: dict[str, Any] | None = None, **kwargs) -> Any:
         """
         Parse the HTTP response from the VLM endpoint. Expects a response structure with a "choices" key.
 

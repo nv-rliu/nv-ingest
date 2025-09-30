@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.schemas.transform.transform_image_caption_schema import ImageCaptionExtractionSchema
+from pydantic import ValidationError
 
 
 def test_image_caption_extraction_schema_defaults():

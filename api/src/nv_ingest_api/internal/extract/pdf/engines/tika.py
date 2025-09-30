@@ -15,10 +15,12 @@
 # limitations under the License.
 
 import io
-from typing import Dict, Any, Optional, List
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 
 import pandas as pd
-
 import requests
 
 TIKA_URL = "http://tika:9998/tika"
@@ -31,8 +33,8 @@ def tika_extractor(
     extract_infographics: bool,
     extract_charts: bool,
     extract_tables: bool,
-    extractor_config: Dict[str, Any],
-    execution_trace_log: Optional[List[Any]] = None,
+    extractor_config: dict[str, Any],
+    execution_trace_log: list[Any] | None = None,
 ) -> pd.DataFrame:
     """
     Extract text from a PDF using the Apache Tika server.

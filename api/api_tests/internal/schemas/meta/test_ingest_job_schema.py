@@ -2,15 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pytest
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskCaptionSchema  # Adjust your imports
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskSchema
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import IngestTaskSplitSchema
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import TaskTypeEnum
+from nv_ingest_api.internal.schemas.meta.ingest_job_schema import validate_ingest_job
 from pydantic import ValidationError
-from nv_ingest_api.internal.schemas.meta.ingest_job_schema import (
-    validate_ingest_job,
-    TaskTypeEnum,
-    IngestTaskSplitSchema,
-    IngestTaskCaptionSchema,
-    IngestTaskSchema,
-)  # Adjust your imports
-
 
 ### Tests for IngestTaskSchema ###
 

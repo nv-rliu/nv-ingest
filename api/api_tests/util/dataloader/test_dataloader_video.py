@@ -1,16 +1,19 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-25, NVIDIA CORPORATION & AFFILIATES.
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-import pytest
-import tempfile
-from pathlib import Path
-import shutil
-from nv_ingest_api.util.dataloader import DataLoader, MediaInterface
-import subprocess
 import json
 import math
-from moviepy.video.io.VideoFileClip import VideoFileClip
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+
+import pytest
 from moviepy.audio.io.AudioFileClip import AudioFileClip
+from moviepy.video.io.VideoFileClip import VideoFileClip
+from nv_ingest_api.util.dataloader import DataLoader
+from nv_ingest_api.util.dataloader import MediaInterface
+
 from .dataloader_test_tools import create_test_file
 
 test_file_size_mb = 100

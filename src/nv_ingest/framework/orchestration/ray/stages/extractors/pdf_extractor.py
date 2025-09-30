@@ -3,32 +3,34 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import pandas as pd
-from typing import Any, Dict, Tuple, Optional
-import ray
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
+import pandas as pd
+import ray
 from nv_ingest_api.internal.extract.pdf.pdf_extractor import extract_primitives_from_pdf_internal
 from nv_ingest_api.internal.primitives.ingest_control_message import remove_task_by_type
+from nv_ingest_api.internal.primitives.tracing.tagging import set_trace_timestamps_with_parent_context
+from nv_ingest_api.internal.primitives.tracing.tagging import traceable
 from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFExtractorSchema
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
+from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
-from nv_ingest_api.internal.primitives.tracing.tagging import set_trace_timestamps_with_parent_context, traceable
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 from nv_ingest.framework.util.flow_control import filter_by_task
 from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
-from nv_ingest_api.util.exception_handlers.decorators import (
-    nv_ingest_node_failure_try_except,
-)
-from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
 logger = logging.getLogger(__name__)
 
 
 def _inject_validated_config(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Dict,
-    execution_trace_log: Optional[Any] = None,
+    task_config: dict,
+    execution_trace_log: Any | None = None,
     validated_config: Any = None,
-) -> Tuple[pd.DataFrame, Dict]:
+) -> tuple[pd.DataFrame, dict]:
     """
     Helper function that injects the validated_config into the configuration for PDF extraction
     and calls extract_primitives_from_pdf_internal.
@@ -53,7 +55,7 @@ class PDFExtractorStage(RayActorStage):
       4. Optionally, stores additional extraction info in the message metadata.
     """
 
-    def __init__(self, config: PDFExtractorSchema, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: PDFExtractorSchema, stage_name: str | None = None) -> None:
         super().__init__(config, stage_name=stage_name)
         try:
             # Validate and store the PDF extractor configuration.

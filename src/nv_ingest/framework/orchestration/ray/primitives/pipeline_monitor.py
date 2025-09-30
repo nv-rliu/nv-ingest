@@ -6,7 +6,11 @@ import logging
 import threading
 import time
 from dataclasses import dataclass
-from typing import Optional, Any, List, Tuple, Dict
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 from nv_ingest.framework.orchestration.ray.util.system_tools.visualizers import GuiUtilizationDisplay
 
@@ -52,9 +56,9 @@ class PipelineMonitor:
 
         self.pipeline = pipeline
         self.config = config
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
         self._running: bool = False
-        self._display_instance: Optional[Any] = None
+        self._display_instance: Any | None = None
         logger.debug("PipelineMonitor initialized.")
 
     def start(self) -> None:
@@ -102,7 +106,7 @@ class PipelineMonitor:
             self._display_instance = None
             logger.info("PipelineMonitor stopped.")
 
-    def _get_monitor_data(self) -> List[Tuple]:
+    def _get_monitor_data(self) -> list[tuple]:
         """
         Fetches stats and topology data from the associated RayPipeline
         and formats it for display.
@@ -161,7 +165,7 @@ class PipelineMonitor:
                 )
 
             # --- Add Total Summary Row ---
-            def _get_global_in_flight(stats: Dict) -> int:
+            def _get_global_in_flight(stats: dict) -> int:
                 return sum(d.get("in_flight", 0) for d in stats.values() if isinstance(d, dict))
 
             global_processing = sum(s.get("processing", 0) for s in current_stage_stats.values() if isinstance(s, dict))

@@ -10,12 +10,12 @@ replacing imperative parameter passing with structured configuration objects.
 """
 
 from dataclasses import dataclass
-from typing import Optional, TextIO, Union
+from typing import Optional
+from typing import TextIO
+from typing import Union
 
-from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import (
-    RayPipelineInterface,
-    RayPipelineSubprocessInterface,
-)
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipelineInterface
+from nv_ingest.framework.orchestration.ray.primitives.ray_pipeline import RayPipelineSubprocessInterface
 
 
 @dataclass
@@ -36,8 +36,8 @@ class PipelineRuntimeOverrides:
         Must be between 0.0 and 1.0 if provided.
     """
 
-    disable_dynamic_scaling: Optional[bool] = None
-    dynamic_memory_threshold: Optional[float] = None
+    disable_dynamic_scaling: bool | None = None
+    dynamic_memory_threshold: float | None = None
 
     def __post_init__(self):
         """Validate override values."""
@@ -70,8 +70,8 @@ class ExecutionOptions:
     """
 
     block: bool = True
-    stdout: Optional[TextIO] = None
-    stderr: Optional[TextIO] = None
+    stdout: TextIO | None = None
+    stderr: TextIO | None = None
 
 
 @dataclass
@@ -90,10 +90,10 @@ class ExecutionResult:
         Total execution time in seconds. Only set for blocking execution.
     """
 
-    interface: Union[RayPipelineInterface, RayPipelineSubprocessInterface, None]
-    elapsed_time: Optional[float] = None
+    interface: RayPipelineInterface | RayPipelineSubprocessInterface | None
+    elapsed_time: float | None = None
 
-    def get_return_value(self) -> Union[RayPipelineInterface, float, RayPipelineSubprocessInterface]:
+    def get_return_value(self) -> RayPipelineInterface | float | RayPipelineSubprocessInterface:
         """
         Convert to legacy return format for backward compatibility.
 

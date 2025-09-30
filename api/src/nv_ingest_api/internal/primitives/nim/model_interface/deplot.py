@@ -2,11 +2,13 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict, Any, Optional, List
+import logging
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 
 import numpy as np
-import logging
-
 from nv_ingest_api.internal.primitives.nim import ModelInterface
 from nv_ingest_api.util.image_processing.transforms import base64_to_numpy
 
@@ -30,7 +32,7 @@ class DeplotModelInterface(ModelInterface):
         """
         return "Deplot"
 
-    def prepare_data_for_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_data_for_inference(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Prepare input data by decoding one or more base64-encoded images into NumPy arrays.
 
@@ -63,7 +65,7 @@ class DeplotModelInterface(ModelInterface):
 
         return data
 
-    def format_input(self, data: Dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
+    def format_input(self, data: dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
         """
         Format input data for the specified protocol (gRPC or HTTP) for Deplot.
         For HTTP, we now construct multiple messages—one per image batch—along with
@@ -106,7 +108,7 @@ class DeplotModelInterface(ModelInterface):
         image_dims = [(img.shape[0], img.shape[1]) for img in image_arrays]
 
         # Helper function: chunk a list into sublists of length <= chunk_size.
-        def chunk_list(lst: list, chunk_size: int) -> List[list]:
+        def chunk_list(lst: list, chunk_size: int) -> list[list]:
             return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
         if protocol == "grpc":
@@ -163,7 +165,7 @@ class DeplotModelInterface(ModelInterface):
         else:
             raise ValueError("Invalid protocol specified. Must be 'grpc' or 'http'.")
 
-    def parse_output(self, response: Any, protocol: str, data: Optional[Dict[str, Any]] = None, **kwargs) -> Any:
+    def parse_output(self, response: Any, protocol: str, data: dict[str, Any] | None = None, **kwargs) -> Any:
         """
         Parse the model's inference response.
         """
@@ -214,7 +216,7 @@ class DeplotModelInterface(ModelInterface):
         max_tokens: int = 500,
         temperature: float = 0.5,
         top_p: float = 0.9,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Prepare an HTTP payload for Deplot that includes one message per image,
         matching the original single-image style:
@@ -258,7 +260,7 @@ class DeplotModelInterface(ModelInterface):
         return payload
 
     @staticmethod
-    def _extract_content_from_deplot_response(json_response: Dict[str, Any]) -> Any:
+    def _extract_content_from_deplot_response(json_response: dict[str, Any]) -> Any:
         """
         Extract content from the JSON response of a Deplot HTTP API request.
         The original code expected a single choice with a single textual content.

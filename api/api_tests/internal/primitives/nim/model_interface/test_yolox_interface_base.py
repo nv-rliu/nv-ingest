@@ -2,10 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
-from unittest.mock import patch, MagicMock
-import numpy as np
 import json
+import unittest
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
+import numpy as np
 
 # Import the module under test
 import nv_ingest_api.internal.primitives.nim.model_interface.yolox as module_under_test

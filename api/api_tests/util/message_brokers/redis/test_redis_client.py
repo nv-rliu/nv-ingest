@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-from unittest.mock import Mock, MagicMock
-import redis
+from unittest.mock import MagicMock
+from unittest.mock import Mock
 from unittest.mock import patch
 
-import pytest
-
 import nv_ingest_api.util.service_clients.redis.redis_client as module_under_test
+import pytest
+import redis
 from nv_ingest_api.util.service_clients.redis.redis_client import RedisClient
 from redis.exceptions import RedisError
 

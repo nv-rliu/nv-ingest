@@ -3,14 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from nv_ingest_api.internal.schemas.message_brokers.request_schema import PopRequestSchema
+from nv_ingest_api.internal.schemas.message_brokers.request_schema import PushRequestSchema
+from nv_ingest_api.internal.schemas.message_brokers.request_schema import SizeRequestSchema
 from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.message_brokers.request_schema import (
-    PushRequestSchema,
-    PopRequestSchema,
-    SizeRequestSchema,
-)
-
 
 ### Tests for PushRequestSchema ###
 

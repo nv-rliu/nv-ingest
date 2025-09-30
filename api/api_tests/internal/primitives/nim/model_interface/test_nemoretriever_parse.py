@@ -2,19 +2,17 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import unittest
 from unittest.mock import patch
-import json
-import numpy as np
 
+import numpy as np
 import nv_ingest_api.internal.primitives.nim.model_interface.nemoretriever_parse as module_under_test
-from nv_ingest_api.internal.primitives.nim.model_interface.nemoretriever_parse import (
-    NemoRetrieverParseModelInterface,
-    ACCEPTED_TEXT_CLASSES,
-    ACCEPTED_TABLE_CLASSES,
-    ACCEPTED_CLASSES,
-    ACCEPTED_IMAGE_CLASSES,
-)
+from nv_ingest_api.internal.primitives.nim.model_interface.nemoretriever_parse import ACCEPTED_CLASSES
+from nv_ingest_api.internal.primitives.nim.model_interface.nemoretriever_parse import ACCEPTED_IMAGE_CLASSES
+from nv_ingest_api.internal.primitives.nim.model_interface.nemoretriever_parse import ACCEPTED_TABLE_CLASSES
+from nv_ingest_api.internal.primitives.nim.model_interface.nemoretriever_parse import ACCEPTED_TEXT_CLASSES
+from nv_ingest_api.internal.primitives.nim.model_interface.nemoretriever_parse import NemoRetrieverParseModelInterface
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

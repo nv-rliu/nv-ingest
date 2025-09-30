@@ -4,13 +4,14 @@
 
 import base64
 from io import BytesIO
-
-import pytest
-import pandas as pd
-import nv_ingest_api.internal.store.image_upload as module_under_test
-from nv_ingest_api.internal.store.image_upload import store_images_to_minio_internal
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
+from unittest.mock import patch
 from urllib.parse import quote
+
+import nv_ingest_api.internal.store.image_upload as module_under_test
+import pandas as pd
+import pytest
+from nv_ingest_api.internal.store.image_upload import store_images_to_minio_internal
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

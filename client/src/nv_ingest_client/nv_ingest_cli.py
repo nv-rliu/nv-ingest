@@ -12,14 +12,15 @@ from typing import List
 import click
 
 try:
-    from importlib.metadata import version, PackageNotFoundError
+    from importlib.metadata import PackageNotFoundError
+    from importlib.metadata import version
 except ImportError:
     # For Python versions < 3.8, use the importlib_metadata backport.
     from importlib_metadata import version, PackageNotFoundError
 
+from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 from nv_ingest_api.util.message_brokers.simple_message_broker import SimpleClient
 from nv_ingest_api.util.service_clients.rest.rest_client import RestClient
-from nv_ingest_client.util.zipkin import collect_traces_from_zipkin, write_results_to_output_directory
 from nv_ingest_client.cli.util.click import LogLevel
 from nv_ingest_client.cli.util.click import click_match_and_validate_files
 from nv_ingest_client.cli.util.click import click_validate_batch_size
@@ -32,7 +33,8 @@ from nv_ingest_client.client import NvIngestClient
 from nv_ingest_client.util.dataset import get_dataset_files
 from nv_ingest_client.util.dataset import get_dataset_statistics
 from nv_ingest_client.util.system import ensure_directory_with_permissions
-from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
+from nv_ingest_client.util.zipkin import collect_traces_from_zipkin
+from nv_ingest_client.util.zipkin import write_results_to_output_directory
 
 try:
     NV_INGEST_VERSION = version("nv_ingest")
@@ -218,7 +220,7 @@ def main(
     client_type: str,
     concurrency_n: int,
     dataset: str,
-    doc: List[str],
+    doc: list[str],
     dry_run: bool,
     fail_on_error: bool,
     log_level: str,

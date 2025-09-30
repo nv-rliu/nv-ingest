@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import subprocess
 import re
+import subprocess
 
 
 def get_git_root(file_path):

@@ -6,10 +6,8 @@
 from datetime import datetime
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
-
+from pydantic import ValidationError
 
 # TODO, add info message
 

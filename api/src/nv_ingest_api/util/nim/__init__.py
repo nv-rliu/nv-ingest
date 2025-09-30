@@ -2,7 +2,8 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Tuple, Optional
+from typing import Optional
+from typing import Tuple
 
 from nv_ingest_api.internal.primitives.nim.nim_client import NimClientManager
 from nv_ingest_api.internal.primitives.nim.nim_client import get_nim_client_manager
@@ -12,10 +13,10 @@ __all__ = ["create_inference_client"]
 
 
 def create_inference_client(
-    endpoints: Tuple[str, str],
+    endpoints: tuple[str, str],
     model_interface: ModelInterface,
-    auth_token: Optional[str] = None,
-    infer_protocol: Optional[str] = None,
+    auth_token: str | None = None,
+    infer_protocol: str | None = None,
     timeout: float = 120.0,
     max_retries: int = 5,
     **kwargs,

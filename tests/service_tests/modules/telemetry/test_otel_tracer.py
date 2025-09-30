@@ -2,15 +2,13 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-
 from datetime import datetime
 
-from nv_ingest.framework.orchestration.ray.stages.telemetry.otel_tracer import (
-    extract_timestamps_from_message,
-    extract_annotated_task_results,
-)
+import pytest
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
+
+from nv_ingest.framework.orchestration.ray.stages.telemetry.otel_tracer import extract_annotated_task_results
+from nv_ingest.framework.orchestration.ray.stages.telemetry.otel_tracer import extract_timestamps_from_message
 
 
 def test_extract_timestamps_single_task():

@@ -3,21 +3,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 import ray
+from nv_ingest_api.internal.mutate.filter import filter_images_internal
+from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
+from nv_ingest_api.internal.primitives.ingest_control_message import remove_task_by_type
+from nv_ingest_api.internal.primitives.tracing.tagging import traceable
+from nv_ingest_api.internal.schemas.transform.transform_image_filter_schema import ImageFilterSchema
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
+from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 from nv_ingest.framework.util.flow_control import filter_by_task
 from nv_ingest.framework.util.flow_control.udf_intercept import udf_intercept_hook
-from nv_ingest_api.internal.mutate.filter import filter_images_internal
-from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage, remove_task_by_type
-from nv_ingest_api.internal.primitives.tracing.tagging import traceable
-from nv_ingest_api.internal.schemas.transform.transform_image_filter_schema import ImageFilterSchema
-from nv_ingest_api.util.exception_handlers.decorators import (
-    nv_ingest_node_failure_try_except,
-)
-from nv_ingest_api.util.logging.sanitize import sanitize_for_logging
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class ImageFilterStage(RayActorStage):
       3. Updates the message payload with the filtered DataFrame.
     """
 
-    def __init__(self, config: ImageFilterSchema, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: ImageFilterSchema, stage_name: str | None = None) -> None:
         super().__init__(config, stage_name=stage_name)
         try:
             self.validated_config = config
@@ -70,7 +71,7 @@ class ImageFilterStage(RayActorStage):
         task_config = remove_task_by_type(control_message, "filter")
         logger.debug("Extracted task config: %s", sanitize_for_logging(task_config))
 
-        task_params: Dict[str, Any] = task_config.get("params", {})
+        task_params: dict[str, Any] = task_config.get("params", {})
 
         # Perform image filtering.
         new_df = filter_images_internal(

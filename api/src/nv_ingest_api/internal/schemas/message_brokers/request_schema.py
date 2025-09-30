@@ -6,7 +6,8 @@
 import logging
 from typing import Optional
 
-from pydantic import ConfigDict, BaseModel
+from pydantic import BaseModel
+from pydantic import ConfigDict
 from pydantic import Field
 
 logger = logging.getLogger(__name__)
@@ -17,14 +18,14 @@ class PushRequestSchema(BaseModel):
     command: str
     queue_name: str = Field(..., min_length=1)
     message: str = Field(..., min_length=1)
-    timeout: Optional[float] = 100  # Optional timeout for blocking push
+    timeout: float | None = 100  # Optional timeout for blocking push
     model_config = ConfigDict(extra="forbid")
 
 
 class PopRequestSchema(BaseModel):
     command: str
     queue_name: str = Field(..., min_length=1)
-    timeout: Optional[float] = 100  # Optional timeout for blocking pop
+    timeout: float | None = 100  # Optional timeout for blocking pop
     model_config = ConfigDict(extra="forbid")
 
 

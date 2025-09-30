@@ -7,11 +7,13 @@
 # Eventually we should move all client wrappers for the message broker into a shared library that both the ingest
 # service and the client can use.
 
-import socket
 import json
-import time
 import logging
-from typing import Optional, Tuple, Union
+import socket
+import time
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 from nv_ingest_api.internal.schemas.message_brokers.response_schema import ResponseSchema
 from nv_ingest_api.util.service_clients.client_base import MessageBrokerClientBase
@@ -83,7 +85,7 @@ class SimpleClient(MessageBrokerClientBase):
         self,
         queue_name: str,
         message: str,
-        timeout: Optional[Tuple[int, Union[float]]] = (100, None),
+        timeout: tuple[int, float] | None = (100, None),
         for_nv_ingest: bool = False,
     ) -> ResponseSchema:
         """
@@ -107,9 +109,7 @@ class SimpleClient(MessageBrokerClientBase):
         """
         return self._handle_push(queue_name, message, timeout, for_nv_ingest)
 
-    def fetch_message(
-        self, queue_name: str, timeout: Optional[Tuple[int, Union[float, None]]] = (1200, None)
-    ) -> ResponseSchema:
+    def fetch_message(self, queue_name: str, timeout: tuple[int, float | None] | None = (1200, None)) -> ResponseSchema:
         """
         Fetch a message from a specified queue.
 
@@ -157,7 +157,7 @@ class SimpleClient(MessageBrokerClientBase):
         return self._execute_simple_command(command)
 
     def _handle_push(
-        self, queue_name: str, message: str, timeout: Optional[Tuple[int, Union[float, None]]], for_nv_ingest: bool
+        self, queue_name: str, message: str, timeout: tuple[int, float | None] | None, for_nv_ingest: bool
     ) -> ResponseSchema:
         """
         Push a message to the queue with optional timeout.
@@ -236,7 +236,7 @@ class SimpleClient(MessageBrokerClientBase):
 
                     return ResponseSchema(**final_response)
 
-            except (ConnectionError, socket.error, BrokenPipeError, socket.timeout) as e:
+            except (ConnectionError, OSError, BrokenPipeError, TimeoutError) as e:
                 logger.debug(f"Connection error during PUSH: {e}")
                 pass  # Will be retried
             except json.JSONDecodeError:
@@ -246,7 +246,7 @@ class SimpleClient(MessageBrokerClientBase):
 
             time.sleep(0.5)  # Backoff delay before retry
 
-    def _handle_pop(self, queue_name: str, timeout: Optional[Tuple[int, Union[float, None]]]) -> ResponseSchema:
+    def _handle_pop(self, queue_name: str, timeout: tuple[int, float | None] | None) -> ResponseSchema:
         """
         Pop a message from the queue with optional timeout.
 
@@ -317,7 +317,7 @@ class SimpleClient(MessageBrokerClientBase):
                         else:
                             return ResponseSchema(**final_response)
 
-            except (ConnectionError, socket.error, BrokenPipeError, socket.timeout) as e:
+            except (ConnectionError, OSError, BrokenPipeError, TimeoutError) as e:
                 # Let the high-level client handle connection errors as retryable.
                 logger.debug(f"Connection error during POP: {e}, will retry after backoff.")
                 pass  # Fall through to backoff and retry
@@ -357,7 +357,7 @@ class SimpleClient(MessageBrokerClientBase):
                 response_data = self._recv(sock)
                 response = json.loads(response_data)
                 return ResponseSchema(**response)
-        except (ConnectionError, socket.error, BrokenPipeError, socket.timeout) as e:
+        except (ConnectionError, OSError, BrokenPipeError, TimeoutError) as e:
             return ResponseSchema(response_code=2, response_reason=f"Connection error: {e}")
         except json.JSONDecodeError:
             return ResponseSchema(response_code=1, response_reason="Invalid JSON response from server.")
@@ -388,7 +388,7 @@ class SimpleClient(MessageBrokerClientBase):
         try:
             sock.sendall(total_length.to_bytes(8, "big"))
             sock.sendall(data)
-        except (socket.error, BrokenPipeError):
+        except (OSError, BrokenPipeError):
             raise ConnectionError("Failed to send data.")
 
     def _recv(self, sock: socket.socket) -> str:
@@ -420,10 +420,10 @@ class SimpleClient(MessageBrokerClientBase):
             if not data_bytes:
                 raise ConnectionError("Incomplete message received.")
             return data_bytes.decode("utf-8")
-        except (socket.error, BrokenPipeError, ConnectionError):
+        except (OSError, BrokenPipeError, ConnectionError):
             raise ConnectionError("Failed to receive data.")
 
-    def _recv_exact(self, sock: socket.socket, num_bytes: int) -> Optional[bytes]:
+    def _recv_exact(self, sock: socket.socket, num_bytes: int) -> bytes | None:
         """
         Receive an exact number of bytes from a socket connection.
 
@@ -447,7 +447,7 @@ class SimpleClient(MessageBrokerClientBase):
                 if not packet:
                     return None
                 data.extend(packet)
-            except socket.timeout:
+            except TimeoutError:
                 return None
             except Exception:
                 return None

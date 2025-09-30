@@ -11,16 +11,15 @@ consumption stays within the static_memory_threshold.
 """
 
 import logging
-from typing import List
 from copy import deepcopy
+from typing import List
 
-from nv_ingest.pipeline.pipeline_schema import (
-    PipelineConfigSchema,
-    StageConfig,
-    ReplicaCalculationStrategy,
-    ReplicaStrategyConfig,
-)
 from nv_ingest_api.util.system.hardware_info import SystemResourceProbe
+
+from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
+from nv_ingest.pipeline.pipeline_schema import ReplicaCalculationStrategy
+from nv_ingest.pipeline.pipeline_schema import ReplicaStrategyConfig
+from nv_ingest.pipeline.pipeline_schema import StageConfig
 
 logger = logging.getLogger(__name__)
 
@@ -198,7 +197,7 @@ def _calculate_baseline_static_replicas(
         return 1
 
 
-def get_memory_intensive_stages(pipeline_config: PipelineConfigSchema) -> List[str]:
+def get_memory_intensive_stages(pipeline_config: PipelineConfigSchema) -> list[str]:
     """
     Identify stages that are memory-intensive and may need special handling.
 

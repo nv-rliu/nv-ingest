@@ -10,7 +10,7 @@ import re
 from typing import Optional
 
 
-def infer_udf_function_name(udf_function: str) -> Optional[str]:
+def infer_udf_function_name(udf_function: str) -> str | None:
     """
     Attempts to infer the UDF function name from the provided function string.
 

@@ -40,7 +40,7 @@ def get_dataset_statistics(dataset_bytes: BytesIO) -> str:
     file_type_counts = Counter(file_types)
     unique_files = set(sampled_files)
     unique_file_types = {
-        file_type: len(set(f for f in sampled_files if f.endswith("." + file_type))) for file_type in file_type_counts
+        file_type: len({f for f in sampled_files if f.endswith("." + file_type)}) for file_type in file_type_counts
     }
 
     total_size_bytes = sum(os.path.getsize(f) for f in sampled_files)

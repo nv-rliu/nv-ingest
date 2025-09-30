@@ -2,8 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from pydantic import BaseModel, Field
-from typing import Optional, Literal, Annotated
+from typing import Annotated
+from typing import Literal
+from typing import Optional
+
+from pydantic import BaseModel
+from pydantic import Field
 
 
 class MessageBrokerClientSchema(BaseModel):
@@ -22,7 +26,7 @@ class MessageBrokerClientSchema(BaseModel):
         default="redis", description="Type of broker client. Supported values: 'redis', 'simple'."
     )
 
-    broker_params: Optional[dict] = Field(
+    broker_params: dict | None = Field(
         default_factory=dict, description="Optional parameters passed to the broker client."
     )
 

@@ -40,8 +40,8 @@ def add_random_metadata(control_message: "IngestControlMessage") -> "IngestContr
     IngestControlMessage
         The modified control message with random metadata added
     """
-    import random
     import logging
+    import random
 
     logger = logging.getLogger(__name__)
     logger.info("UDF: Adding random metadata to control message")
@@ -102,8 +102,8 @@ def add_random_metadata_2(control_message: "IngestControlMessage") -> "IngestCon
     IngestControlMessage
         The modified control message with random metadata added
     """
-    import random
     import logging
+    import random
 
     logger = logging.getLogger(__name__)
     logger.info("UDF: Adding random metadata to control message")

@@ -135,7 +135,7 @@ def report_statistics(
     report_overall_speed(total_pages_processed, start_time_ns, total_files)
 
 
-def process_response(response: Dict[str, Any], stage_elapsed_times: defaultdict) -> None:
+def process_response(response: dict[str, Any], stage_elapsed_times: defaultdict) -> None:
     """
     Process the response to extract trace data and calculate elapsed time for each stage.
 
@@ -156,7 +156,7 @@ def process_response(response: Dict[str, Any], stage_elapsed_times: defaultdict)
     exit key is determined by replacing "entry" with "exit". The stage name is assumed to be the third element when
     splitting the key by "::".
     """
-    trace_data: Dict[str, Any] = response.get("trace", {})
+    trace_data: dict[str, Any] = response.get("trace", {})
     for key, entry_time in trace_data.items():
         if "entry" in key:
             exit_key: str = key.replace("entry", "exit")
@@ -170,7 +170,7 @@ def process_response(response: Dict[str, Any], stage_elapsed_times: defaultdict)
                     stage_elapsed_times[stage_name].append(elapsed_time)
 
 
-def organize_documents_by_type(response_data: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+def organize_documents_by_type(response_data: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     """
     Organize documents by their content type.
 
@@ -209,12 +209,12 @@ def organize_documents_by_type(response_data: List[Dict[str, Any]]) -> Dict[str,
                 {'metadata': {'content_metadata': {'type': 'report'}}}],
      'summary': [{'metadata': {'content_metadata': {'type': 'summary'}}}]}
     """
-    doc_map: Dict[str, List[Dict[str, Any]]] = {}
+    doc_map: dict[str, list[dict[str, Any]]] = {}
     for document in response_data:
         doc_meta: Any = document["metadata"]
         if isinstance(doc_meta, str):
             doc_meta = json.loads(doc_meta)
-        doc_content_metadata: Dict[str, Any] = doc_meta["content_metadata"]
+        doc_content_metadata: dict[str, Any] = doc_meta["content_metadata"]
         doc_type: str = doc_content_metadata["type"]
         if doc_type not in doc_map:
             doc_map[doc_type] = []
@@ -222,7 +222,7 @@ def organize_documents_by_type(response_data: List[Dict[str, Any]]) -> Dict[str,
     return doc_map
 
 
-def save_response_data(response: Dict[str, Any], output_directory: str, images_to_disk: bool = False) -> None:
+def save_response_data(response: dict[str, Any], output_directory: str, images_to_disk: bool = False) -> None:
     """
     Save the response data into categorized metadata JSON files and optionally save images to disk.
 
@@ -277,7 +277,7 @@ def save_response_data(response: Dict[str, Any], output_directory: str, images_t
 
         if doc_type in ("image", "structured") and images_to_disk:
             for i, doc in enumerate(documents):
-                meta: Dict[str, Any] = doc.get("metadata", {})
+                meta: dict[str, Any] = doc.get("metadata", {})
                 image_content = meta.get("content")
                 if doc_type == "image":
                     image_type = meta.get("image_metadata", {}).get("image_type", "png").lower()
@@ -317,13 +317,13 @@ def save_response_data(response: Dict[str, Any], output_directory: str, images_t
 def generate_job_batch_for_iteration(
     client: Any,
     pbar: Any,
-    files: List[str],
-    tasks: Dict[str, Any],
+    files: list[str],
+    tasks: dict[str, Any],
     processed: int,
     batch_size: int,
-    retry_job_ids: List[str],
+    retry_job_ids: list[str],
     fail_on_error: bool = False,
-) -> Tuple[List[str], Dict[str, str], int]:
+) -> tuple[list[str], dict[str, str], int]:
     """
     Generates a batch of job specifications for the current iteration of file processing.
     This function handles retrying failed jobs and creating new jobs for unprocessed files.
@@ -361,8 +361,8 @@ def generate_job_batch_for_iteration(
     RuntimeError
         If `fail_on_error` is True and there are missing job specifications, a RuntimeError is raised.
     """
-    job_indices: List[str] = []
-    job_index_map_updates: Dict[str, str] = {}
+    job_indices: list[str] = []
+    job_index_map_updates: dict[str, str] = {}
     cur_job_count: int = 0
 
     if retry_job_ids:
@@ -371,9 +371,9 @@ def generate_job_batch_for_iteration(
 
     if (cur_job_count < batch_size) and (processed < len(files)):
         new_job_count: int = min(batch_size - cur_job_count, len(files) - processed)
-        batch_files: List[str] = files[processed : processed + new_job_count]
+        batch_files: list[str] = files[processed : processed + new_job_count]
 
-        new_job_indices: List[str] = client.create_jobs_for_batch(batch_files, tasks)
+        new_job_indices: list[str] = client.create_jobs_for_batch(batch_files, tasks)
         if len(new_job_indices) != new_job_count:
             missing_jobs: int = new_job_count - len(new_job_indices)
             error_msg: str = f"Missing {missing_jobs} job specs -- this is likely due to bad reads or file corruption"
@@ -393,14 +393,14 @@ def generate_job_batch_for_iteration(
 
 
 def create_and_process_jobs(
-    files: List[str],
+    files: list[str],
     client: Any,
-    tasks: Dict[str, Any],
+    tasks: dict[str, Any],
     output_directory: str,
     batch_size: int,
     fail_on_error: bool = False,
     save_images_separately: bool = False,
-) -> Tuple[int, Dict[str, List[float]], int, Dict[str, str]]:
+) -> tuple[int, dict[str, list[float]], int, dict[str, str]]:
     """
     Process a list of files by creating and submitting jobs for each file, then fetching
     and handling the results asynchronously.
@@ -450,12 +450,12 @@ def create_and_process_jobs(
     """
     total_files: int = len(files)
     total_pages_processed: int = 0
-    trace_times: Dict[str, List[float]] = defaultdict(list)
-    trace_ids: Dict[str, str] = defaultdict(list)  # type: ignore
-    failed_jobs: List[str] = []
-    retry_job_ids: List[str] = []
-    job_id_map: Dict[str, str] = {}
-    retry_counts: Dict[str, int] = defaultdict(int)
+    trace_times: dict[str, list[float]] = defaultdict(list)
+    trace_ids: dict[str, str] = defaultdict(list)  # type: ignore
+    failed_jobs: list[str] = []
+    retry_job_ids: list[str] = []
+    job_id_map: dict[str, str] = {}
+    retry_counts: dict[str, int] = defaultdict(int)
 
     start_time_ns: int = time.time_ns()
     with tqdm(total=total_files, desc="Processing files", unit="file") as pbar:
@@ -468,7 +468,7 @@ def create_and_process_jobs(
             job_id_map.update(job_id_map_updates)
             retry_job_ids = []
 
-            futures_dict: Dict[Any, str] = client.fetch_job_result_async(job_ids, data_only=False)
+            futures_dict: dict[Any, str] = client.fetch_job_result_async(job_ids, data_only=False)
             for future in as_completed(futures_dict.keys()):
                 retry: bool = False
                 job_id: str = futures_dict[future]
@@ -479,7 +479,7 @@ def create_and_process_jobs(
 
                     first_page_metadata = future_response["data"][0]["metadata"]
 
-                    file_page_counts: Dict[str, int] = {
+                    file_page_counts: dict[str, int] = {
                         first_page_metadata["source_metadata"]["source_name"]: first_page_metadata["content_metadata"][
                             "hierarchy"
                         ]["page_count"]

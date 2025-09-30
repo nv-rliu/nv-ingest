@@ -2,21 +2,21 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
-from unittest.mock import patch, MagicMock, ANY
 import base64
+import unittest
+from unittest.mock import ANY
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
 import grpc
-import pytest
 
 # Import the modules under test
 import nv_ingest_api.internal.primitives.nim.model_interface.parakeet as parakeet_module
-
-from nv_ingest_api.internal.primitives.nim.model_interface.parakeet import (
-    ParakeetClient,
-    convert_to_mono_wav,
-    process_transcription_response,
-    create_audio_inference_client,
-)
+import pytest
+from nv_ingest_api.internal.primitives.nim.model_interface.parakeet import ParakeetClient
+from nv_ingest_api.internal.primitives.nim.model_interface.parakeet import convert_to_mono_wav
+from nv_ingest_api.internal.primitives.nim.model_interface.parakeet import create_audio_inference_client
+from nv_ingest_api.internal.primitives.nim.model_interface.parakeet import process_transcription_response
 
 try:
     import librosa

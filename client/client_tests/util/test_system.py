@@ -6,8 +6,8 @@ import stat
 
 import nv_ingest_client.util.system as module_under_test
 import pytest
-from nv_ingest_client.util.system import has_permissions
 from nv_ingest_client.util.system import ensure_directory_with_permissions
+from nv_ingest_client.util.system import has_permissions
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

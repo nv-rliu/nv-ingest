@@ -5,11 +5,15 @@
 import logging
 import re
 import time
-from typing import Any, Union, Tuple, Optional, Dict, Callable
+from collections.abc import Callable
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import Union
 from urllib.parse import urlparse
 
 import requests
-
 from nv_ingest_api.internal.schemas.message_brokers.response_schema import ResponseSchema
 from nv_ingest_api.util.service_clients.client_base import MessageBrokerClientBase
 
@@ -76,8 +80,8 @@ class RestClient(MessageBrokerClientBase):
         max_retries: int = 0,
         max_backoff: int = 32,
         default_connect_timeout: float = 300.0,
-        default_read_timeout: Optional[float] = None,
-        http_allocator: Optional[Callable[[], Any]] = None,
+        default_read_timeout: float | None = None,
+        http_allocator: Callable[[], Any] | None = None,
         **kwargs,
     ) -> None:
         """
@@ -113,10 +117,10 @@ class RestClient(MessageBrokerClientBase):
         self._max_retries: int = max_retries
         self._max_backoff: int = max_backoff
         self._default_connect_timeout: float = default_connect_timeout
-        self._default_read_timeout: Optional[float] = default_read_timeout
-        self._http_allocator: Optional[Callable[[], Any]] = http_allocator
+        self._default_read_timeout: float | None = default_read_timeout
+        self._http_allocator: Callable[[], Any] | None = http_allocator
 
-        self._timeout: Tuple[float, Optional[float]] = (self._default_connect_timeout, default_read_timeout)
+        self._timeout: tuple[float, float | None] = (self._default_connect_timeout, default_read_timeout)
 
         if self._http_allocator is None:
             self._client: Any = requests.Session()
@@ -171,9 +175,9 @@ class RestClient(MessageBrokerClientBase):
         """
         url_str: str = str(host).strip()
         scheme: str = "http"
-        parsed_path: Optional[str] = None
+        parsed_path: str | None = None
         effective_port: int = port
-        hostname: Optional[str] = None
+        hostname: str | None = None
 
         if re.match(r"^https?://", url_str, re.IGNORECASE):
             parsed_url = urlparse(url_str)
@@ -257,7 +261,7 @@ class RestClient(MessageBrokerClientBase):
             - response_code = 0 indicates success (HTTP status code < 400).
             - response_code = 1 indicates failure, with details in response_reason.
         """
-        ping_timeout: Tuple[float, float] = (min(self._default_connect_timeout, 5.0), 10.0)
+        ping_timeout: tuple[float, float] = (min(self._default_connect_timeout, 5.0), 10.0)
         logger.debug(f"Attempting to ping server at {self._base_url} with timeout {ping_timeout}")
         try:
             if isinstance(self._client, requests.Session):
@@ -274,9 +278,7 @@ class RestClient(MessageBrokerClientBase):
             logger.exception(error_reason)
             return ResponseSchema(response_code=1, response_reason=error_reason)
 
-    def fetch_message(
-        self, job_id: str, timeout: Optional[Union[float, Tuple[float, float]]] = None
-    ) -> "ResponseSchema":
+    def fetch_message(self, job_id: str, timeout: float | tuple[float, float] | None = None) -> "ResponseSchema":
         """
         Fetches a job result message from the server's fetch endpoint.
 
@@ -308,11 +310,11 @@ class RestClient(MessageBrokerClientBase):
 
         retries: int = 0
         url: str = f"{self._base_url}{self._fetch_endpoint}/{job_id}"
-        req_timeout: Tuple[float, Optional[float]] = self._timeout
+        req_timeout: tuple[float, float | None] = self._timeout
 
         while True:
-            result: Optional[Any] = None
-            trace_id: Optional[str] = job_id
+            result: Any | None = None
+            trace_id: str | None = job_id
             response_code: int = -1
 
             try:
@@ -374,7 +376,7 @@ class RestClient(MessageBrokerClientBase):
                 continue
             except RuntimeError as rte:
                 logger.error(f"Max retries hit fetching {job_id} after HTTP {response_code}: {rte}")
-                resp_text_snippet: Optional[str] = response_text[:500] if "response_text" in locals() else None
+                resp_text_snippet: str | None = response_text[:500] if "response_text" in locals() else None
                 return ResponseSchema(
                     response_code=1,
                     response_reason=f"Max retries after HTTP {response_code}: {rte}",
@@ -387,7 +389,7 @@ class RestClient(MessageBrokerClientBase):
         channel_name: str,
         message: str,
         for_nv_ingest: bool = False,
-        timeout: Optional[Union[float, Tuple[float, float]]] = None,
+        timeout: float | tuple[float, float] | None = None,
     ) -> "ResponseSchema":
         """
         Submits a job message payload to the server's submit endpoint.
@@ -419,17 +421,17 @@ class RestClient(MessageBrokerClientBase):
         """
         retries: int = 0
         url: str = f"{self._base_url}{self._submit_endpoint}"
-        headers: Dict[str, str] = {"Content-Type": "application/json"}
-        request_payload: Dict[str, str] = {"payload": message}
-        req_timeout: Tuple[float, Optional[float]] = self._timeout
+        headers: dict[str, str] = {"Content-Type": "application/json"}
+        request_payload: dict[str, str] = {"payload": message}
+        req_timeout: tuple[float, float | None] = self._timeout
 
         # Ensure content-type is present
         headers = {"Content-Type": "application/json"}
         headers.update(self._headers)
 
         while True:
-            result: Optional[Any] = None
-            trace_id: Optional[str] = None
+            result: Any | None = None
+            trace_id: str | None = None
             response_code: int = -1
 
             try:
@@ -488,7 +490,7 @@ class RestClient(MessageBrokerClientBase):
                 continue
             except RuntimeError as rte:
                 logger.error(f"Max retries hit submitting job after HTTP {response_code}: {rte}")
-                resp_text_snippet: Optional[str] = response_text[:500] if "response_text" in locals() else None
+                resp_text_snippet: str | None = response_text[:500] if "response_text" in locals() else None
                 return ResponseSchema(
                     response_code=1,
                     response_reason=f"Max retries after HTTP {response_code}: {rte}",

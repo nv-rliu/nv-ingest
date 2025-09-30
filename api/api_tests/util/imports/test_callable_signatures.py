@@ -2,12 +2,12 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 import inspect
-from pydantic import BaseModel
 
+import pytest
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
 from nv_ingest_api.util.imports.callable_signatures import ingest_stage_callable_signature
+from pydantic import BaseModel
 
 
 # --- Test config model ---

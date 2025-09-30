@@ -1,21 +1,18 @@
-import docker
-
+import datetime
 import glob
 import inspect
 import json
 import os
 import shutil
+import socket
+import subprocess
 import time
 import zipfile
-
 from pathlib import Path
 
-from pymilvus import MilvusClient
-
+import docker
 import pypdfium2 as pdfium
-import subprocess
-import datetime
-import socket
+from pymilvus import MilvusClient
 
 
 def check_container_running(container_name):
@@ -218,7 +215,7 @@ def kv_event_log(key, val, log_path: str = "test_results"):
     data = {}
     if os.path.exists(log_file):
         try:
-            with open(log_file, "r") as fp:
+            with open(log_file) as fp:
                 data = json.load(fp)
         except (json.JSONDecodeError, FileNotFoundError):
             data = {}

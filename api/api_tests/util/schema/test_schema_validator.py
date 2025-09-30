@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from nv_ingest_api.util.schema.schema_validator import validate_schema
 from pydantic import BaseModel
 from pydantic import Field
-
-from nv_ingest_api.util.schema.schema_validator import validate_schema
 
 
 class UserSchema(BaseModel):

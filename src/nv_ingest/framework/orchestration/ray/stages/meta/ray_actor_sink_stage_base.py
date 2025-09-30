@@ -2,12 +2,13 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import time
 from abc import ABC
-from typing import Optional, Any
+from typing import Any
+from typing import Optional
 
 import ray
-import logging
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
 
@@ -21,7 +22,7 @@ class RayActorSinkStage(RayActorStage, ABC):
     to deliver their final processed messages.
     """
 
-    def __init__(self, config: Any, log_to_stdout=False, stage_name: Optional[str] = None) -> None:
+    def __init__(self, config: Any, log_to_stdout=False, stage_name: str | None = None) -> None:
         super().__init__(config, log_to_stdout=log_to_stdout, stage_name=stage_name)
 
     @ray.method(num_returns=1)
@@ -43,7 +44,7 @@ class RayActorSinkStage(RayActorStage, ABC):
         try:
             # Loop continues as long as the actor is marked as running
             while self._running:
-                control_message: Optional[Any] = None
+                control_message: Any | None = None
                 try:
                     # Step 1: Attempt to get work from the input queue
                     control_message = self._read_input()

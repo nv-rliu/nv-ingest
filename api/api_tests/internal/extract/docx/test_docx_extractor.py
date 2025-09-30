@@ -2,21 +2,19 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
-from unittest.mock import Mock, patch
-import pandas as pd
 import base64
 import io
-
-from pydantic import BaseModel
+import unittest
+from unittest.mock import Mock
+from unittest.mock import patch
 
 # Import the module under test
 import nv_ingest_api.internal.extract.docx.docx_extractor as module_under_test
-from nv_ingest_api.internal.extract.docx.docx_extractor import (
-    _prepare_task_props,
-    _decode_and_extract_from_docx,
-    extract_primitives_from_docx_internal,
-)
+import pandas as pd
+from nv_ingest_api.internal.extract.docx.docx_extractor import _decode_and_extract_from_docx
+from nv_ingest_api.internal.extract.docx.docx_extractor import _prepare_task_props
+from nv_ingest_api.internal.extract.docx.docx_extractor import extract_primitives_from_docx_internal
+from pydantic import BaseModel
 
 # Define module path constant for patching
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"

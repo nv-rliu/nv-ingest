@@ -2,9 +2,11 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
 import nv_ingest_api.util.nim as module_under_test
+import pytest
 
 
 def test_create_inference_client_defaults_to_grpc_when_grpc_endpoint_present():

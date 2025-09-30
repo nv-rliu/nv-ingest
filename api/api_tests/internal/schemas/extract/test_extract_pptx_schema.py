@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from nv_ingest_api.internal.schemas.extract.extract_pptx_schema import PPTXConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_pptx_schema import PPTXExtractorSchema
 from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.extract.extract_pptx_schema import PPTXConfigSchema, PPTXExtractorSchema
-
 
 ### Tests for PPTXConfigSchema ###
 

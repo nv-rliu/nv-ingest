@@ -2,12 +2,15 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
+import pytest
+
+from nv_ingest.framework.orchestration.execution.options import ExecutionOptions
+from nv_ingest.framework.orchestration.execution.options import ExecutionResult
 from nv_ingest.framework.orchestration.process.lifecycle import PipelineLifecycleManager
 from nv_ingest.framework.orchestration.process.strategies import ProcessExecutionStrategy
-from nv_ingest.framework.orchestration.execution.options import ExecutionOptions, ExecutionResult
 from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
 
 
@@ -278,7 +281,8 @@ class TestPipelineLifecycleManagerIntegration:
 
     def test_manager_with_different_strategy_types(self):
         """Test manager works with different strategy implementations."""
-        from nv_ingest.framework.orchestration.process.strategies import InProcessStrategy, SubprocessStrategy
+        from nv_ingest.framework.orchestration.process.strategies import InProcessStrategy
+        from nv_ingest.framework.orchestration.process.strategies import SubprocessStrategy
 
         # Test with InProcessStrategy
         in_process_strategy = InProcessStrategy()

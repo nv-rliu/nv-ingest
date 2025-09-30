@@ -7,21 +7,22 @@ import base64
 import functools
 import io
 import logging
-from typing import Optional, Dict, Any, Union, Tuple
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import pandas as pd
-from pydantic import BaseModel
-
 from nv_ingest_api.internal.extract.docx.engines.docxreader_helpers.docx_helper import python_docx
 from nv_ingest_api.internal.schemas.extract.extract_docx_schema import DocxExtractorSchema
 from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
 
-def _prepare_task_props(
-    task_config: Union[Dict[str, Any], BaseModel], base64_row: pd.Series
-) -> (Dict[str, Any], Optional[str]):
+def _prepare_task_props(task_config: dict[str, Any] | BaseModel, base64_row: pd.Series) -> (dict[str, Any], str | None):
     """
     Prepares the task properties by converting a Pydantic model to a dictionary (if needed)
     and injecting row-specific data.
@@ -62,9 +63,9 @@ def _prepare_task_props(
 @unified_exception_handler
 def _decode_and_extract_from_docx(
     base64_row: pd.Series,
-    task_config: Union[Dict[str, Any], BaseModel],
+    task_config: dict[str, Any] | BaseModel,
     extraction_config: Any,
-    execution_trace_log: Optional[Dict[str, Any]] = None,
+    execution_trace_log: dict[str, Any] | None = None,
 ) -> Any:
     """
     Decodes base64 content from a DataFrame row and extracts data using the specified extraction method.
@@ -106,7 +107,7 @@ def _decode_and_extract_from_docx(
     doc_bytes: bytes = base64.b64decode(base64_content)
     doc_stream: io.BytesIO = io.BytesIO(doc_bytes)
 
-    extract_params: Dict[str, Any] = task_config.get("params", {})
+    extract_params: dict[str, Any] = task_config.get("params", {})
 
     # Extract required boolean flags from params.
     try:
@@ -143,10 +144,10 @@ def _decode_and_extract_from_docx(
 @unified_exception_handler
 def extract_primitives_from_docx_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Union[Dict[str, Any], BaseModel],
+    task_config: dict[str, Any] | BaseModel,
     extraction_config: DocxExtractorSchema,
-    execution_trace_log: Optional[Dict[str, Any]] = None,
-) -> Tuple[pd.DataFrame, Union[Dict, None]]:
+    execution_trace_log: dict[str, Any] | None = None,
+) -> tuple[pd.DataFrame, dict | None]:
     """
     Processes a pandas DataFrame containing DOCX files encoded in base64, extracting text from
     each document and replacing the original content with the extracted text.

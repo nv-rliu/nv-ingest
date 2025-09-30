@@ -16,24 +16,24 @@ from typing import Tuple
 
 import pandas as pd
 import pypdfium2 as pdfium
-from PIL import Image
-from pypdfium2 import PdfImage
-
-from nv_ingest_api.internal.enums.common import ContentDescriptionEnum, DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import ContentDescriptionEnum
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
-from nv_ingest_api.internal.schemas.meta.metadata_schema import NearbyObjectsSchema
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 from nv_ingest_api.internal.enums.common import TableFormatEnum
+from nv_ingest_api.internal.schemas.meta.metadata_schema import NearbyObjectsSchema
 from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
 from nv_ingest_api.util.converters import datetools
 from nv_ingest_api.util.detectors.language import detect_language
 from nv_ingest_api.util.exception_handlers.pdf import pdfium_exception_handler
+from PIL import Image
+from pypdfium2 import PdfImage
 
 
 @dataclass
 class CroppedImageWithContent:
     content: str
     image: str
-    bbox: Tuple[int, int, int, int]
+    bbox: tuple[int, int, int, int]
     max_width: int
     max_height: int
     type_string: str
@@ -43,7 +43,7 @@ class CroppedImageWithContent:
 @dataclass
 class LatexTable:
     latex: pd.DataFrame
-    bbox: Tuple[int, int, int, int]
+    bbox: tuple[int, int, int, int]
     max_width: int
     max_height: int
 
@@ -51,7 +51,7 @@ class LatexTable:
 @dataclass
 class Base64Image:
     image: str
-    bbox: Tuple[int, int, int, int]
+    bbox: tuple[int, int, int, int]
     width: int
     height: int
     max_width: int
@@ -68,7 +68,7 @@ class PDFMetadata:
     filename: str
     last_modified: str
     date_created: str
-    keywords: List[str]
+    keywords: list[str]
     source_type: str = "PDF"
 
 
@@ -120,7 +120,7 @@ def extract_pdf_metadata(doc: pdfium.PdfDocument, source_id: str) -> PDFMetadata
         date_created = datetools.datetimefrompdfmeta(date_created)
 
     # Extract keywords, defaulting to an empty list if not found
-    keywords: List[str] = doc_meta.get("Keywords", [])
+    keywords: list[str] = doc_meta.get("Keywords", [])
 
     # Create the PDFMetadata object
     metadata = PDFMetadata(
@@ -146,8 +146,8 @@ def construct_text_metadata(
     source_metadata,
     base_unified_metadata,
     delimiter=" ",
-    bbox_max_dimensions: Tuple[int, int] = (-1, -1),
-    nearby_objects: Optional[Dict[str, Any]] = None,
+    bbox_max_dimensions: tuple[int, int] = (-1, -1),
+    nearby_objects: dict[str, Any] | None = None,
 ):
     extracted_text = delimiter.join(accumulated_text)
 
@@ -199,11 +199,11 @@ def construct_image_metadata_from_base64(
     base64_image: str,
     page_idx: int,
     page_count: int,
-    source_metadata: Dict[str, Any],
-    base_unified_metadata: Dict[str, Any],
+    source_metadata: dict[str, Any],
+    base_unified_metadata: dict[str, Any],
     subtype: None | ContentTypeEnum | str = "",
     text: str = "",
-) -> List[Any]:
+) -> list[Any]:
     """
     Extracts image data from a base64-encoded image string, decodes the image to get
     its dimensions and bounding box, and constructs metadata for the image.
@@ -243,7 +243,7 @@ def construct_image_metadata_from_base64(
     bbox = (0, 0, width, height)  # Assuming the full image as the bounding box
 
     # Construct content metadata
-    content_metadata: Dict[str, Any] = {
+    content_metadata: dict[str, Any] = {
         "type": ContentTypeEnum.IMAGE,
         "description": ContentDescriptionEnum.PDF_IMAGE,
         "page_number": page_idx,
@@ -258,7 +258,7 @@ def construct_image_metadata_from_base64(
     }
 
     # Construct image metadata
-    image_metadata: Dict[str, Any] = {
+    image_metadata: dict[str, Any] = {
         "image_type": DocumentTypeEnum.PNG,
         "structured_image_type": ContentTypeEnum.UNKNOWN,
         "caption": "",
@@ -269,7 +269,7 @@ def construct_image_metadata_from_base64(
     }
 
     # Update the unified metadata with the extracted image information
-    unified_metadata: Dict[str, Any] = base_unified_metadata.copy()
+    unified_metadata: dict[str, Any] = base_unified_metadata.copy()
     unified_metadata.update(
         {
             "content": base64_image,
@@ -288,9 +288,9 @@ def construct_image_metadata_from_pdf_image(
     pdf_image: PdfImage,
     page_idx: int,
     page_count: int,
-    source_metadata: Dict[str, Any],
-    base_unified_metadata: Dict[str, Any],
-) -> List[Any]:
+    source_metadata: dict[str, Any],
+    base_unified_metadata: dict[str, Any],
+) -> list[Any]:
     """
     Extracts image data from a PdfImage object, converts it to a base64-encoded string,
     and constructs metadata for the image.
@@ -321,7 +321,7 @@ def construct_image_metadata_from_pdf_image(
     """
 
     # Construct content metadata
-    content_metadata: Dict[str, Any] = {
+    content_metadata: dict[str, Any] = {
         "type": ContentTypeEnum.IMAGE,
         "description": ContentDescriptionEnum.PDF_IMAGE,
         "page_number": page_idx,
@@ -335,7 +335,7 @@ def construct_image_metadata_from_pdf_image(
     }
 
     # Construct image metadata
-    image_metadata: Dict[str, Any] = {
+    image_metadata: dict[str, Any] = {
         "image_type": DocumentTypeEnum.PNG,
         "structured_image_type": ContentTypeEnum.UNKNOWN,
         "caption": "",
@@ -347,7 +347,7 @@ def construct_image_metadata_from_pdf_image(
     }
 
     # Update the unified metadata with the extracted image information
-    unified_metadata: Dict[str, Any] = base_unified_metadata.copy()
+    unified_metadata: dict[str, Any] = base_unified_metadata.copy()
     unified_metadata.update(
         {
             "content": pdf_image.image,
@@ -368,8 +368,8 @@ def construct_page_element_metadata(
     structured_image: CroppedImageWithContent,
     page_idx: int,
     page_count: int,
-    source_metadata: Dict,
-    base_unified_metadata: Dict,
+    source_metadata: dict,
+    base_unified_metadata: dict,
 ):
     """
     +--------------------------------+--------------------------+------------+---+

@@ -3,16 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
-from typing import Optional, Type, Union, Callable
+from collections.abc import Callable
+from typing import Optional
+from typing import Type
+from typing import Union
 
 from pydantic import BaseModel
 
 
 def find_pydantic_config_schema(
-    actor_class: Type,
-    base_class_to_find: Type,
+    actor_class: type,
+    base_class_to_find: type,
     param_name: str = "config",
-) -> Optional[Type[BaseModel]]:
+) -> type[BaseModel] | None:
     """
     Introspects a class's MRO to find a Pydantic model in its __init__ signature.
 
@@ -70,7 +73,7 @@ def find_pydantic_config_schema(
 def find_pydantic_config_schema_for_callable(
     callable_fn: Callable,
     param_name: str = "stage_config",
-) -> Optional[Type[BaseModel]]:
+) -> type[BaseModel] | None:
     """
     Introspects a callable's signature to find a Pydantic model parameter.
 
@@ -108,10 +111,10 @@ def find_pydantic_config_schema_for_callable(
 
 
 def find_pydantic_config_schema_unified(
-    target: Union[Type, Callable],
-    base_class_to_find: Optional[Type] = None,
+    target: type | Callable,
+    base_class_to_find: type | None = None,
     param_name: str = "config",
-) -> Optional[Type[BaseModel]]:
+) -> type[BaseModel] | None:
     """
     Unified function to find Pydantic schema for either classes or callables.
 

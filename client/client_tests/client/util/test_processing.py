@@ -24,7 +24,7 @@ def test_save_document_results_to_jsonl_successful_save(tmp_path, sample_doc_res
     assert jsonl_filepath.exists()
 
     loaded_data = []
-    with open(jsonl_filepath, "r", encoding="utf-8") as f:
+    with open(jsonl_filepath, encoding="utf-8") as f:
         for line in f:
             loaded_data.append(json.loads(line))
     assert loaded_data == sample_doc_response_data

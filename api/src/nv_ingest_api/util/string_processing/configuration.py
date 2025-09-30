@@ -4,12 +4,17 @@
 
 # flake8: noqa: E541
 
-from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
 import logging
 import os
-from collections import defaultdict, deque
-from typing import Dict, List, Set
+from collections import defaultdict
+from collections import deque
+from typing import Dict
+from typing import List
+from typing import Set
+
 from nv_ingest_api.util.system.hardware_info import SystemResourceProbe
+
+from nv_ingest.pipeline.pipeline_schema import PipelineConfigSchema
 
 # Optional import for graphviz
 try:

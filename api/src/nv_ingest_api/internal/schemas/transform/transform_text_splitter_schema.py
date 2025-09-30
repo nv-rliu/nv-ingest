@@ -2,13 +2,16 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from pydantic import Field, BaseModel, field_validator, ConfigDict
-
 from typing import Optional
+
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import Field
+from pydantic import field_validator
 
 
 class TextSplitterSchema(BaseModel):
-    tokenizer: Optional[str] = None
+    tokenizer: str | None = None
     chunk_size: int = Field(default=1024, gt=0)
     chunk_overlap: int = Field(default=150, ge=0)
     raise_on_failure: bool = False

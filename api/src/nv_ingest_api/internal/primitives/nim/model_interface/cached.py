@@ -6,11 +6,13 @@
 import base64
 import io
 import logging
-import PIL.Image as Image
-from typing import Any, Dict, Optional, List
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 
 import numpy as np
-
+import PIL.Image as Image
 from nv_ingest_api.internal.primitives.nim import ModelInterface
 from nv_ingest_api.util.image_processing.transforms import base64_to_numpy
 
@@ -34,7 +36,7 @@ class CachedModelInterface(ModelInterface):
         """
         return "Cached"
 
-    def prepare_data_for_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_data_for_inference(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Decode base64-encoded images into NumPy arrays, storing them in `data["image_arrays"]`.
 
@@ -73,7 +75,7 @@ class CachedModelInterface(ModelInterface):
 
         return data
 
-    def format_input(self, data: Dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
+    def format_input(self, data: dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
         """
         Format input data for the specified protocol ("grpc" or "http"), handling batched images.
         Additionally, returns batched data that coalesces the original image arrays and their dimensions
@@ -114,7 +116,7 @@ class CachedModelInterface(ModelInterface):
         image_dims = [(img.shape[0], img.shape[1]) for img in image_arrays]
 
         # Helper: chunk a list into sublists of length up to chunk_size.
-        def chunk_list(lst: list, chunk_size: int) -> List[list]:
+        def chunk_list(lst: list, chunk_size: int) -> list[list]:
             return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
         if protocol == "grpc":
@@ -145,7 +147,7 @@ class CachedModelInterface(ModelInterface):
 
         elif protocol == "http":
             logger.debug("Formatting input for HTTP Cached model (batched).")
-            content_list: List[Dict[str, Any]] = []
+            content_list: list[dict[str, Any]] = []
             for arr in image_arrays:
                 # Convert to uint8 if needed, then to PIL Image and base64-encode it.
                 if arr.dtype != np.uint8:
@@ -174,7 +176,7 @@ class CachedModelInterface(ModelInterface):
         else:
             raise ValueError("Invalid protocol specified. Must be 'grpc' or 'http'.")
 
-    def parse_output(self, response: Any, protocol: str, data: Optional[Dict[str, Any]] = None, **kwargs: Any) -> Any:
+    def parse_output(self, response: Any, protocol: str, data: dict[str, Any] | None = None, **kwargs: Any) -> Any:
         """
         Parse the output from the Cached model's inference response.
 
@@ -203,7 +205,7 @@ class CachedModelInterface(ModelInterface):
         """
         if protocol == "grpc":
             logger.debug("Parsing output from gRPC Cached model (batched).")
-            parsed: List[str] = []
+            parsed: list[str] = []
             # Assume `response` is iterable, each element a list/array of byte strings
             for single_output in response:
                 joined_str = " ".join(o.decode("utf-8") for o in single_output)
@@ -217,7 +219,7 @@ class CachedModelInterface(ModelInterface):
             if "data" not in response or not response["data"]:
                 raise RuntimeError("Unexpected response format: 'data' key missing or empty.")
 
-            contents: List[str] = []
+            contents: list[str] = []
             for item in response["data"]:
                 # Each "item" might have a "content" key
                 content = item.get("content", "")
@@ -249,7 +251,7 @@ class CachedModelInterface(ModelInterface):
         # For Cached model, we simply return what we parsed (e.g., a list of strings or a single string)
         return output
 
-    def _extract_content_from_nim_response(self, json_response: Dict[str, Any]) -> Any:
+    def _extract_content_from_nim_response(self, json_response: dict[str, Any]) -> Any:
         """
         Extract content from the JSON response of a NIM (HTTP) API request.
 

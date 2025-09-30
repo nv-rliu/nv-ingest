@@ -2,11 +2,14 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import time
-import threading
 import logging
+import threading
+import time
 from collections import defaultdict
-from typing import Tuple, Dict, Any, Optional
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 import ray
 from ray.exceptions import RayActorError
@@ -61,16 +64,16 @@ class RayStatsCollector:
 
         self._lock: threading.Lock = threading.Lock()  # Protects access to collected stats and status
         self._running: bool = False
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
 
         # Internal state holding the latest results
-        self._collected_stats: Dict[str, Dict[str, int]] = {}
+        self._collected_stats: dict[str, dict[str, int]] = {}
         self._total_inflight: int = 0
         self._last_update_time: float = 0.0
         self._last_update_successful: bool = False
 
-        self._cumulative_stats: Dict[str, Dict[str, int]] = defaultdict(lambda: {"processed": 0})
-        self.ema_memory_per_replica: Dict[str, float] = {}  # EMA of memory per replica
+        self._cumulative_stats: dict[str, dict[str, int]] = defaultdict(lambda: {"processed": 0})
+        self.ema_memory_per_replica: dict[str, float] = {}  # EMA of memory per replica
 
         logger.debug(
             f"RayStatsCollector initialized (Interval: {self._interval}s, "
@@ -80,7 +83,7 @@ class RayStatsCollector:
 
         # --- Helper function to be run in threads ---
 
-    def _get_qsize_sync(self, q_name: str, queue_actor: Any) -> Tuple[str, int]:
+    def _get_qsize_sync(self, q_name: str, queue_actor: Any) -> tuple[str, int]:
         """Safely calls qsize() on a queue actor and returns name + size/-1."""
         try:
             # Check right before calling - actor might have become invalid
@@ -154,7 +157,7 @@ class RayStatsCollector:
         else:
             logger.debug("Stats collector thread already stopped or never started.")
 
-    def get_latest_stats(self) -> Tuple[Dict[str, Dict[str, int]], int, float, bool]:
+    def get_latest_stats(self) -> tuple[dict[str, dict[str, int]], int, float, bool]:
         """
         Returns the most recently collected statistics, update time, and success status.
 
@@ -232,7 +235,7 @@ class RayStatsCollector:
 
         logger.debug("Stats collector loop finished.")
 
-    def collect_stats_now(self) -> Tuple[Dict[str, Dict[str, int]], int, bool]:
+    def collect_stats_now(self) -> tuple[dict[str, dict[str, int]], int, bool]:
         """
         Performs a single collection cycle of statistics from pipeline actors/queues.
 
@@ -247,10 +250,10 @@ class RayStatsCollector:
             return {}, 0, False
 
         overall_success = True
-        stage_stats_updates: Dict[str, Dict[str, int]] = {}
-        actor_tasks: Dict[ray.ObjectRef, Tuple[Any, str]] = {}
-        queue_sizes: Dict[str, int] = {}
-        stage_memory_samples: Dict[str, list[float]] = defaultdict(list)
+        stage_stats_updates: dict[str, dict[str, int]] = {}
+        actor_tasks: dict[ray.ObjectRef, tuple[Any, str]] = {}
+        queue_sizes: dict[str, int] = {}
+        stage_memory_samples: dict[str, list[float]] = defaultdict(list)
 
         try:
             current_stages = self._pipeline.get_stages_info()

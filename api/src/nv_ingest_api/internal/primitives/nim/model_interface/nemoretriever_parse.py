@@ -12,32 +12,26 @@ from typing import Optional
 from nv_ingest_api.internal.primitives.nim import ModelInterface
 from nv_ingest_api.util.image_processing.transforms import numpy_to_base64
 
-ACCEPTED_TEXT_CLASSES = set(
-    [
-        "Text",
-        "Title",
-        "Section-header",
-        "List-item",
-        "TOC",
-        "Bibliography",
-        "Formula",
-        "Page-header",
-        "Page-footer",
-        "Caption",
-        "Footnote",
-        "Floating-text",
-    ]
-)
-ACCEPTED_TABLE_CLASSES = set(
-    [
-        "Table",
-    ]
-)
-ACCEPTED_IMAGE_CLASSES = set(
-    [
-        "Picture",
-    ]
-)
+ACCEPTED_TEXT_CLASSES = {
+    "Text",
+    "Title",
+    "Section-header",
+    "List-item",
+    "TOC",
+    "Bibliography",
+    "Formula",
+    "Page-header",
+    "Page-footer",
+    "Caption",
+    "Footnote",
+    "Floating-text",
+}
+ACCEPTED_TABLE_CLASSES = {
+    "Table",
+}
+ACCEPTED_IMAGE_CLASSES = {
+    "Picture",
+}
 ACCEPTED_CLASSES = ACCEPTED_TEXT_CLASSES | ACCEPTED_TABLE_CLASSES | ACCEPTED_IMAGE_CLASSES
 
 logger = logging.getLogger(__name__)
@@ -69,7 +63,7 @@ class NemoRetrieverParseModelInterface(ModelInterface):
         """
         return "nemoretriever_parse"
 
-    def prepare_data_for_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_data_for_inference(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Prepare input data for inference by resizing images and storing their original shapes.
 
@@ -86,7 +80,7 @@ class NemoRetrieverParseModelInterface(ModelInterface):
 
         return data
 
-    def format_input(self, data: Dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
+    def format_input(self, data: dict[str, Any], protocol: str, max_batch_size: int, **kwargs) -> Any:
         """
         Format input data for the specified protocol.
 
@@ -111,7 +105,7 @@ class NemoRetrieverParseModelInterface(ModelInterface):
         """
 
         # Helper function: chunk a list into sublists of length <= chunk_size.
-        def chunk_list(lst: list, chunk_size: int) -> List[list]:
+        def chunk_list(lst: list, chunk_size: int) -> list[list]:
             return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
         if protocol == "grpc":
@@ -139,7 +133,7 @@ class NemoRetrieverParseModelInterface(ModelInterface):
         else:
             raise ValueError("Invalid protocol specified. Must be 'grpc' or 'http'.")
 
-    def parse_output(self, response: Any, protocol: str, data: Optional[Dict[str, Any]] = None, **kwargs) -> Any:
+    def parse_output(self, response: Any, protocol: str, data: dict[str, Any] | None = None, **kwargs) -> Any:
         """
         Parse the output from the model's inference response.
 
@@ -188,7 +182,7 @@ class NemoRetrieverParseModelInterface(ModelInterface):
 
         return output
 
-    def _prepare_nemoretriever_parse_payload(self, base64_list: List[str]) -> Dict[str, Any]:
+    def _prepare_nemoretriever_parse_payload(self, base64_list: list[str]) -> dict[str, Any]:
         messages = []
 
         for b64_img in base64_list:
@@ -212,7 +206,7 @@ class NemoRetrieverParseModelInterface(ModelInterface):
 
         return payload
 
-    def _extract_content_from_nemoretriever_parse_response(self, json_response: Dict[str, Any]) -> Any:
+    def _extract_content_from_nemoretriever_parse_response(self, json_response: dict[str, Any]) -> Any:
         """
         Extract content from the JSON response of a Deplot HTTP API request.
 

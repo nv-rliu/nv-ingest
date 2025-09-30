@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from nv_ingest_api.internal.schemas.message_brokers.message_broker_client_schema import MessageBrokerClientSchema
 from pydantic import ValidationError
 
 from nv_ingest.framework.schemas.framework_message_broker_source_schema import MessageBrokerTaskSourceSchema
-from nv_ingest_api.internal.schemas.message_brokers.message_broker_client_schema import MessageBrokerClientSchema
 
 
 def test_redis_task_source_schema_defaults():

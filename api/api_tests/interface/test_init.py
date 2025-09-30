@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
-from nv_ingest_api.interface import _build_config_from_schema, extraction_interface_relay_constructor
+from nv_ingest_api.interface import _build_config_from_schema
+from nv_ingest_api.interface import extraction_interface_relay_constructor
 from nv_ingest_api.internal.schemas.extract.extract_pdf_schema import PDFiumConfigSchema
+from pydantic import ValidationError
 
 
 @pytest.fixture

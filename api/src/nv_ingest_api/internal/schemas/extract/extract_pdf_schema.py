@@ -7,7 +7,10 @@ import logging
 from typing import Optional
 from typing import Tuple
 
-from pydantic import model_validator, ConfigDict, BaseModel, Field
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import Field
+from pydantic import model_validator
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +44,9 @@ class PDFiumConfigSchema(BaseModel):
         Pydantic config option to forbid extra fields.
     """
 
-    auth_token: Optional[str] = Field(default=None, repr=False)
+    auth_token: str | None = Field(default=None, repr=False)
 
-    yolox_endpoints: Tuple[Optional[str], Optional[str]] = (None, None)
+    yolox_endpoints: tuple[str | None, str | None] = (None, None)
     yolox_infer_protocol: str = ""
 
     nim_batch_size: int = 4
@@ -123,12 +126,12 @@ class NemoRetrieverParseConfigSchema(BaseModel):
         Pydantic config option to forbid extra fields.
     """
 
-    auth_token: Optional[str] = Field(default=None, repr=False)
+    auth_token: str | None = Field(default=None, repr=False)
 
-    yolox_endpoints: Tuple[Optional[str], Optional[str]] = (None, None)
+    yolox_endpoints: tuple[str | None, str | None] = (None, None)
     yolox_infer_protocol: str = ""
 
-    nemoretriever_parse_endpoints: Tuple[Optional[str], Optional[str]] = (None, None)
+    nemoretriever_parse_endpoints: tuple[str | None, str | None] = (None, None)
     nemoretriever_parse_infer_protocol: str = ""
 
     nemoretriever_parse_model_name: str = "nvidia/nemoretriever-parse"
@@ -205,8 +208,8 @@ class PDFExtractorSchema(BaseModel):
     n_workers: int = 16
     raise_on_failure: bool = False
 
-    pdfium_config: Optional[PDFiumConfigSchema] = None
-    nemoretriever_parse_config: Optional[NemoRetrieverParseConfigSchema] = None
+    pdfium_config: PDFiumConfigSchema | None = None
+    nemoretriever_parse_config: NemoRetrieverParseConfigSchema | None = None
 
     model_config = ConfigDict(extra="forbid")
 

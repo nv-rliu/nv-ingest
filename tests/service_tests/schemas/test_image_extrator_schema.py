@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageConfigSchema
+from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageExtractorSchema
 from pydantic import ValidationError
-
-from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageConfigSchema, ImageExtractorSchema
 
 
 def test_image_config_schema_valid():

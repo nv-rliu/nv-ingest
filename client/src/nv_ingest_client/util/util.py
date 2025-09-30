@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import glob
+import heapq
 import inspect
 import logging
+import math
 import os
 import time
 import typing
-import math
-import heapq
 from typing import Dict
 from typing import List
 
@@ -84,7 +84,7 @@ def _process_file(file_path: str):
     }
 
 
-def load_data_from_path(path: str) -> Dict:
+def load_data_from_path(path: str) -> dict:
     """
     Loads data from a specified file path, preparing it for processing.
 
@@ -129,7 +129,7 @@ def load_data_from_path(path: str) -> Dict:
     return result
 
 
-def check_ingest_result(json_payload: Dict) -> typing.Tuple[bool, str]:
+def check_ingest_result(json_payload: dict) -> tuple[bool, str]:
     """
     Check the ingest result to determine if the process failed and extract a description.
 
@@ -282,7 +282,7 @@ def balanced_groups_flat_order(
     return balanced_ls
 
 
-def create_job_specs_for_batch(files_batch: List[str]) -> List[JobSpec]:
+def create_job_specs_for_batch(files_batch: list[str]) -> list[JobSpec]:
     """
     Create and job specifications (JobSpecs) for a batch of files.
     This function takes a batch of files, processes each file to extract its content and type,
@@ -385,7 +385,7 @@ def filter_function_kwargs(func, **kwargs):
     return args_dict
 
 
-def get_content(results: List[any]):
+def get_content(results: list[any]):
     """
     Extracts the text and table text content from the results of an NV-Ingest python client job
 

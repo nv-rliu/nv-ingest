@@ -5,7 +5,6 @@
 import pandas as pd
 import pytest
 from minio import Minio
-
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
 

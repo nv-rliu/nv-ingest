@@ -11,10 +11,10 @@ import time
 from typing import Optional
 
 import click
-
 from nv_ingest_client.client import Ingestor
-
-from utils import clean_spill, kv_event_log, _load_env_file_from_same_directory
+from utils import _load_env_file_from_same_directory
+from utils import clean_spill
+from utils import kv_event_log
 
 
 @click.command(
@@ -147,7 +147,7 @@ def main(
     extract_images: bool,
     text_depth: str,
     table_output_format: str,
-    model_name: Optional[str],
+    model_name: str | None,
     spill_path: str,
     pre_clean_spill: bool,
     post_clean_spill: bool,

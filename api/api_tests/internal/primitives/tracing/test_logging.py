@@ -2,15 +2,19 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 import uuid
-from unittest.mock import Mock, patch
 from datetime import datetime
+from unittest.mock import Mock
+from unittest.mock import patch
+
+import nv_ingest_api.internal.primitives.tracing.logging as module_under_test
+import pytest
 
 # Import the functions and classes to test
 from nv_ingest_api.internal.primitives.ingest_control_message import IngestControlMessage
-import nv_ingest_api.internal.primitives.tracing.logging as module_under_test
-from nv_ingest_api.internal.primitives.tracing.logging import annotate_cm, TaskResultStatus, annotate_task_result
+from nv_ingest_api.internal.primitives.tracing.logging import TaskResultStatus
+from nv_ingest_api.internal.primitives.tracing.logging import annotate_cm
+from nv_ingest_api.internal.primitives.tracing.logging import annotate_task_result
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

@@ -8,17 +8,15 @@ from enum import Enum
 
 # Import the enums - assuming they're in a module called "enums"
 # Replace this import with the actual module name where your enums are defined
-from nv_ingest_api.internal.enums.common import (
-    AccessLevelEnum,
-    ContentDescriptionEnum,
-    ContentTypeEnum,
-    DocumentTypeEnum,
-    LanguageEnum,
-    StatusEnum,
-    TableFormatEnum,
-    TaskTypeEnum,
-    TextTypeEnum,
-)
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
+from nv_ingest_api.internal.enums.common import ContentDescriptionEnum
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import LanguageEnum
+from nv_ingest_api.internal.enums.common import StatusEnum
+from nv_ingest_api.internal.enums.common import TableFormatEnum
+from nv_ingest_api.internal.enums.common import TaskTypeEnum
+from nv_ingest_api.internal.enums.common import TextTypeEnum
 
 
 class TestAccessLevelEnum(unittest.TestCase):

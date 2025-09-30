@@ -4,10 +4,10 @@
 
 
 import logging
+from collections.abc import Callable
 from datetime import datetime
 from datetime import timezone
 from typing import Any
-from typing import Callable
 from typing import Dict
 
 from nv_ingest_api.util.converters import datetools
@@ -15,7 +15,7 @@ from nv_ingest_api.util.converters import datetools
 logger = logging.getLogger(__name__)
 
 
-def datetools_exception_handler(func: Callable, **kwargs: Dict[str, Any]) -> Callable:
+def datetools_exception_handler(func: Callable, **kwargs: dict[str, Any]) -> Callable:
     """
     A decorator that handles exceptions for date-related functions.
 

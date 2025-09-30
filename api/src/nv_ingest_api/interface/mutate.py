@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Union, Dict
+from typing import Dict
+from typing import Union
 
 import pandas as pd
-
 from nv_ingest_api.internal.mutate.deduplicate import deduplicate_images_internal
 from nv_ingest_api.internal.mutate.filter import filter_images_internal
 from nv_ingest_api.internal.schemas.mutate.mutate_image_dedup_schema import ImageDedupSchema
@@ -21,8 +21,8 @@ def filter_images(
     *,
     df_ledger: pd.DataFrame,
     min_size: int = 128,
-    max_aspect_ratio: Union[float, int] = 5.0,
-    min_aspect_ratio: Union[float, int] = 2.0,
+    max_aspect_ratio: float | int = 5.0,
+    min_aspect_ratio: float | int = 2.0,
 ) -> pd.DataFrame:
     """
     Apply an image filter to the ledger DataFrame based on size and aspect ratio criteria.
@@ -57,7 +57,7 @@ def filter_images(
         If an error occurs during the filtering process.
     """
 
-    task_params: Dict[str, Union[int, float, bool]] = {
+    task_params: dict[str, int | float | bool] = {
         "min_size": min_size,
         "max_aspect_ratio": max_aspect_ratio,
         "min_aspect_ratio": min_aspect_ratio,
@@ -139,7 +139,7 @@ def deduplicate_images(
     >>> dedup_df = deduplicate_images(df_ledger=df, hash_algorithm="md5")
     >>> dedup_df
     """
-    task_config: Dict[str, Union[int, float, bool, str]] = {
+    task_config: dict[str, int | float | bool | str] = {
         "hash_algorithm": hash_algorithm,
     }
     mutate_config: ImageDedupSchema = ImageDedupSchema()

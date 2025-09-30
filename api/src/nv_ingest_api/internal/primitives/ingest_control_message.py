@@ -3,14 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import copy
-import re
-from datetime import datetime
-from collections import defaultdict
-from typing import Any, Dict, Generator, List, Optional, Union
-
 import logging
-import pandas as pd
+import re
+from collections import defaultdict
+from collections.abc import Generator
+from datetime import datetime
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
+import pandas as pd
 from nv_ingest_api.internal.primitives.control_message_task import ControlMessageTask
 
 logger = logging.getLogger(__name__)
@@ -112,11 +116,11 @@ class IngestControlMessage:
         """
         Initialize a new IngestControlMessage instance.
         """
-        self._tasks: Dict[str, List[ControlMessageTask]] = defaultdict(list)
-        self._metadata: Dict[str, Any] = {}
-        self._timestamps: Dict[str, datetime] = {}
-        self._payload: Optional[pd.DataFrame] = None
-        self._config: Dict[str, Any] = {}
+        self._tasks: dict[str, list[ControlMessageTask]] = defaultdict(list)
+        self._metadata: dict[str, Any] = {}
+        self._timestamps: dict[str, datetime] = {}
+        self._payload: pd.DataFrame | None = None
+        self._config: dict[str, Any] = {}
 
     def add_task(self, task: ControlMessageTask):
         """
@@ -150,7 +154,7 @@ class IngestControlMessage:
         else:
             raise RuntimeError(f"Attempted to remove non-existent task with id: {task_id}")
 
-    def config(self, config: Dict[str, Any] = None) -> Dict[str, Any]:
+    def config(self, config: dict[str, Any] = None) -> dict[str, Any]:
         """
         Get or update the control message configuration.
 
@@ -177,7 +181,7 @@ class IngestControlMessage:
         """
         return copy.deepcopy(self)
 
-    def get_metadata(self, key: Union[str, re.Pattern] = None, default_value: Any = None) -> Any:
+    def get_metadata(self, key: str | re.Pattern = None, default_value: Any = None) -> Any:
         """
         Retrieve metadata. If 'key' is None, returns a copy of all metadata.
 
@@ -206,7 +210,7 @@ class IngestControlMessage:
         # Otherwise, perform an exact lookup.
         return self._metadata.get(key, default_value)
 
-    def has_metadata(self, key: Union[str, re.Pattern]) -> bool:
+    def has_metadata(self, key: str | re.Pattern) -> bool:
         """
         Check if a metadata key exists.
 
@@ -237,7 +241,7 @@ class IngestControlMessage:
         """
         self._metadata[key] = value
 
-    def filter_timestamp(self, regex_filter: str) -> Dict[str, datetime]:
+    def filter_timestamp(self, regex_filter: str) -> dict[str, datetime]:
         """
         Retrieve timestamps whose keys match the regex filter.
         """
@@ -260,7 +264,7 @@ class IngestControlMessage:
             raise KeyError(f"Timestamp for key '{key}' does not exist.")
         return None
 
-    def get_timestamps(self) -> Dict[str, datetime]:
+    def get_timestamps(self) -> dict[str, datetime]:
         """
         Retrieve all timestamps.
         """

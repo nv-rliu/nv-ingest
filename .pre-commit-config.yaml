@@ -50,4 +50,4 @@ repos:
     hooks:
       - id: codespell
         args: ["-L", "aks,crate,nd,ot,ba"]  # extend ignore list as needed
-        exclude: (^docs/|^data/)
+        exclude: (^docs/|^data/|^ci/data/)

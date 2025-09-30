@@ -1,11 +1,12 @@
-import pytest
+import queue
+import threading
 import time
+
+import pytest
 from nv_ingest_api.util.message_brokers.simple_message_broker import SimpleClient
 from nv_ingest_client.client import Ingestor
 from nv_ingest_client.client import NvIngestClient
 from tests.integration.utilities_for_test import canonicalize_markdown_table
-import threading
-import queue
 
 
 def _run_with_timeout(callable_fn, timeout_s: float):

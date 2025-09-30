@@ -19,9 +19,12 @@
 
 
 import logging
-from typing import IO, Optional, List
+from typing import IO
+from typing import List
+from typing import Optional
 
-from nv_ingest_api.internal.enums.common import AccessLevelEnum, DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import AccessLevelEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 from nv_ingest_api.internal.enums.common import TextTypeEnum
 from nv_ingest_api.internal.extract.docx.engines.docxreader_helpers.docxreader import DocxReader
 
@@ -37,7 +40,7 @@ def python_docx(
     extract_tables: bool,
     extract_charts: bool,
     extraction_config: dict,
-    execution_trace_log: Optional[List] = None,
+    execution_trace_log: list | None = None,
 ):
     """
     Helper function that use python-docx to extract text from a bytestream document

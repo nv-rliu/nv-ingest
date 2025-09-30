@@ -3,16 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Dict, Optional, List, Any
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 
 import pandas as pd
-
 from nv_ingest_api.internal.enums.common import TaskTypeEnum
-from nv_ingest_api.internal.schemas.meta.metadata_schema import (
-    ContentTypeEnum,
-    InfoMessageMetadataSchema,
-    StatusEnum,
-)
+from nv_ingest_api.internal.schemas.meta.metadata_schema import ContentTypeEnum
+from nv_ingest_api.internal.schemas.meta.metadata_schema import InfoMessageMetadataSchema
+from nv_ingest_api.internal.schemas.meta.metadata_schema import StatusEnum
 from nv_ingest_api.internal.schemas.transform.transform_image_filter_schema import ImageFilterSchema
 from nv_ingest_api.util.schema.schema_validator import validate_schema
 
@@ -35,9 +35,9 @@ def _calculate_aspect_ratio(x):
 
 def filter_images_internal(
     df_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     mutate_config: ImageFilterSchema = ImageFilterSchema(),
-    execution_trace_log: Optional[List[Any]] = None,
+    execution_trace_log: list[Any] | None = None,
 ) -> pd.DataFrame:
     """
     Apply an image filtering operation to a DataFrame based on average image size and aspect ratio.

@@ -7,7 +7,8 @@ import logging
 from typing import Optional
 from typing import Tuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
 from pydantic import root_validator
 
 logger = logging.getLogger(__name__)
@@ -42,13 +43,13 @@ class AudioConfigSchema(BaseModel):
         Pydantic config option to forbid extra fields.
     """
 
-    auth_token: Optional[str] = Field(default=None, repr=False)
-    audio_endpoints: Tuple[Optional[str], Optional[str]] = (None, None)
-    audio_infer_protocol: Optional[str] = None
-    function_id: Optional[str] = None
-    use_ssl: Optional[bool] = None
-    ssl_cert: Optional[str] = Field(default=None, repr=False)
-    segment_audio: Optional[bool] = None
+    auth_token: str | None = Field(default=None, repr=False)
+    audio_endpoints: tuple[str | None, str | None] = (None, None)
+    audio_infer_protocol: str | None = None
+    function_id: str | None = None
+    use_ssl: bool | None = None
+    ssl_cert: str | None = Field(default=None, repr=False)
+    segment_audio: bool | None = None
 
     @root_validator(pre=True)
     def validate_endpoints(cls, values):
@@ -125,7 +126,7 @@ class AudioExtractorSchema(BaseModel):
     n_workers: int = 16
     raise_on_failure: bool = False
 
-    audio_extraction_config: Optional[AudioConfigSchema] = None
+    audio_extraction_config: AudioConfigSchema | None = None
 
     class Config:
         extra = "forbid"

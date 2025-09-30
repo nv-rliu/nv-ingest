@@ -1,4 +1,3 @@
-import click
 import json
 import os
 import subprocess
@@ -6,6 +5,7 @@ import sys
 import time
 from datetime import datetime
 
+import click
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 COMPOSE_FILE = os.path.join(REPO_ROOT, "docker-compose.yaml")

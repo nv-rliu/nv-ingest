@@ -2,10 +2,14 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
-from nv_ingest_api.internal.primitives.nim import ModelInterface
 import numpy as np
+from nv_ingest_api.internal.primitives.nim import ModelInterface
 
 
 class EmbeddingModelInterface(ModelInterface):
@@ -20,7 +24,7 @@ class EmbeddingModelInterface(ModelInterface):
         """
         return "Embedding"
 
-    def prepare_data_for_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_data_for_inference(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Prepare input data for embedding inference. Returns a list of strings representing the text to be embedded.
         """
@@ -31,8 +35,8 @@ class EmbeddingModelInterface(ModelInterface):
         return {"prompts": data["prompts"]}
 
     def format_input(
-        self, data: Dict[str, Any], protocol: str, max_batch_size: int, **kwargs
-    ) -> Tuple[List[Any], List[Dict[str, Any]]]:
+        self, data: dict[str, Any], protocol: str, max_batch_size: int, **kwargs
+    ) -> tuple[list[Any], list[dict[str, Any]]]:
         """
         Format the input payload for the embedding endpoint. This method constructs one payload per batch,
         where each payload includes a list of text prompts.
@@ -84,7 +88,7 @@ class EmbeddingModelInterface(ModelInterface):
                 batch_data_list.append({"prompts": batch})
         return payloads, batch_data_list
 
-    def parse_output(self, response: Any, protocol: str, data: Optional[Dict[str, Any]] = None, **kwargs) -> Any:
+    def parse_output(self, response: Any, protocol: str, data: dict[str, Any] | None = None, **kwargs) -> Any:
         """
         Parse the HTTP response from the embedding endpoint. Expects a response structure with a "data" key.
 

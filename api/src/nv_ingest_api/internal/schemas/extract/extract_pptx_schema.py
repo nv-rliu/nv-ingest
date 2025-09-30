@@ -7,7 +7,10 @@ import logging
 from typing import Optional
 from typing import Tuple
 
-from pydantic import model_validator, ConfigDict, BaseModel, Field
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import Field
+from pydantic import model_validator
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +44,9 @@ class PPTXConfigSchema(BaseModel):
         Pydantic config option to forbid extra fields.
     """
 
-    auth_token: Optional[str] = Field(default=None, repr=False)
+    auth_token: str | None = Field(default=None, repr=False)
 
-    yolox_endpoints: Tuple[Optional[str], Optional[str]] = (None, None)
+    yolox_endpoints: tuple[str | None, str | None] = (None, None)
     yolox_infer_protocol: str = ""
 
     @model_validator(mode="before")
@@ -120,5 +123,5 @@ class PPTXExtractorSchema(BaseModel):
     n_workers: int = 16
     raise_on_failure: bool = False
 
-    pptx_extraction_config: Optional[PPTXConfigSchema] = None
+    pptx_extraction_config: PPTXConfigSchema | None = None
     model_config = ConfigDict(extra="forbid")

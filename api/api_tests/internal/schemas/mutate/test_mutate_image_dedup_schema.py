@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.schemas.mutate.mutate_image_dedup_schema import ImageDedupSchema
+from pydantic import ValidationError
 
 
 def test_image_dedup_schema_defaults():

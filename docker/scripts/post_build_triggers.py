@@ -1,4 +1,5 @@
 import os
+
 from transformers import AutoTokenizer
 
 if os.getenv("DOWNLOAD_LLAMA_TOKENIZER") == "True":

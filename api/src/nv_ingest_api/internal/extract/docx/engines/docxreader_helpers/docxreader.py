@@ -24,11 +24,12 @@ import io
 import logging
 import re
 import uuid
-from typing import Dict, Optional, Union
-from typing import List
-from typing import Tuple
-
 from collections import defaultdict
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import pandas as pd
 from docx import Document
@@ -41,22 +42,19 @@ from docx.table import _Cell
 from docx.text.hyperlink import Hyperlink
 from docx.text.paragraph import Paragraph
 from docx.text.run import Run
-from pandas import DataFrame
-
-from nv_ingest_api.internal.enums.common import ContentDescriptionEnum, DocumentTypeEnum
-from nv_ingest_api.internal.extract.image.image_helpers.common import (
-    load_and_preprocess_image,
-    extract_page_elements_from_images,
-)
+from nv_ingest_api.internal.enums.common import ContentDescriptionEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
+from nv_ingest_api.internal.extract.image.image_helpers.common import extract_page_elements_from_images
+from nv_ingest_api.internal.extract.image.image_helpers.common import load_and_preprocess_image
 from nv_ingest_api.internal.schemas.extract.extract_image_schema import ImageConfigSchema
-from nv_ingest_api.internal.schemas.meta.metadata_schema import (
-    ContentTypeEnum,
-    validate_metadata,
-    TextTypeEnum,
-)
+from nv_ingest_api.internal.schemas.meta.metadata_schema import ContentTypeEnum
+from nv_ingest_api.internal.schemas.meta.metadata_schema import TextTypeEnum
+from nv_ingest_api.internal.schemas.meta.metadata_schema import validate_metadata
 from nv_ingest_api.util.converters import bytetools
 from nv_ingest_api.util.detectors.language import detect_language
-from nv_ingest_api.util.metadata.aggregators import construct_table_and_chart_metadata, CroppedImageWithContent
+from nv_ingest_api.util.metadata.aggregators import CroppedImageWithContent
+from nv_ingest_api.util.metadata.aggregators import construct_table_and_chart_metadata
+from pandas import DataFrame
 
 PARAGRAPH_FORMATS = ["text", "markdown"]
 TABLE_FORMATS = ["markdown", "markdown_light", "csv", "tag"]
@@ -69,7 +67,7 @@ class DocxProperties:
     Parse document core properties and update metadata
     """
 
-    def __init__(self, document: Document, source_metadata: Dict):
+    def __init__(self, document: Document, source_metadata: dict):
         """
         Copy over some of the docx core properties
         """
@@ -155,13 +153,13 @@ class DocxReader:
     def __init__(
         self,
         docx,
-        source_metadata: Dict,
+        source_metadata: dict,
         paragraph_format: str = "markdown",
         table_format: str = "markdown",
         handle_text_styles: bool = True,
         image_tag="<image {}>",
         table_tag="<table {}>",
-        extraction_config: Dict = None,
+        extraction_config: dict = None,
     ):
         if paragraph_format not in PARAGRAPH_FORMATS:
             raise ValueError(f"Unknown paragraph format {paragraph_format}. Supported formats are: {PARAGRAPH_FORMATS}")
@@ -258,7 +256,7 @@ class DocxReader:
 
         return text
 
-    def format_paragraph(self, paragraph: "Paragraph") -> Tuple[str, List["Image"]]:
+    def format_paragraph(self, paragraph: "Paragraph") -> tuple[str, list["Image"]]:
         """
         Format a paragraph into styled text and extract associated images.
 
@@ -339,7 +337,7 @@ class DocxReader:
             logger.error("format_paragraph: failed for paragraph: %s", e)
             return "", []
 
-    def format_cell(self, cell: "_Cell") -> Tuple[str, List["Image"]]:
+    def format_cell(self, cell: "_Cell") -> tuple[str, list["Image"]]:
         """
         Format a table cell into Markdown text and extract associated images.
 
@@ -373,7 +371,7 @@ class DocxReader:
             logger.error("format_cell: failed entirely: %s", e)
             return "", []
 
-    def format_table(self, table: "Table") -> Tuple[Optional[str], List["Image"], DataFrame]:
+    def format_table(self, table: "Table") -> tuple[str | None, list["Image"], DataFrame]:
         """
         Format a table into text, extract images, and represent it as a DataFrame.
 
@@ -489,8 +487,8 @@ class DocxReader:
         return content_type.split("/")[1]
 
     def _construct_image_metadata(
-        self, para_idx: int, caption: str, base_unified_metadata: Dict, base64_img: str
-    ) -> List[Union[str, dict]]:
+        self, para_idx: int, caption: str, base_unified_metadata: dict, base64_img: str
+    ) -> list[str | dict]:
         """
         Build metadata for an image in a DOCX file.
 
@@ -568,7 +566,7 @@ class DocxReader:
         ]
 
     def _extract_para_images(
-        self, images: List["Image"], para_idx: int, caption: str, base_unified_metadata: Dict
+        self, images: list["Image"], para_idx: int, caption: str, base_unified_metadata: dict
     ) -> None:
         """
         Collect images from a paragraph and store them for metadata construction.
@@ -597,8 +595,8 @@ class DocxReader:
             self._pending_images.append((image, para_idx, caption, base_unified_metadata))
 
     def _construct_text_metadata(
-        self, accumulated_text: List[str], para_idx: int, text_depth: "TextTypeEnum", base_unified_metadata: Dict
-    ) -> List[Union[str, dict]]:
+        self, accumulated_text: list[str], para_idx: int, text_depth: "TextTypeEnum", base_unified_metadata: dict
+    ) -> list[str | dict]:
         """
         Build metadata for text content in a DOCX file.
 
@@ -666,7 +664,7 @@ class DocxReader:
         self,
         paragraph,
         paragraph_text,
-        base_unified_metadata: Dict,
+        base_unified_metadata: dict,
         text_depth: str,
         para_idx: int,
     ) -> None:
@@ -801,7 +799,7 @@ class DocxReader:
     def _extract_table_data(
         self,
         child,
-        base_unified_metadata: Dict,
+        base_unified_metadata: dict,
     ) -> None:
         """
         Process the text and images in a DOCX table.
@@ -850,7 +848,7 @@ class DocxReader:
 
     def extract_data(
         self,
-        base_unified_metadata: Dict,
+        base_unified_metadata: dict,
         text_depth: "TextTypeEnum",
         extract_text: bool,
         extract_charts: bool,

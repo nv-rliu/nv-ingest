@@ -3,12 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from types import SimpleNamespace
-
-from unittest.mock import patch, MagicMock
-
-import pandas as pd
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import nv_ingest_api.internal.transform.split_text as module_under_test
+import pandas as pd
 
 MODULE_UNDER_TEST = f"{module_under_test.__name__}"
 

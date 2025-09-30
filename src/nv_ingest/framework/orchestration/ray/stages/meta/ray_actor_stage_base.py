@@ -3,20 +3,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import gc
+import logging
+import os
 import sys
 import threading
 import time
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
-import os
-import psutil
+from abc import ABC
+from abc import abstractmethod
+from typing import Any
+from typing import Dict
+from typing import Optional
 
+import psutil
+import pyarrow as pa
 import ray
 import ray.actor
 from pydantic import BaseModel
-import logging
-import pyarrow as pa
-
 from ray import get_runtime_context
 
 
@@ -85,7 +87,7 @@ class RayActorStage(ABC):
         Lock to protect access to shutdown-related state (`_shutting_down`).
     """
 
-    def __init__(self, config: BaseModel, stage_name: Optional[str] = None, log_to_stdout=False) -> None:
+    def __init__(self, config: BaseModel, stage_name: str | None = None, log_to_stdout=False) -> None:
         """
         Initialize the RayActorStage.
 
@@ -101,14 +103,14 @@ class RayActorStage(ABC):
             Whether to enable stdout logging.
         """
         self.config: BaseModel = config
-        self.stage_name: Optional[str] = stage_name
-        self._input_queue: Optional[Any] = None  # Ray Queue handle expected
-        self._output_queue: Optional[Any] = None  # Ray Queue handle expected
+        self.stage_name: str | None = stage_name
+        self._input_queue: Any | None = None  # Ray Queue handle expected
+        self._output_queue: Any | None = None  # Ray Queue handle expected
         self._running: bool = False
         self._active_processing: bool = False
 
         # --- Core statistics ---
-        self.stats: Dict[str, int] = {
+        self.stats: dict[str, int] = {
             "active_processing": False,
             "delta_processed": 0,
             "elapsed": 0.0,
@@ -120,14 +122,14 @@ class RayActorStage(ABC):
             "successful_queue_writes": 0,
             "queue_full": 0,
         }
-        self.start_time: Optional[float] = None
+        self.start_time: float | None = None
 
         # --- State for processing rate calculation ---
         self._last_processed_count: int = 0
-        self._last_stats_time: Optional[float] = None
+        self._last_stats_time: float | None = None
 
         # --- Threading and shutdown management ---
-        self._processing_thread: Optional[threading.Thread] = None
+        self._processing_thread: threading.Thread | None = None
         self._shutting_down: bool = False
 
         # Lock specifically for coordinating the final shutdown sequence (_request_actor_exit)
@@ -167,7 +169,7 @@ class RayActorStage(ABC):
             # Fallback if running outside a Ray actor context or if context fails
             return "Actor (ID unavailable)"
 
-    def _read_input(self) -> Optional[Any]:
+    def _read_input(self) -> Any | None:
         """
         Reads an item from the input queue with a timeout.
 
@@ -199,7 +201,7 @@ class RayActorStage(ABC):
                 raise ValueError("Input queue not set while running")
             return None  # Should not happen if self._running is False, but defensive check
 
-        item: Optional[Any] = None
+        item: Any | None = None
         try:
             item = self._input_queue.get(timeout=1.0)
 
@@ -227,7 +229,7 @@ class RayActorStage(ABC):
             return None
 
     @abstractmethod
-    def on_data(self, control_message: Any) -> Optional[Any]:
+    def on_data(self, control_message: Any) -> Any | None:
         """
         Process a single data item (control message).
 
@@ -305,7 +307,7 @@ class RayActorStage(ABC):
 
         try:
             while self._running:
-                control_message: Optional[Any] = None
+                control_message: Any | None = None
                 try:
                     # Step 1: Attempt to get work from the input queue.
                     # _read_input() is expected to handle its own timeouts and
@@ -498,7 +500,7 @@ class RayActorStage(ABC):
             return 0.0
 
     @ray.method(num_returns=1)
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """
         Retrieves performance statistics for the actor.
 

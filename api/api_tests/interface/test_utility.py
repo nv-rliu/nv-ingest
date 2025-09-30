@@ -9,15 +9,15 @@ from typing import List
 
 import pandas as pd
 import pytest
+from nv_ingest_api.interface.utility import DOCUMENT_TO_CONTENT_MAPPING
+from nv_ingest_api.interface.utility import build_dataframe_from_files
+from nv_ingest_api.interface.utility import create_source_metadata
+from nv_ingest_api.interface.utility import read_file_as_base64
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 
-from .. import get_project_root, find_root_by_pattern
-from nv_ingest_api.interface.utility import (
-    read_file_as_base64,
-    create_source_metadata,
-    build_dataframe_from_files,
-    DOCUMENT_TO_CONTENT_MAPPING,
-)
-from nv_ingest_api.internal.enums.common import DocumentTypeEnum, ContentTypeEnum
+from .. import find_root_by_pattern
+from .. import get_project_root
 
 
 # ------------------------------------------------------------------------------
@@ -104,10 +104,10 @@ def test_build_dataframe_from_files():
         (DocumentTypeEnum.TIFF, "./data/multimodal_test.tiff"),
         (DocumentTypeEnum.BMP, "./data/multimodal_test.bmp"),
     ]
-    file_paths: List[str] = []
-    source_names: List[str] = []
-    source_ids: List[str] = []
-    document_types: List[str] = []
+    file_paths: list[str] = []
+    source_names: list[str] = []
+    source_ids: list[str] = []
+    document_types: list[str] = []
 
     # Try to determine the project root.
     project_root = get_project_root(__file__)

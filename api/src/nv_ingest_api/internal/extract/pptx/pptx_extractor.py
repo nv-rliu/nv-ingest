@@ -6,20 +6,23 @@ import base64
 import functools
 import io
 import logging
-from typing import Any, Optional, Dict, Union, Tuple
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import pandas as pd
-from pydantic import BaseModel
-
 from nv_ingest_api.internal.extract.pptx.engines.pptx_helper import python_pptx
 from nv_ingest_api.util.exception_handlers.decorators import unified_exception_handler
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
 
 def _prepare_task_properties(
-    base64_row: pd.Series, task_props: Union[Dict[str, Any], BaseModel]
-) -> Tuple[Dict[str, Any], Optional[str]]:
+    base64_row: pd.Series, task_props: dict[str, Any] | BaseModel
+) -> tuple[dict[str, Any], str | None]:
     """
     Prepare and return the task properties dictionary and source identifier from a DataFrame row.
 
@@ -62,9 +65,9 @@ def _prepare_task_properties(
 @unified_exception_handler
 def _decode_and_extract_from_pptx(
     base64_row: pd.Series,
-    task_props: Union[Dict[str, Any], BaseModel],
+    task_props: dict[str, Any] | BaseModel,
     extraction_config: Any,
-    trace_info: Dict[str, Any],
+    trace_info: dict[str, Any],
 ) -> Any:
     """
     Decode base64-encoded PPTX content from a DataFrame row and extract data using the specified method.
@@ -98,7 +101,7 @@ def _decode_and_extract_from_pptx(
     pptx_stream: io.BytesIO = io.BytesIO(pptx_bytes)
 
     # Retrieve extraction parameters (and remove boolean flags as they are consumed).
-    extract_params: Dict[str, Any] = prepared_task_props.get("params", {})
+    extract_params: dict[str, Any] = prepared_task_props.get("params", {})
     extract_text: bool = extract_params.pop("extract_text", False)
     extract_images: bool = extract_params.pop("extract_images", False)
     extract_tables: bool = extract_params.pop("extract_tables", False)
@@ -129,9 +132,9 @@ def _decode_and_extract_from_pptx(
 @unified_exception_handler
 def extract_primitives_from_pptx_internal(
     df_extraction_ledger: pd.DataFrame,
-    task_config: Union[Dict[str, Any], BaseModel],
+    task_config: dict[str, Any] | BaseModel,
     extraction_config: Any,  # Assuming PPTXExtractorSchema or similar type
-    execution_trace_log: Optional[Dict[str, Any]] = None,
+    execution_trace_log: dict[str, Any] | None = None,
 ) -> pd.DataFrame:
     """
     Process a DataFrame containing base64-encoded PPTX files and extract primitive data.

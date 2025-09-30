@@ -14,7 +14,6 @@ from io import BytesIO
 from typing import Tuple
 
 import charset_normalizer
-
 from nv_ingest_api.internal.enums.common import DocumentTypeEnum
 
 logger = logging.getLogger(__name__)
@@ -99,7 +98,7 @@ def serialize_to_base64(file_stream: BytesIO) -> str:
     try:
         content = base64.b64encode(file_stream.read()).decode("utf-8")
         return content
-    except IOError:
+    except OSError:
         logger.error("Failed to read PDF file from BytesIO object")
         raise
 
@@ -113,12 +112,12 @@ def detect_encoding_and_read_text_file(file_stream: BytesIO) -> str:
 
         content = raw_data.decode(encoding)
         return content
-    except IOError:
+    except OSError:
         logger.error("Failed to read text file from BytesIO object")
         raise
 
 
-def extract_file_content(path: str) -> Tuple[str, DocumentTypeEnum]:
+def extract_file_content(path: str) -> tuple[str, DocumentTypeEnum]:
     """Extracts content from a file, supporting different formats."""
     document_type = get_or_infer_file_type(path)
 

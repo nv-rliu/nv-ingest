@@ -66,7 +66,7 @@ class Task:
         info += f"{self.__class__.__name__}\n"
         return info
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Returns a string with the task specification. This string is used for constructing
         tasks that are then submitted to the redis client

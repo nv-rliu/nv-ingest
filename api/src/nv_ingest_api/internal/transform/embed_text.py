@@ -3,15 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
-from typing import Any, Dict, Tuple, Optional, Iterable, List
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import pandas as pd
-from openai import OpenAI
-
 from nv_ingest_api.internal.enums.common import ContentTypeEnum
 from nv_ingest_api.internal.schemas.transform.transform_text_embedding_schema import TextEmbeddingSchema
+from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +34,7 @@ MULTI_MODAL_MODELS = ["llama-3.2-nemoretriever-1b-vlm-embed-v1"]
 
 
 def _make_async_request(
-    prompts: List[str],
+    prompts: list[str],
     api_key: str,
     embedding_nim_endpoint: str,
     embedding_model: str,
@@ -38,7 +42,7 @@ def _make_async_request(
     input_type: str,
     truncate: str,
     filter_errors: bool,
-    modalities: Optional[List[str]] = None,
+    modalities: list[str] | None = None,
 ) -> list:
     """
     Interacts directly with the NIM embedding service to calculate embeddings for a batch of prompts.
@@ -114,7 +118,7 @@ def _make_async_request(
 
 
 def _async_request_handler(
-    prompts: List[str],
+    prompts: list[str],
     api_key: str,
     embedding_nim_endpoint: str,
     embedding_model: str,
@@ -122,8 +126,8 @@ def _async_request_handler(
     input_type: str,
     truncate: str,
     filter_errors: bool,
-    modalities: Optional[List[str]] = None,
-) -> List[dict]:
+    modalities: list[str] | None = None,
+) -> list[dict]:
     """
     Gathers calculated embedding results from the NIM embedding service concurrently.
 
@@ -176,7 +180,7 @@ def _async_request_handler(
 
 
 def _async_runner(
-    prompts: List[str],
+    prompts: list[str],
     api_key: str,
     embedding_nim_endpoint: str,
     embedding_model: str,
@@ -184,7 +188,7 @@ def _async_runner(
     input_type: str,
     truncate: str,
     filter_errors: bool,
-    modalities: Optional[List[str]] = None,
+    modalities: list[str] | None = None,
 ) -> dict:
     """
     Concurrently launches all NIM embedding requests and flattens the results.
@@ -282,13 +286,13 @@ def _add_embeddings(row, embeddings, info_msgs):
     return row
 
 
-def _format_image_input_string(image_b64: Optional[str]) -> str:
+def _format_image_input_string(image_b64: str | None) -> str:
     if not image_b64:
         return
     return f"data:image/png;base64,{image_b64}"
 
 
-def _format_text_image_pair_input_string(text: Optional[str], image_b64: Optional[str]) -> str:
+def _format_text_image_pair_input_string(text: str | None, image_b64: str | None) -> str:
     if (not text) or (not text.strip()) or (not image_b64):
         return
     return f"{text.strip()} {_format_image_input_string(image_b64)}"
@@ -407,7 +411,7 @@ def _batch_generator(iterable: Iterable, batch_size: int = 10):
         yield iterable[idx : min(idx + batch_size, iter_len)]
 
 
-def _generate_batches(prompts: List[str], batch_size: int = 100) -> List[str]:
+def _generate_batches(prompts: list[str], batch_size: int = 100) -> list[str]:
     """
     Splits a list of prompts into batches.
 
@@ -432,7 +436,7 @@ def _generate_batches(prompts: List[str], batch_size: int = 100) -> List[str]:
 
 
 def _concatenate_extractions_pandas(
-    base_df: pd.DataFrame, dataframes: List[pd.DataFrame], masks: List[pd.Series]
+    base_df: pd.DataFrame, dataframes: list[pd.DataFrame], masks: list[pd.Series]
 ) -> pd.DataFrame:
     """
     Concatenates processed DataFrame rows (with embeddings) with unprocessed rows from the base DataFrame.
@@ -487,10 +491,10 @@ def does_model_support_multimodal_embeddings(model: str) -> bool:
 
 def transform_create_text_embeddings_internal(
     df_transform_ledger: pd.DataFrame,
-    task_config: Dict[str, Any],
+    task_config: dict[str, Any],
     transform_config: TextEmbeddingSchema = TextEmbeddingSchema(),
-    execution_trace_log: Optional[Dict] = None,
-) -> Tuple[pd.DataFrame, Dict]:
+    execution_trace_log: dict | None = None,
+) -> tuple[pd.DataFrame, dict]:
     """
     Generates text embeddings for supported content types (TEXT, STRUCTURED, IMAGE, AUDIO)
     from a pandas DataFrame using asynchronous requests.

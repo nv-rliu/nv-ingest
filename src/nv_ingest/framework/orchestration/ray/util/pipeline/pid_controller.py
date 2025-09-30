@@ -5,8 +5,11 @@
 import logging
 import math
 from dataclasses import dataclass
-
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 from nv_ingest_api.util.system.hardware_info import SystemResourceProbe
 
@@ -25,7 +28,7 @@ class StagePIDProposal:
     proposed_replicas: int  # Initial proposal based on PID / stage rate limit
     # Conservative cost estimate (max(dynamic_avg, static)) used for projections
     conservative_cost_estimate: float
-    metrics: Dict[str, Any]  # Original metrics for context
+    metrics: dict[str, Any]  # Original metrics for context
 
 
 class PIDController:
@@ -79,9 +82,9 @@ class PIDController:
         self.error_boost_factor = error_boost_factor
 
         # Per-Stage State
-        self.integral_error: Dict[str, float] = {}
-        self.prev_error: Dict[str, float] = {}
-        self.idle_cycles: Dict[str, int] = {}
+        self.integral_error: dict[str, float] = {}
+        self.prev_error: dict[str, float] = {}
+        self.idle_cycles: dict[str, int] = {}
 
         # Per-Stage Config
         self.penalty_factor = penalty_factor
@@ -98,7 +101,7 @@ class PIDController:
 
     # --- Public Method ---
 
-    def calculate_initial_proposals(self, stage_metrics: Dict[str, Dict[str, Any]]) -> Dict[str, StagePIDProposal]:
+    def calculate_initial_proposals(self, stage_metrics: dict[str, dict[str, Any]]) -> dict[str, StagePIDProposal]:
         """
         Calculates initial, unconstrained replica proposals for each stage.
 
@@ -120,7 +123,7 @@ class PIDController:
             current/proposed replicas, cost estimates, and original metrics.
         """
         logger.debug("--- PID Controller: Calculating Initial Proposals ---")
-        proposals: Dict[str, StagePIDProposal] = {}
+        proposals: dict[str, StagePIDProposal] = {}
 
         for stage, metrics in stage_metrics.items():
             # Ensure state exists and initialize if necessary
@@ -248,11 +251,11 @@ class ResourceConstraintManager:
         self.effective_memory_limit_mb = self.memory_threshold_mb
 
         core_detector = SystemResourceProbe()  # Instantiate the detector
-        self.available_cores: Optional[float] = core_detector.get_effective_cores()
-        self.core_detection_details: Dict[str, Any] = core_detector.get_details()
+        self.available_cores: float | None = core_detector.get_effective_cores()
+        self.core_detection_details: dict[str, Any] = core_detector.get_details()
 
         # Determine a practical replica limit based on cores (optional, but often useful)
-        self.core_based_replica_limit: Optional[int] = None
+        self.core_based_replica_limit: int | None = None
         if self.available_cores is not None and self.available_cores > 0:
             self.core_based_replica_limit = math.floor(self.available_cores)
         else:
@@ -271,7 +274,7 @@ class ResourceConstraintManager:
     # --- Private Methods ---
 
     @staticmethod
-    def _get_effective_min_replicas(stage_name: str, metrics: Dict[str, Any], pipeline_in_flight: int) -> int:
+    def _get_effective_min_replicas(stage_name: str, metrics: dict[str, Any], pipeline_in_flight: int) -> int:
         """Helper to calculate the effective minimum replicas for a stage."""
         min_replicas_metric = metrics.get("min_replicas", 0)
         # If the pipeline is active globally, enforce a minimum of 1 replica,
@@ -284,11 +287,11 @@ class ResourceConstraintManager:
 
     def _apply_aggressive_memory_scale_down(
         self,
-        current_proposals: Dict[str, int],
-        initial_proposals_meta: Dict[str, "StagePIDProposal"],  # Assuming StagePIDProposal type hint
+        current_proposals: dict[str, int],
+        initial_proposals_meta: dict[str, "StagePIDProposal"],  # Assuming StagePIDProposal type hint
         current_global_memory_usage: int,
         pipeline_in_flight_global: int,
-    ) -> Dict[str, int]:
+    ) -> dict[str, int]:
         """
         If current memory exceeds the effective limit, force scale-downs.
 
@@ -411,12 +414,12 @@ class ResourceConstraintManager:
 
     def _apply_global_constraints_proportional(
         self,
-        proposals_after_aggressive_sd: Dict[str, int],  # Values from PID or after AggressiveMemSD
-        initial_proposals_meta: Dict[str, "StagePIDProposal"],  # Contains original .current_replicas
+        proposals_after_aggressive_sd: dict[str, int],  # Values from PID or after AggressiveMemSD
+        initial_proposals_meta: dict[str, "StagePIDProposal"],  # Contains original .current_replicas
         current_global_memory_usage_mb: int,
-        current_effective_mins: Dict[str, int],  # Effective minimum for each stage
+        current_effective_mins: dict[str, int],  # Effective minimum for each stage
         room_to_scale_up_to_global_caps: bool,
-    ) -> Dict[str, int]:
+    ) -> dict[str, int]:
         """
         Applies global replica, core, and memory limits to scale-up intentions.
         (Docstring from previous correct version summarizing the logic is fine)
@@ -450,7 +453,7 @@ class ResourceConstraintManager:
         # up to the global caps. The baseline sum for headroom is sum_of_effective_mins.
 
         # Stores (stage_name, proposed_increase_above_eff_min, cost_per_replica)
-        upscale_deltas_above_eff_min: List[Tuple[str, int, float]] = []
+        upscale_deltas_above_eff_min: list[tuple[str, int, float]] = []
         total_requested_increase_replicas_above_eff_mins = 0
         total_projected_mem_increase_for_deltas_mb = 0.0
 
@@ -607,7 +610,7 @@ class ResourceConstraintManager:
         return final_proposals_this_step
 
     def _enforce_replica_bounds(
-        self, stage_name: str, tentative_replicas: int, metrics: Dict[str, Any], pipeline_in_flight: int
+        self, stage_name: str, tentative_replicas: int, metrics: dict[str, Any], pipeline_in_flight: int
     ) -> int:
         """Enforces per-stage min/max replica bounds and zero-replica safety logic."""
         max_replicas_metric = metrics.get("max_replicas", 1)
@@ -630,8 +633,8 @@ class ResourceConstraintManager:
 
     @staticmethod
     def _apply_global_consistency(
-        final_adjustments: Dict[str, int], initial_proposals: Dict[str, StagePIDProposal]
-    ) -> Dict:
+        final_adjustments: dict[str, int], initial_proposals: dict[str, StagePIDProposal]
+    ) -> dict:
         """Ensures pipeline doesn't get stuck if one stage scales up from zero."""
         scale_up_from_zero_triggered = any(
             (prop.current_replicas == 0 and final_adjustments.get(name, 0) > 0)
@@ -656,8 +659,8 @@ class ResourceConstraintManager:
 
     def _log_final_constraint_summary(
         self,
-        final_adjustments: Dict[str, int],
-        initial_proposals: Dict[str, "StagePIDProposal"],  # Forward reference
+        final_adjustments: dict[str, int],
+        initial_proposals: dict[str, "StagePIDProposal"],  # Forward reference
         global_in_flight: int,
         current_global_memory_usage_mb: int,
         num_edges: int,
@@ -788,11 +791,11 @@ class ResourceConstraintManager:
 
     def apply_constraints(
         self,
-        initial_proposals: Dict[str, "StagePIDProposal"],
+        initial_proposals: dict[str, "StagePIDProposal"],
         global_in_flight: int,  # Renamed from global_in_flight
         current_global_memory_usage_mb: int,
         num_edges: int,
-    ) -> Dict[str, int]:
+    ) -> dict[str, int]:
         """
         Applies all configured constraints to initial replica proposals.
         (Docstring from previous version is fine)
@@ -812,7 +815,7 @@ class ResourceConstraintManager:
             )
 
         # --- Phase 1: Initialize adjustments from PID proposals ---
-        intermediate_adjustments: Dict[str, int] = {
+        intermediate_adjustments: dict[str, int] = {
             name: prop.proposed_replicas for name, prop in initial_proposals.items()
         }
         logger.debug(f"[ConstraintMgr] Intermediate Adjustments (Phase 1 - From PID): {intermediate_adjustments}")
@@ -831,7 +834,7 @@ class ResourceConstraintManager:
             intermediate_adjustments = {name: prop.current_replicas for name, prop in initial_proposals.items()}
 
         # --- Calculate Current Effective Minimums and Their Sum ---
-        current_effective_mins: Dict[str, int] = {}
+        current_effective_mins: dict[str, int] = {}
         sum_of_effective_mins = 0
         for name, prop in initial_proposals.items():
             eff_min = self._get_effective_min_replicas(name, prop.metrics, global_in_flight)
@@ -882,7 +885,7 @@ class ResourceConstraintManager:
                 tentative_adjustments_from_prop[name] = max(count, current_effective_mins.get(name, 0))
 
         # --- Phase 4: Enforce Per-Stage Min/Max Replica Bounds ---
-        final_adjustments: Dict[str, int] = {}
+        final_adjustments: dict[str, int] = {}
         for stage_name, proposal_meta in initial_proposals.items():
             replicas_after_proportional = tentative_adjustments_from_prop.get(
                 stage_name, proposal_meta.current_replicas

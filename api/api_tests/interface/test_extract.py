@@ -9,21 +9,22 @@ import os
 
 import pandas as pd
 import pytest
+from nv_ingest_api.interface.extract import extract_chart_data_from_image
+from nv_ingest_api.interface.extract import extract_infographic_data_from_image
+from nv_ingest_api.interface.extract import extract_primitives_from_audio
+from nv_ingest_api.interface.extract import extract_primitives_from_docx
+from nv_ingest_api.interface.extract import extract_primitives_from_image
+from nv_ingest_api.interface.extract import extract_primitives_from_pdf
+from nv_ingest_api.interface.extract import extract_primitives_from_pdf_nemoretriever_parse
+from nv_ingest_api.interface.extract import extract_primitives_from_pdf_pdfium
+from nv_ingest_api.interface.extract import extract_primitives_from_pptx
+from nv_ingest_api.interface.extract import extract_table_data_from_image
+from nv_ingest_api.internal.enums.common import ContentTypeEnum
+from nv_ingest_api.internal.enums.common import DocumentTypeEnum
+from nv_ingest_api.internal.enums.common import TableFormatEnum
 
-from .. import get_project_root, find_root_by_pattern
-from nv_ingest_api.interface.extract import (
-    extract_infographic_data_from_image,
-    extract_table_data_from_image,
-    extract_chart_data_from_image,
-    extract_primitives_from_image,
-    extract_primitives_from_docx,
-    extract_primitives_from_pptx,
-    extract_primitives_from_audio,
-    extract_primitives_from_pdf,
-    extract_primitives_from_pdf_pdfium,
-    extract_primitives_from_pdf_nemoretriever_parse,
-)
-from nv_ingest_api.internal.enums.common import ContentTypeEnum, DocumentTypeEnum, TableFormatEnum
+from .. import find_root_by_pattern
+from .. import get_project_root
 
 logger = logging.getLogger(__name__)
 

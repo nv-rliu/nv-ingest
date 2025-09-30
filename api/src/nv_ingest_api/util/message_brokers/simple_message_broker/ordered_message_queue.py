@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import threading
 import heapq
+import threading
 
 
 class OrderedMessageQueue:

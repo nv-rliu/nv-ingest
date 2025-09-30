@@ -1,12 +1,13 @@
+import math
 import os
-import numpy as np
 import subprocess
 import wave
 from pathlib import Path
-import math
-from moviepy.video.VideoClip import ColorClip
+
+import numpy as np
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.compositing.CompositeVideoClip import concatenate_videoclips
+from moviepy.video.VideoClip import ColorClip
 
 
 def create_test_wav(filepath, duration_seconds=6.0, sample_rate=44100, file_size_mb=100):

@@ -2,30 +2,33 @@
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import inspect
 import logging
 import uuid
-import inspect
-from typing import Callable, Optional, Union, Dict, Type, List
+from collections.abc import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Type
+from typing import Union
 
 import ray
+from nv_ingest_api.internal.primitives.tracing.tagging import traceable
+from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
+from nv_ingest_api.util.imports.callable_signatures import ingest_stage_callable_signature
 from pydantic import BaseModel
 
 from nv_ingest.framework.orchestration.ray.stages.meta.ray_actor_stage_base import RayActorStage
-from nv_ingest_api.internal.primitives.tracing.tagging import traceable
-from nv_ingest_api.util.exception_handlers.decorators import nv_ingest_node_failure_try_except
-from nv_ingest_api.util.imports.callable_signatures import (
-    ingest_stage_callable_signature,
-)
 
 logger = logging.getLogger(__name__)
 
 
 def wrap_callable_as_stage(
     fn: Callable[[object, BaseModel], object],
-    schema_type: Type[BaseModel],
+    schema_type: type[BaseModel],
     *,
-    required_tasks: Optional[List[str]] = None,
-    trace_id: Optional[str] = None,
+    required_tasks: list[str] | None = None,
+    trace_id: str | None = None,
 ):
     """
     Factory to wrap a user-supplied function into a Ray actor, returning a proxy
@@ -80,7 +83,7 @@ def wrap_callable_as_stage(
         """
         class_name = f"LambdaStage_{fn.__name__}_{uuid.uuid4().hex[:8]}"
 
-        def __init__(self, config: Union[Dict, BaseModel]) -> None:
+        def __init__(self, config: dict | BaseModel) -> None:
             """
             Parameters
             ----------

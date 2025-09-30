@@ -3,36 +3,41 @@
 # SPDX-License-Identifier: Apache-2.0
 # pylint: skip-file
 
-from io import BytesIO
-from typing import Annotated, Dict, List
 import base64
 import json
 import logging
 import time
 import uuid
+from io import BytesIO
+from typing import Annotated
+from typing import Dict
+from typing import List
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter
 from fastapi import Depends
-from fastapi import File, UploadFile, Form
+from fastapi import File
+from fastapi import Form
 from fastapi import HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import Request
+from fastapi import Response
+from fastapi import UploadFile
 from fastapi.responses import JSONResponse
-
-from nv_ingest.framework.schemas.framework_message_wrapper_schema import MessageWrapper
-from nv_ingest.framework.schemas.framework_processing_job_schema import ProcessingJob, ConversionStatus
-from nv_ingest.framework.util.service.impl.ingest.redis_ingest_service import RedisIngestService
-from nv_ingest.framework.util.service.meta.ingest.ingest_service_meta import IngestServiceMeta
+from fastapi.responses import StreamingResponse
+from nv_ingest_api.util.converters.formats import ingest_json_results_to_blob
 from nv_ingest_api.util.service_clients.client_base import FetchMode
 from nv_ingest_client.primitives.jobs.job_spec import JobSpec
+from nv_ingest_client.primitives.tasks.chart_extraction import ChartExtractionTask
 from nv_ingest_client.primitives.tasks.extract import ExtractTask
+from nv_ingest_client.primitives.tasks.infographic_extraction import InfographicExtractionTask
+from nv_ingest_client.primitives.tasks.table_extraction import TableExtractionTask
 from opentelemetry import trace
 from redis import RedisError
 
-from nv_ingest_api.util.converters.formats import ingest_json_results_to_blob
-
-from nv_ingest_client.primitives.tasks.table_extraction import TableExtractionTask
-from nv_ingest_client.primitives.tasks.chart_extraction import ChartExtractionTask
-from nv_ingest_client.primitives.tasks.infographic_extraction import InfographicExtractionTask
+from nv_ingest.framework.schemas.framework_message_wrapper_schema import MessageWrapper
+from nv_ingest.framework.schemas.framework_processing_job_schema import ConversionStatus
+from nv_ingest.framework.schemas.framework_processing_job_schema import ProcessingJob
+from nv_ingest.framework.util.service.impl.ingest.redis_ingest_service import RedisIngestService
+from nv_ingest.framework.util.service.meta.ingest.ingest_service_meta import IngestServiceMeta
 
 logger = logging.getLogger("uvicorn")
 tracer = trace.get_tracer(__name__)
@@ -294,21 +299,21 @@ async def fetch_job(job_id: str, ingest_service: INGEST_SERVICE_T):
 @router.post("/convert")
 async def convert_pdf(
     ingest_service: INGEST_SERVICE_T,
-    files: List[UploadFile] = File(...),
+    files: list[UploadFile] = File(...),
     job_id: str = Form(...),
     extract_text: bool = Form(True),
     extract_images: bool = Form(True),
     extract_tables: bool = Form(True),
     extract_charts: bool = Form(False),
     extract_infographics: bool = Form(False),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     try:
 
         if job_id is None:
             job_id = str(uuid.uuid4())
             logger.debug(f"JobId is None, Created JobId: {job_id}")
 
-        submitted_jobs: List[ProcessingJob] = []
+        submitted_jobs: list[ProcessingJob] = []
         for file in files:
             file_stream = BytesIO(file.file.read())
             doc_content = base64.b64encode(file_stream.read()).decode("utf-8")
@@ -393,7 +398,7 @@ async def get_status(ingest_service: INGEST_SERVICE_T, job_id: str):
         logger.error(f"Error getting status: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-    updated_cache: List[ProcessingJob] = []
+    updated_cache: list[ProcessingJob] = []
     num_ready_docs = 0
 
     for processing_job in processing_jobs:

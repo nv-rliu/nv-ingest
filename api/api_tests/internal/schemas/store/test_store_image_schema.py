@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from pydantic import ValidationError
-
 from nv_ingest_api.internal.schemas.store.store_image_schema import ImageStorageModuleSchema
+from pydantic import ValidationError
 
 
 def test_image_storage_module_schema_defaults():
